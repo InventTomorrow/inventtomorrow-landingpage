@@ -5,9 +5,9 @@ import { FadeUp } from './FadeUp';
 import { SectionHeading } from './SectionHeading';
 
 const STEPS = [
-  { id: 'call', time: '2:14', title: 'A new customer calls.', detail: "You can't pick up. That's fine." },
-  { id: 'text', time: '2:14', title: 'They get a text back.', detail: 'Within seconds, in your voice.' },
-  { id: 'handled', time: '2:20', title: 'The lead is handled.', detail: 'You never stopped cleaning.' },
+  { id: 'call', time: '2:14', title: 'Your phone rings.', detail: 'You keep working.' },
+  { id: 'text', time: '2:14', title: 'Our system texts the customer back', detail: 'in seconds.' },
+  { id: 'handled', time: '2:20', title: 'The lead is handled', detail: 'without interrupting the clean.' },
 ] as const;
 
 const LAST = STEPS.length - 1;
@@ -74,11 +74,7 @@ export function TimelineSection() {
   return (
     <section id="stay-focused" className="relative z-10 w-full bg-paper px-6 py-24 sm:px-12 sm:py-32">
       <div className="mx-auto max-w-5xl">
-        <SectionHeading
-          eyebrow="A typical afternoon"
-          title="It's 2:14 pm. You're mid-clean."
-          subtitle="Your phone rings. Here's what happens next."
-        />
+        <SectionHeading eyebrow="Stay focused" title="It's 2:14 pm. You're on a job." />
 
         <div ref={timelineRef} className="mt-16 sm:mt-20">
           {/* Desktop: horizontal */}
@@ -176,7 +172,7 @@ export function TimelineSection() {
 
         <FadeUp delay={0.2} y={14} className="mt-16 flex flex-col items-center gap-6 text-center">
           <p className="text-xl sm:text-2xl font-semibold tracking-tight text-ink">
-            No missed lead. <span className="text-muted font-normal">No interrupted clean.</span>
+            You stay focused. <span className="text-muted font-normal">The opportunity keeps moving.</span>
           </p>
           <button
             type="button"

@@ -1,0 +1,58 @@
+import { PageHero } from '../components/PageHero';
+import { Section } from '../components/Section';
+import { SectionHeading } from '../components/SectionHeading';
+import { FadeUp } from '../components/FadeUp';
+import { CtaButton } from '../components/CtaButton';
+import { JourneyCarousel } from '../components/JourneyCarousel';
+import { RevenueSystemSection } from '../components/RevenueSystemSection';
+import { FinalCtaSection } from '../components/FinalCtaSection';
+import { usePageMeta } from '../hooks/usePageMeta';
+import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
+
+export function ServicesPage() {
+  usePageMeta(
+    'Services | Invent Tomorrow',
+    'Follow-up and booking systems for cleaning businesses. Inquiries answered, teams informed and less for you to chase.',
+  );
+
+  return (
+    <>
+      <PageHero
+        eyebrow="Services"
+        title="Less chasing"
+        titleMuted="behind every job"
+        description="From the first inquiry to the next booking, our system takes care of the routine follow-through."
+      >
+        <CtaButton size="lg" to={AUDIT_PATH}>
+          Run My Audit
+        </CtaButton>
+        <CtaButton size="lg" variant="outline-light" to={BOOKING_PATH}>
+          Schedule a Call
+        </CtaButton>
+      </PageHero>
+
+      <Section bg="stone" id="services-system" className="overflow-hidden">
+        <SectionHeading
+          title="From inquiry to repeat business."
+          subtitle="See what your system takes care of, every step of the way."
+        />
+        <FadeUp delay={0.1} y={20} className="mt-14">
+          <JourneyCarousel />
+        </FadeUp>
+        <FadeUp delay={0.15} y={12} className="mt-10 text-center">
+          <p className="text-lg font-semibold tracking-tight text-ink">
+            You approve the messages. <span className="text-muted font-normal">Our system handles the follow-through.</span>
+          </p>
+        </FadeUp>
+      </Section>
+
+      <RevenueSystemSection />
+
+      <FinalCtaSection
+        title="Simplify what happens behind every job"
+        body="See which inquiries, follow-ups, and reminders your system could handle first."
+        smallLine="Start with one process. Build from there."
+      />
+    </>
+  );
+}

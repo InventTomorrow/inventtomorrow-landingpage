@@ -1,47 +1,39 @@
 import { useEffect, useState } from 'react';
+import { Link, NavLink, useLocation } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Menu as MenuIcon } from 'lucide-react';
-import { NAV_ITEMS } from '../utils/navigation';
-import { AuditModal } from './AuditModal';
+import { AUDIT_PATH, NAV_ITEMS } from '../utils/navigation';
 import { CtaButton } from './CtaButton';
 import { setScrollLocked, smoothScrollTo } from '../utils/smoothScroll';
 
-interface NavbarProps {
-  activeSection?: string;
-  onNavigate?: (id: string) => void;
-  onReplayHero?: () => void;
-  onOpenAudit?: () => void;
-}
+// Height of the bar (4.75rem); heroes start their content below it.
+const NAV_BOTTOM = 76;
 
-export function Navbar({ activeSection = 'home', onNavigate, onReplayHero, onOpenAudit }: NavbarProps) {
+export function Navbar() {
+  const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [internalAuditOpen, setInternalAuditOpen] = useState(false);
+  const [overHero, setOverHero] = useState(true);
 
-  // Over the hero the bar is see-through with no border. From the next section on it turns white with a
-  // bottom border. It also turns white while the phone menu is open, so the menu has something behind it.
-  const solid = activeSection !== 'home' || menuOpen;
+  // See-through with white text while it sits over a page's grey hero. Once the hero has scrolled
+  // away (or the page has none) it turns white with a bottom border.
+  useEffect(() => {
+    const update = () => {
+      const hero = document.querySelector('[data-dark-hero]');
+      setOverHero(!!hero && hero.getBoundingClientRect().bottom > NAV_BOTTOM);
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [pathname]);
 
+  useEffect(() => setMenuOpen(false), [pathname]);
   useEffect(() => setScrollLocked(menuOpen), [menuOpen]);
 
-  const handleOpenAudit = () => {
-    if (onOpenAudit) {
-      onOpenAudit();
-    } else {
-      setInternalAuditOpen(true);
-    }
-  };
-
-  const handleNavClick = (id: string, href: string) => {
-    setMenuOpen(false);
-
-    if (onNavigate) {
-      onNavigate(id);
-      return;
-    }
-
-    const target = document.getElementById(href.replace('#', ''));
-    if (target) smoothScrollTo(target);
-  };
+  const solid = !overHero || menuOpen;
 
   return (
     <>
@@ -54,12 +46,12 @@ export function Navbar({ activeSection = 'home', onNavigate, onReplayHero, onOpe
         }`}
       >
         {/* Same width as the hero content, so the logo lines up with the headline. */}
-        <div className="mx-auto grid h-16 max-w-7xl grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
-          <button
-            type="button"
-            onClick={onReplayHero}
-            className="flex items-center gap-2.5 justify-self-start cursor-pointer"
-            title="Back to top"
+        <div className="mx-auto grid h-16 max-w-7xl grid-cols-[1fr_auto] items-center gap-4 xl:grid-cols-[1fr_auto_1fr]">
+          <Link
+            to="/"
+            onClick={() => pathname === '/' && smoothScrollTo(0)}
+            className="flex items-center gap-2.5 justify-self-start"
+            aria-label="Invent Tomorrow home"
           >
             <span className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-xs font-bold text-white">
               IT
@@ -71,42 +63,46 @@ export function Navbar({ activeSection = 'home', onNavigate, onReplayHero, onOpe
             >
               Invent Tomorrow
             </span>
-          </button>
+          </Link>
 
-          <nav aria-label="Primary Navigation" className="hidden h-16 items-stretch gap-1 lg:flex">
-            {NAV_ITEMS.map((item) => {
-              const isActive = activeSection === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => handleNavClick(item.id, item.href)}
-                  aria-current={isActive ? 'true' : undefined}
-                  className={`relative flex items-center whitespace-nowrap px-3.5 text-sm font-medium transition-colors duration-300 cursor-pointer ${
+          <nav aria-label="Primary navigation" className="hidden h-16 items-stretch xl:flex">
+            {NAV_ITEMS.map((item) => (
+              <NavLink
+                key={item.id}
+                to={item.to}
+                end={item.to === '/'}
+                className={({ isActive }) =>
+                  `relative flex items-center whitespace-nowrap px-3 text-sm font-medium transition-colors duration-300 ${
                     solid
                       ? isActive
                         ? 'text-ink'
                         : 'text-ink/60 hover:text-ink'
-                      : 'text-white/80 hover:text-white'
-                  }`}
-                >
-                  {item.label}
-                  {isActive && (
-                    <motion.span
-                      layoutId="nav-underline"
-                      className="absolute inset-x-3.5 bottom-0 h-0.5 bg-accent"
-                      transition={{ type: 'spring', bounce: 0.15, duration: 0.4 }}
-                    />
-                  )}
-                </button>
-              );
-            })}
+                      : isActive
+                        ? 'text-white'
+                        : 'text-white/75 hover:text-white'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {item.label}
+                    {isActive && (
+                      <motion.span
+                        layoutId="nav-underline"
+                        className="absolute inset-x-3 bottom-0 h-0.5 bg-accent"
+                        transition={{ type: 'spring', bounce: 0.15, duration: 0.4 }}
+                      />
+                    )}
+                  </>
+                )}
+              </NavLink>
+            ))}
           </nav>
 
           <div className="flex items-center gap-2 justify-self-end">
-            <CtaButton size="sm" onClick={handleOpenAudit}>
+            <CtaButton size="sm" to={AUDIT_PATH}>
               <span className="sm:hidden">Free audit</span>
-              <span className="hidden sm:inline">Get free audit</span>
+              <span className="hidden sm:inline">Run My Audit</span>
             </CtaButton>
 
             <button
@@ -114,7 +110,7 @@ export function Navbar({ activeSection = 'home', onNavigate, onReplayHero, onOpe
               onClick={() => setMenuOpen(!menuOpen)}
               aria-expanded={menuOpen}
               aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className={`flex h-10 w-10 items-center justify-center rounded-md border transition-colors duration-300 cursor-pointer lg:hidden ${
+              className={`flex h-10 w-10 items-center justify-center rounded-md border transition-colors duration-300 cursor-pointer xl:hidden ${
                 solid ? 'border-ink/15 text-ink hover:bg-ink/5' : 'border-white/30 text-white hover:bg-white/10'
               }`}
             >
@@ -124,14 +120,10 @@ export function Navbar({ activeSection = 'home', onNavigate, onReplayHero, onOpe
         </div>
       </motion.header>
 
-      {!onOpenAudit && (
-        <AuditModal isOpen={internalAuditOpen} onClose={() => setInternalAuditOpen(false)} />
-      )}
-
-      {/* Phone menu: drops down from the bar */}
+      {/* Menu for phones, tablets and small laptops: drops down from the bar */}
       <AnimatePresence>
         {menuOpen && (
-          <div className="fixed inset-x-0 bottom-0 top-[4.75rem] z-40 lg:hidden" data-lenis-prevent>
+          <div className="fixed inset-x-0 bottom-0 top-[4.75rem] z-40 xl:hidden" data-lenis-prevent>
             <motion.button
               type="button"
               aria-label="Close navigation menu"
@@ -142,38 +134,34 @@ export function Navbar({ activeSection = 'home', onNavigate, onReplayHero, onOpe
               className="absolute inset-0 bg-ink/30 cursor-default"
             />
             <motion.nav
-              aria-label="Mobile Navigation"
+              aria-label="Mobile navigation"
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="relative border-b border-ink/10 bg-white px-6 pb-6 shadow-[0_16px_30px_-20px_rgba(15,27,45,0.4)] sm:px-12"
+              className="relative max-h-full overflow-y-auto border-b border-ink/10 bg-white px-6 pb-6 shadow-[0_16px_30px_-20px_rgba(15,27,45,0.4)] sm:px-12"
             >
-              {NAV_ITEMS.map((item) => {
-                const isActive = activeSection === item.id;
-                return (
-                  <button
+              <div className="mx-auto max-w-7xl">
+                {NAV_ITEMS.map((item) => (
+                  <NavLink
                     key={item.id}
-                    type="button"
-                    onClick={() => handleNavClick(item.id, item.href)}
-                    className={`flex w-full items-center border-b border-ink/[0.07] py-4 text-left text-base font-medium transition-colors cursor-pointer ${
-                      isActive ? 'text-accent' : 'text-ink hover:text-[#626262]'
-                    }`}
+                    to={item.to}
+                    end={item.to === '/'}
+                    onClick={() => setMenuOpen(false)}
+                    className={({ isActive }) =>
+                      `flex w-full items-center border-b border-ink/[0.07] py-4 text-left text-base font-medium transition-colors ${
+                        isActive ? 'text-accent' : 'text-ink hover:text-[#626262]'
+                      }`
+                    }
                   >
                     {item.label}
-                  </button>
-                );
-              })}
+                  </NavLink>
+                ))}
 
-              <CtaButton
-                className="mt-5 w-full"
-                onClick={() => {
-                  setMenuOpen(false);
-                  handleOpenAudit();
-                }}
-              >
-                Get my free audit
-              </CtaButton>
+                <CtaButton className="mt-5 w-full" to={AUDIT_PATH} onClick={() => setMenuOpen(false)}>
+                  Run My Audit
+                </CtaButton>
+              </div>
             </motion.nav>
           </div>
         )}

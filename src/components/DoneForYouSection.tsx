@@ -4,9 +4,9 @@ import { FadeUp } from './FadeUp';
 import { SectionHeading } from './SectionHeading';
 
 const YOUR_PART = [
-  { title: 'One kickoff call', text: 'We learn your prices, services and service area.', time: '45 min' },
-  { title: 'Approve your messages', text: "Nothing goes out until you've read it.", time: 'Once' },
-  { title: 'Keep doing great work', text: "That's it. We take it from here.", time: 'Every day' },
+  { title: 'Join one 45-minute kickoff call', text: 'We learn your prices, services and service area.', time: '45 min' },
+  { title: 'Approve your messages once', text: "Nothing goes out until you've read it.", time: 'Once' },
+  { title: 'Deliver great cleaning work', text: "That's it. We take it from here.", time: 'Every day' },
 ];
 
 const OUR_PART: { label: string; icon: LucideIcon }[] = [
@@ -14,15 +14,19 @@ const OUR_PART: { label: string; icon: LucideIcon }[] = [
   { label: 'Write every message in your voice', icon: PenLine },
   { label: 'Text back every missed call', icon: PhoneCall },
   { label: 'Follow up on every quote', icon: Send },
-  { label: 'Ask happy clients for reviews', icon: Star },
+  { label: 'Request a review after every clean', icon: Star },
   { label: 'Rebook past clients', icon: Repeat },
 ];
 
 export function DoneForYouSection() {
   return (
-    <section id="who-we-help" className="relative z-10 w-full border-t border-ink/[0.06] bg-paper px-6 py-24 sm:px-12 sm:py-32">
+    <section id="done-for-you" className="relative z-10 w-full border-t border-ink/[0.06] bg-paper px-6 py-24 sm:px-12 sm:py-32">
       <div className="mx-auto max-w-5xl">
-        <SectionHeading eyebrow="Done for you" title="Your part takes under an hour" subtitle="Here's who does what." />
+        <SectionHeading
+          eyebrow="Done for you"
+          title="You focus on the clean. We handle the follow-up."
+          subtitle="A clear split of responsibilities so nothing gets missed and nothing pulls you away from the job."
+        />
 
         <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
           {/* Your part */}
@@ -33,7 +37,7 @@ export function DoneForYouSection() {
           >
             <div className="flex items-end justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">Your part</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">Your focus</p>
                 <p className="mt-2 text-2xl font-bold tracking-tight text-ink">About 1 hour</p>
               </div>
               <span className="rounded-full bg-stone px-3 py-1 text-xs font-medium text-muted">Total, once</span>
@@ -71,7 +75,7 @@ export function DoneForYouSection() {
             />
             <div className="relative flex items-end justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-light">Our part</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-light">Our system</p>
                 <p className="mt-2 text-2xl font-bold tracking-tight">Everything else</p>
               </div>
               <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1 text-xs font-medium text-white/80">
@@ -102,6 +106,12 @@ export function DoneForYouSection() {
             </ul>
           </FadeUp>
         </div>
+
+        <FadeUp delay={0.15} y={14} className="mt-12 text-center">
+          <p className="text-xl sm:text-2xl font-semibold tracking-tight text-ink">
+            You stay present on the job. <span className="text-accent">Every opportunity keeps moving.</span>
+          </p>
+        </FadeUp>
       </div>
     </section>
   );

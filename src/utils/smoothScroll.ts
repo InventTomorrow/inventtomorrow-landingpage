@@ -26,6 +26,12 @@ export function smoothScrollTo(target: HTMLElement | number) {
   else target.scrollIntoView({ behavior, block: 'start' });
 }
 
+// Instant jump, no easing (used when a new page opens).
+export function jumpTo(top: number) {
+  if (lenis) lenis.scrollTo(top, { immediate: true, force: true });
+  else window.scrollTo(0, top);
+}
+
 // Freeze the page behind an open menu or dialog.
 export function setScrollLocked(locked: boolean) {
   if (!lenis) return;

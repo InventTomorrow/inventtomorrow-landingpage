@@ -4,6 +4,8 @@ import { Search, PenLine, Coffee, ChevronLeft, ChevronRight, type LucideIcon } f
 import { SectionHeading } from './SectionHeading';
 import { FadeUp } from './FadeUp';
 import { CtaButton } from './CtaButton';
+import { TextLink } from './TextLink';
+import { AUDIT_PATH } from '../utils/navigation';
 
 interface Step {
   title: string;
@@ -14,20 +16,20 @@ interface Step {
 
 const STEPS: Step[] = [
   {
-    title: 'We find the leaks',
-    description: 'We contact your business like a customer would and show you where jobs slip away.',
+    title: 'Find the distractions',
+    description: 'We audit the calls, quotes and follow-ups pulling your attention away from the work.',
     note: 'Free · 15-minute call',
     icon: Search,
   },
   {
-    title: 'We build your system',
-    description: 'We write every message in your voice and connect it to the tools you already use.',
+    title: 'Build the system',
+    description: 'We write the messages, connect your tools and set up every follow-up for you.',
     note: 'You approve every message',
     icon: PenLine,
   },
   {
-    title: 'You get back to work',
-    description: 'Calls, quotes and rebooking are handled every day. You just see the results.',
+    title: 'Focus on the clean',
+    description: 'We handle calls, quotes and rebooking while you focus on doing great work.',
     note: 'Runs every day',
     icon: Coffee,
   },
@@ -41,11 +43,7 @@ function slotOf(index: number, active: number) {
   return ((index - active + COUNT + 1) % COUNT) - 1;
 }
 
-interface HowItWorksSectionProps {
-  onOpenAudit?: () => void;
-}
-
-export function HowItWorksSection({ onOpenAudit }: HowItWorksSectionProps) {
+export function HowItWorksSection() {
   const [active, setActive] = useState(0);
   // The card that jumps from one side to the other during the current move (it travels behind the centre).
   const [wrapIndex, setWrapIndex] = useState<number | null>(null);
@@ -108,7 +106,7 @@ export function HowItWorksSection({ onOpenAudit }: HowItWorksSectionProps) {
       className="relative z-10 w-full overflow-hidden border-t border-ink/[0.06] bg-mist px-6 py-24 sm:px-12 sm:py-32"
     >
       <div className="mx-auto max-w-6xl">
-        <SectionHeading eyebrow="How it works" title="Three steps. We do the heavy lifting." />
+        <SectionHeading eyebrow="How it works" title="Three steps. You stay focused." />
 
         <motion.div
           className="mt-12"
@@ -236,8 +234,11 @@ export function HowItWorksSection({ onOpenAudit }: HowItWorksSectionProps) {
           </div>
         </motion.div>
 
-        <FadeUp delay={0.2} y={16} className="mt-12 flex justify-center">
-          <CtaButton onClick={onOpenAudit}>Get my free audit</CtaButton>
+        <FadeUp delay={0.2} y={16} className="mt-12 flex flex-col items-center gap-5">
+          <CtaButton to={AUDIT_PATH}>Run My Audit</CtaButton>
+          <TextLink to="/how-it-works" className="text-sm">
+            See the full process
+          </TextLink>
         </FadeUp>
       </div>
     </section>

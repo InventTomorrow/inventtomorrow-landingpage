@@ -1,46 +1,29 @@
 export interface NavItem {
   id: string;
   label: string;
-  modernLabel: string;
-  href: string;
-  description: string;
+  to: string;
 }
 
-// The logo already takes you back to the top, so "Home" isn't listed.
+// Main pages, in navbar order.
 export const NAV_ITEMS: NavItem[] = [
-  {
-    id: 'the-leaks',
-    label: 'The Problem',
-    modernLabel: 'The Leaks',
-    href: '#the-leaks',
-    description: 'The 3 cracks where cleaning jobs slip',
-  },
-  {
-    id: 'services',
-    label: 'The System',
-    modernLabel: 'The System',
-    href: '#services',
-    description: 'The 7-part Revenue Recovery System',
-  },
-  {
-    id: 'how-it-works',
-    label: 'How It Works',
-    modernLabel: 'How It Works',
-    href: '#how-it-works',
-    description: 'Three simple steps to hands-free follow-up',
-  },
-  {
-    id: 'before-after',
-    label: 'Before & After',
-    modernLabel: 'Before / After',
-    href: '#before-after',
-    description: 'The operational shift for cleaning owners',
-  },
-  {
-    id: 'faq',
-    label: 'FAQ',
-    modernLabel: 'FAQ',
-    href: '#faq',
-    description: 'Fair questions and transparent answers',
-  },
+  { id: 'home', label: 'Home', to: '/' },
+  { id: 'how-it-works', label: 'How It Works', to: '/how-it-works' },
+  { id: 'services', label: 'Services', to: '/services' },
+  { id: 'who-we-help', label: 'Who We Help', to: '/who-we-help' },
+  { id: 'about', label: 'About Us', to: '/about' },
+  { id: 'faq', label: 'FAQ', to: '/faq' },
+  { id: 'blog', label: 'Blog', to: '/blog' },
 ];
+
+export const AUDIT_PATH = '/free-audit';
+export const BOOKING_PATH = '/contact#book-or-message';
+
+// Booking calendar. The audit form sends visitors here with their name and email filled in.
+export const CALENDLY_URL = 'https://calendly.com/abdulhaadi-businesschat/30min';
+
+export function calendlyLink(name?: string, email?: string) {
+  const url = new URL(CALENDLY_URL);
+  if (name) url.searchParams.set('name', name);
+  if (email) url.searchParams.set('email', email);
+  return url.toString();
+}

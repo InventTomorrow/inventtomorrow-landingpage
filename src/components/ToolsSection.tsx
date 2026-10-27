@@ -1,5 +1,7 @@
 import { FadeUp } from './FadeUp';
 import { SectionHeading } from './SectionHeading';
+import { TextLink } from './TextLink';
+import { AUDIT_PATH } from '../utils/navigation';
 import { Calendar, Phone, CreditCard, Star, Database } from 'lucide-react';
 
 const TOOL_CATEGORIES = [
@@ -10,18 +12,14 @@ const TOOL_CATEGORIES = [
   { category: 'CRM and leads', tools: ['HubSpot', 'Google Sheets'], icon: Database },
 ];
 
-interface ToolsSectionProps {
-  onOpenAudit?: () => void;
-}
-
-export function ToolsSection({ onOpenAudit }: ToolsSectionProps) {
+export function ToolsSection() {
   return (
     <section id="tools" className="relative z-10 w-full border-t border-ink/[0.06] bg-stone px-6 py-24 sm:px-12 sm:py-32">
       <div className="mx-auto max-w-6xl">
         <SectionHeading
           eyebrow="Works with your tools"
-          title="No new software to learn"
-          subtitle="We plug into the booking, phone and review tools you already use."
+          title="Built around the tools you already use"
+          subtitle="No new software to learn. We plug into your booking, calling and review tools and run the follow-up on top."
         />
 
         <FadeUp delay={0.15} y={18} className="mx-auto mt-14 max-w-3xl overflow-hidden rounded-2xl border border-ink/[0.08] bg-white">
@@ -47,14 +45,10 @@ export function ToolsSection({ onOpenAudit }: ToolsSectionProps) {
           </ul>
 
           <div className="flex flex-col gap-3 bg-paper px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-muted">Don't see yours? We'll check it during your free audit.</p>
-            <button
-              type="button"
-              onClick={onOpenAudit}
-              className="self-start text-sm font-semibold text-accent underline decoration-accent/30 decoration-2 underline-offset-4 transition-colors hover:text-accent-hover hover:decoration-accent sm:self-auto cursor-pointer"
-            >
+            <p className="text-sm text-muted">Don't see yours? We confirm compatibility in your audit.</p>
+            <TextLink to={AUDIT_PATH} className="self-start text-sm sm:self-auto">
               Check my tools
-            </button>
+            </TextLink>
           </div>
         </FadeUp>
       </div>

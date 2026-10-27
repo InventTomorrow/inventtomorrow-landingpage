@@ -3,11 +3,11 @@ import { PhoneCall, FileText, Moon, Star, Repeat, ArrowRight, Check, type Lucide
 import { SectionHeading } from './SectionHeading';
 
 const ROWS: { icon: LucideIcon; before: string; after: string }[] = [
-  { icon: PhoneCall, before: 'Stop mid-job to answer calls', after: 'Every caller gets a reply while you work' },
-  { icon: FileText, before: 'Chase quotes between jobs', after: 'Every quote gets followed up' },
-  { icon: Moon, before: 'Text customers at 10pm', after: 'Your evenings are yours again' },
-  { icon: Star, before: 'Ask for reviews by hand', after: 'Reviews requested after every clean' },
-  { icon: Repeat, before: 'Try to remember who to rebook', after: 'Regulars get a nudge to book again' },
+  { icon: PhoneCall, before: 'Stop during a job to answer calls', after: 'Keep cleaning while every caller gets a reply' },
+  { icon: FileText, before: 'Chase quotes between jobs', after: 'Every quote gets followed up automatically' },
+  { icon: Moon, before: 'You text customers at 10pm', after: 'Your evenings are yours again' },
+  { icon: Star, before: 'Ask for reviews manually', after: 'Review requests go out after every clean' },
+  { icon: Repeat, before: 'Remember who needs rebooking', after: 'Regulars are prompted to book again' },
 ];
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -38,12 +38,12 @@ export function BeforeAfterSection() {
           <div className={`relative border-b border-ink/[0.07] ${GRID}`}>
             <div className="px-6 pt-7 pb-2 sm:px-8 md:pb-6">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">Before</p>
-              <p className="mt-1 text-lg font-semibold text-ink/60">Your week now</p>
+              <p className="mt-1 text-[0.9375rem] leading-relaxed text-muted">Calls, quotes and follow-ups keep pulling you away from the work.</p>
             </div>
             <div className="hidden md:block" />
             <div className="px-6 pt-2 pb-6 sm:px-8 md:pt-7">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">After</p>
-              <p className="mt-1 text-lg font-semibold text-ink">With Invent Tomorrow</p>
+              <p className="mt-1 text-[0.9375rem] font-medium leading-relaxed text-ink">The system keeps every opportunity moving while you stay focused on the clean.</p>
             </div>
           </div>
 

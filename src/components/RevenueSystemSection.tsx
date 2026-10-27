@@ -16,6 +16,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { SectionHeading } from './SectionHeading';
+import { TextLink } from './TextLink';
+import { AUDIT_PATH } from '../utils/navigation';
 
 interface Scene {
   trigger: string;
@@ -35,7 +37,7 @@ interface Fix {
 const FIXES: Fix[] = [
   {
     title: 'Quote Revival',
-    text: 'Turns quotes from the last 12 months into booked cleans.',
+    text: 'Old quotes become booked cleans.',
     icon: RotateCcw,
     scene: {
       trigger: 'Quote from March · no reply',
@@ -49,7 +51,7 @@ const FIXES: Fix[] = [
   },
   {
     title: 'Missed Call Rescue',
-    text: 'Texts every missed caller back within seconds.',
+    text: 'Every missed call gets a text in seconds.',
     icon: PhoneCall,
     scene: {
       trigger: 'Missed call · 2:14 pm',
@@ -63,10 +65,10 @@ const FIXES: Fix[] = [
   },
   {
     title: '60-Second Response',
-    text: 'Answers every web and Google lead in under a minute.',
+    text: 'Every lead hears back in under a minute.',
     icon: Zap,
     scene: {
-      trigger: 'New website enquiry · 9:41 pm',
+      trigger: 'New website inquiry · 9:41 pm',
       triggerIcon: Globe,
       messages: [
         { from: 'us', text: 'Thanks for reaching out, Mike! How big is your home, and how often would you like a clean?' },
@@ -77,7 +79,7 @@ const FIXES: Fix[] = [
   },
   {
     title: 'Quote Chaser',
-    text: 'Follows up on every estimate, so none go quiet.',
+    text: 'Every estimate gets followed up, automatically.',
     icon: Send,
     scene: {
       trigger: 'Quote sent · 3 days ago',
@@ -91,7 +93,7 @@ const FIXES: Fix[] = [
   },
   {
     title: '5-Star Engine',
-    text: 'Asks for a Google review after every clean.',
+    text: 'A review request after every clean.',
     icon: Star,
     scene: {
       trigger: 'Clean completed · 4:30 pm',
@@ -105,7 +107,7 @@ const FIXES: Fix[] = [
   },
   {
     title: 'Busy Season Ready',
-    text: 'Reaches past clients first before spring cleaning and move-out rushes.',
+    text: 'First to every customer during spring-clean and move-out rushes.',
     icon: CalendarRange,
     scene: {
       trigger: 'Spring rush · 3 weeks out',
@@ -119,7 +121,7 @@ const FIXES: Fix[] = [
   },
   {
     title: 'Recurring Booker',
-    text: 'Turns one-time cleans into weekly and monthly regulars.',
+    text: 'One-time clients become weekly and monthly regulars.',
     icon: Repeat,
     scene: {
       trigger: 'One-time clean · 1 week ago',
@@ -200,10 +202,11 @@ function ScenePreview({ fix }: { fix: Fix }) {
 }
 
 interface RevenueSystemSectionProps {
-  onOpenAudit?: () => void;
+  // Home page: adds a link to the full Services page
+  showMoreLink?: boolean;
 }
 
-export function RevenueSystemSection({ onOpenAudit }: RevenueSystemSectionProps) {
+export function RevenueSystemSection({ showMoreLink = false }: RevenueSystemSectionProps) {
   const [active, setActive] = useState(0);
   const [hovered, setHovered] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -255,8 +258,8 @@ export function RevenueSystemSection({ onOpenAudit }: RevenueSystemSectionProps)
       <div className="mx-auto max-w-6xl">
         <SectionHeading
           eyebrow="The system"
-          title="The Revenue Recovery System"
-          subtitle="Seven automations that close every leak. We build them, write them and run them."
+          title="Meet the Revenue Recovery System"
+          subtitle="Seven fixes that plug every leak. We build them, write them and run them."
         />
 
         <motion.div
@@ -371,14 +374,15 @@ export function RevenueSystemSection({ onOpenAudit }: RevenueSystemSectionProps)
         </motion.div>
 
         <p className="mt-10 text-center text-sm text-muted">
-          Not sure which you need?{' '}
-          <button
-            type="button"
-            onClick={onOpenAudit}
-            className="font-semibold text-accent underline decoration-accent/30 decoration-2 underline-offset-4 transition-colors hover:text-accent-hover hover:decoration-accent cursor-pointer"
-          >
-            Your free audit shows which leak costs you the most
-          </button>
+          Not sure which you need? <TextLink to={AUDIT_PATH}>Your free audit shows which leak costs you the most</TextLink>
+          {showMoreLink && (
+            <>
+              <span className="mx-3 text-ink/20" aria-hidden="true">
+                |
+              </span>
+              <TextLink to="/services">See all services</TextLink>
+            </>
+          )}
         </p>
       </div>
     </section>

@@ -134,6 +134,13 @@ body {
   }
 }
 
+/* Inner pages: the same studio grey as the home video, lit softly from the top right. */
+.page-hero {
+  background:
+    radial-gradient(70rem 42rem at 100% -12%, rgba(224, 224, 224, 0.55) 0%, rgba(190, 190, 190, 0.28) 32%, transparent 70%),
+    linear-gradient(180deg, #646464 0%, #5d5d5d 60%, #565656 100%);
+}
+
 /*
   Hover: a soft grey light follows the cursor across cards, echoing the light in the hero video.
   The position comes from a single pointer listener (src/utils/spotlight.ts). The glow sits behind the
