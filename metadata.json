@@ -1,0 +1,6 @@
+{
+  "name": "AI Automation Systems Hero",
+  "description": "Full-viewport hero section with fixed background video and staggered animated typography.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

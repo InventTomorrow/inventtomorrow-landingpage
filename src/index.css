@@ -1,0 +1,179 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+/*
+  One palette for the whole site.
+  ink    – headings, dark sections (final CTA, footer). The hero uses the video's own grey.
+  paper / stone / mist – the three light section backgrounds, alternated down the page
+  accent – the only brand colour; used for CTAs, icons and the timeline
+*/
+@theme {
+  --color-ink: #0f1b2d;
+  --color-ink-deep: #0a1322;
+  --color-paper: #fafaf7;
+  --color-stone: #f2f0eb;
+  --color-mist: #ebf1f8;
+  --color-muted: #4b5768;
+  --color-accent: #2f63d8;
+  --color-accent-hover: #2552bb;
+  --color-accent-soft: #e3ecfb;
+  --color-accent-light: #9dbbf5;
+}
+
+* {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/*
+  Big screens: the whole site is sized in rem, so growing the root font size grows text, spacing and
+  widths together. The page keeps the proportions of a 1440×900 laptop on any larger screen:
+  16px × the smaller of (width ÷ 1440) and (height ÷ 900), never below the browser's default size.
+  Breakpoints use the browser default, so they don't shift.
+*/
+html {
+  font-size: max(100%, min(1.7778svh, 1.1111vw));
+  color-scheme: light;
+  background-color: var(--color-ink);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--color-paper); }
+::-webkit-scrollbar-thumb { background: #cfd3da; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #b4bac4; }
+
+/*
+  Hero. The video plays in its original colours. Its backdrop is a grey studio gradient (dark on the
+  left, light at the top right), so the section background continues that same grey and the frame
+  has no visible edge.
+*/
+.hero-stage {
+  background: linear-gradient(180deg, #626262 0%, #5d5d5d 50%, #555555 100%);
+}
+
+/* Phones and tablets: the orb sits above the copy, and a round fade blends its edges into the grey. */
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  -webkit-mask-image: radial-gradient(circle closest-side at 50% 50%, #000 78%, transparent 100%);
+  mask-image: radial-gradient(circle closest-side at 50% 50%, #000 78%, transparent 100%);
+}
+
+/*
+  Desktop: the orb sits to the right of the copy, centred in the space below the navbar, with its ring
+  ending exactly where the navbar button ends.
+
+  The video's backdrop is one soft light falling from just above its top-right corner. The section
+  background recreates that light (measured from the footage, within ~2 shades), anchored to wherever
+  the video sits, so the video can be any size and its edges simply fade into the same grey.
+
+  --v   video height: 93% of the space below the navbar, leaving room above and below the orb
+  --ox  orb centre: 40rem = half the 80rem content column, 3rem = side padding, 0.431 = ring radius ÷ video height
+  --oy  orb centre: middle of the space below the navbar
+  Light centre = orb centre + (1.031, -0.94) video heights. Gradient stops are in video heights too.
+*/
+@media (min-width: 64rem) {
+  .hero-stage {
+    --hero-h: clamp(40rem, 100svh, 62.5vw);
+    --nav-h: 4.75rem;
+    --v: calc(0.93 * (var(--hero-h) - var(--nav-h)));
+    --ox: calc(50% + min(40rem, 50% - 3rem) - 0.431 * var(--v));
+    --oy: calc(var(--nav-h) + (var(--hero-h) - var(--nav-h)) / 2);
+    height: var(--hero-h);
+    background: radial-gradient(
+      circle at calc(var(--ox) + 1.031 * var(--v)) calc(var(--oy) - 0.94 * var(--v)),
+      #e0e0e0 0,
+      #dedede calc(0.48 * var(--v)),
+      #dadada calc(0.64 * var(--v)),
+      #cecece calc(0.8 * var(--v)),
+      #c0c0c0 calc(0.96 * var(--v)),
+      #b0b0b0 calc(1.12 * var(--v)),
+      #9d9d9d calc(1.28 * var(--v)),
+      #8c8c8c calc(1.44 * var(--v)),
+      #7c7c7c calc(1.6 * var(--v)),
+      #6f6f6f calc(1.76 * var(--v)),
+      #656565 calc(1.92 * var(--v)),
+      #5f5f5f calc(2 * var(--v)),
+      #5e5e5e calc(2.08 * var(--v)),
+      #595959 calc(2.24 * var(--v)),
+      #545454 calc(2.4 * var(--v)),
+      #4c4c4c calc(2.8 * var(--v)),
+      #454545 calc(3.4 * var(--v))
+    );
+  }
+  .hero-video {
+    inset: auto;
+    left: calc(var(--ox) - 0.8889 * var(--v));
+    top: calc(var(--oy) - 0.5 * var(--v));
+    height: var(--v);
+    width: auto;
+    max-width: none;
+    aspect-ratio: 16 / 9;
+    -webkit-mask-image:
+      linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%),
+      linear-gradient(180deg, transparent 0%, #000 10%, #000 90%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%),
+      linear-gradient(180deg, transparent 0%, #000 10%, #000 90%, transparent 100%);
+    mask-composite: intersect;
+  }
+}
+
+/*
+  Hover: a soft grey light follows the cursor across cards, echoing the light in the hero video.
+  The position comes from a single pointer listener (src/utils/spotlight.ts). The glow sits behind the
+  card's content, so text is never tinted.
+*/
+@layer components {
+.spotlight {
+  position: relative;
+  isolation: isolate;
+}
+.spotlight::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    22rem circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(98, 98, 98, 0.13),
+    rgba(98, 98, 98, 0.04) 45%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.spotlight:hover::before {
+  opacity: 1;
+}
+/* On dark cards the light is white */
+.spotlight-light::before {
+  background: radial-gradient(
+    18rem circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.03) 45%,
+    transparent 70%
+  );
+}
+
+@media (hover: none) {
+  .spotlight::before { display: none; }
+}
+}

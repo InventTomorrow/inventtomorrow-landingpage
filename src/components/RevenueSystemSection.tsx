@@ -1,0 +1,386 @@
+import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, animate, motion, useInView, useMotionValue, useReducedMotion } from 'motion/react';
+import {
+  RotateCcw,
+  PhoneCall,
+  PhoneMissed,
+  Zap,
+  Send,
+  Star,
+  CalendarRange,
+  Repeat,
+  FileText,
+  Globe,
+  CheckCircle2,
+  Sparkles,
+  type LucideIcon,
+} from 'lucide-react';
+import { SectionHeading } from './SectionHeading';
+
+interface Scene {
+  trigger: string;
+  triggerIcon: LucideIcon;
+  messages: { from: 'us' | 'them'; text: string }[];
+  result: string;
+}
+
+interface Fix {
+  title: string;
+  text: string;
+  icon: LucideIcon;
+  scene: Scene;
+}
+
+// Each automation comes with a short example conversation so visitors can see what it actually does.
+const FIXES: Fix[] = [
+  {
+    title: 'Quote Revival',
+    text: 'Turns quotes from the last 12 months into booked cleans.',
+    icon: RotateCcw,
+    scene: {
+      trigger: 'Quote from March · no reply',
+      triggerIcon: FileText,
+      messages: [
+        { from: 'us', text: 'Hi Sarah, it’s Bright Home Cleaning. You asked about a deep clean in March. We have openings next week. Still interested?' },
+        { from: 'them', text: 'Yes! Do you have Thursday?' },
+      ],
+      result: 'Booked · Deep clean, Thursday',
+    },
+  },
+  {
+    title: 'Missed Call Rescue',
+    text: 'Texts every missed caller back within seconds.',
+    icon: PhoneCall,
+    scene: {
+      trigger: 'Missed call · 2:14 pm',
+      triggerIcon: PhoneMissed,
+      messages: [
+        { from: 'us', text: 'Sorry we missed you! This is Bright Home Cleaning. What can we help with?' },
+        { from: 'them', text: 'Looking for a move-out clean on the 28th.' },
+      ],
+      result: 'Replied in 5 seconds',
+    },
+  },
+  {
+    title: '60-Second Response',
+    text: 'Answers every web and Google lead in under a minute.',
+    icon: Zap,
+    scene: {
+      trigger: 'New website enquiry · 9:41 pm',
+      triggerIcon: Globe,
+      messages: [
+        { from: 'us', text: 'Thanks for reaching out, Mike! How big is your home, and how often would you like a clean?' },
+        { from: 'them', text: '3 bedrooms, every two weeks.' },
+      ],
+      result: 'Answered in 42 seconds',
+    },
+  },
+  {
+    title: 'Quote Chaser',
+    text: 'Follows up on every estimate, so none go quiet.',
+    icon: Send,
+    scene: {
+      trigger: 'Quote sent · 3 days ago',
+      triggerIcon: FileText,
+      messages: [
+        { from: 'us', text: 'Hi Jen, just checking in on your quote. Any questions I can answer?' },
+        { from: 'them', text: 'Sorry, been busy. Let’s book it!' },
+      ],
+      result: 'Quote accepted',
+    },
+  },
+  {
+    title: '5-Star Engine',
+    text: 'Asks for a Google review after every clean.',
+    icon: Star,
+    scene: {
+      trigger: 'Clean completed · 4:30 pm',
+      triggerIcon: CheckCircle2,
+      messages: [
+        { from: 'us', text: 'Thanks for having us today, Priya! If you’re happy with the clean, would you leave us a quick review?' },
+        { from: 'them', text: '★★★★★ “Spotless as always!”' },
+      ],
+      result: 'New 5-star review',
+    },
+  },
+  {
+    title: 'Busy Season Ready',
+    text: 'Reaches past clients first before spring cleaning and move-out rushes.',
+    icon: CalendarRange,
+    scene: {
+      trigger: 'Spring rush · 3 weeks out',
+      triggerIcon: CalendarRange,
+      messages: [
+        { from: 'us', text: 'Spring cleaning season is almost here. Past clients get first pick of dates. Want me to save you a spot?' },
+        { from: 'them', text: 'Please! Same as last year?' },
+      ],
+      result: 'Booked before the rush',
+    },
+  },
+  {
+    title: 'Recurring Booker',
+    text: 'Turns one-time cleans into weekly and monthly regulars.',
+    icon: Repeat,
+    scene: {
+      trigger: 'One-time clean · 1 week ago',
+      triggerIcon: Sparkles,
+      messages: [
+        { from: 'us', text: 'Hope the house still feels fresh, Tom! Want us to come back every two weeks so it stays that way?' },
+        { from: 'them', text: 'Every two weeks sounds great.' },
+      ],
+      result: 'New regular · Every 2 weeks',
+    },
+  },
+];
+
+// Each example plays in about a second, holds briefly, then moves on.
+const SLIDE_SECONDS = 4;
+const MESSAGE_GAP = 0.4;
+const snappy = { duration: 0.25, ease: [0.22, 1, 0.36, 1] as const };
+
+function ScenePreview({ fix }: { fix: Fix }) {
+  const { scene } = fix;
+  const TriggerIcon = scene.triggerIcon;
+  return (
+    <div className="mx-auto w-full max-w-sm">
+      <div className="overflow-hidden rounded-[1.75rem] border border-ink/[0.08] bg-white shadow-[0_30px_60px_-30px_rgba(15,27,45,0.45)]">
+        <div className="flex items-center gap-3 border-b border-ink/[0.07] px-5 py-4">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink text-xs font-semibold text-white">BH</span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-ink">Bright Home Cleaning</p>
+            <p className="text-xs text-muted">Example conversation</p>
+          </div>
+          <span className="rounded-full bg-accent-soft px-2.5 py-1 text-[0.6875rem] font-semibold text-accent">Automated</span>
+        </div>
+
+        <div className="space-y-3 bg-paper/60 px-5 py-5">
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={snappy}
+            className="mx-auto flex w-fit items-center gap-1.5 rounded-full bg-ink/[0.06] px-3 py-1 text-[0.6875rem] font-medium text-muted"
+          >
+            <TriggerIcon className="h-3.5 w-3.5" />
+            {scene.trigger}
+          </motion.div>
+
+          {scene.messages.map((message, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 10, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ ...snappy, delay: 0.15 + i * MESSAGE_GAP }}
+              className={`flex ${message.from === 'us' ? 'justify-end' : 'justify-start'}`}
+            >
+              <p
+                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-snug ${
+                  message.from === 'us'
+                    ? 'rounded-br-md bg-accent text-white'
+                    : 'rounded-bl-md border border-ink/[0.07] bg-white text-ink'
+                }`}
+              >
+                {message.text}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...snappy, delay: 0.15 + scene.messages.length * MESSAGE_GAP }}
+        className="mx-auto mt-5 flex w-fit items-center gap-2 rounded-full border border-accent/20 bg-white px-4 py-2 text-sm font-semibold text-ink shadow-sm"
+      >
+        <CheckCircle2 className="h-4 w-4 text-accent" />
+        {scene.result}
+      </motion.div>
+    </div>
+  );
+}
+
+interface RevenueSystemSectionProps {
+  onOpenAudit?: () => void;
+}
+
+export function RevenueSystemSection({ onOpenAudit }: RevenueSystemSectionProps) {
+  const [active, setActive] = useState(0);
+  const [hovered, setHovered] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(rootRef, { amount: 0.35 });
+  const reduceMotion = useReducedMotion();
+  const progress = useMotionValue(0);
+  const controlsRef = useRef<ReturnType<typeof animate> | null>(null);
+  // Nothing plays until the section is on screen, so the first example animates in front of the visitor.
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    if (inView) setStarted(true);
+  }, [inView]);
+
+  // Auto-advance: fill the progress bar, then move to the next automation.
+  useEffect(() => {
+    progress.set(0);
+    if (reduceMotion || !started) return;
+    const controls = animate(progress, 1, {
+      duration: SLIDE_SECONDS,
+      ease: 'linear',
+      onComplete: () => setActive((a) => (a + 1) % FIXES.length),
+    });
+    controlsRef.current = controls;
+    return () => controls.stop();
+  }, [active, reduceMotion, progress, started]);
+
+  // Pause while the visitor is reading (hovering) or the section is off screen.
+  useEffect(() => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+    if (hovered || !inView) controls.pause();
+    else controls.play();
+  }, [hovered, inView, active, started]);
+
+  // On phones the tabs are a horizontal strip; keep the active one in view without moving the page.
+  useEffect(() => {
+    const strip = tabsRef.current;
+    const tab = strip?.children[active] as HTMLElement | undefined;
+    if (!strip || !tab || strip.scrollWidth <= strip.clientWidth) return;
+    strip.scrollTo({ left: tab.offsetLeft - 24, behavior: 'smooth' });
+  }, [active]);
+
+  const current = FIXES[active];
+
+  return (
+    <section id="services" className="relative z-10 w-full border-t border-ink/[0.06] bg-paper px-6 py-24 sm:px-12 sm:py-32">
+      <div className="mx-auto max-w-6xl">
+        <SectionHeading
+          eyebrow="The system"
+          title="The Revenue Recovery System"
+          subtitle="Seven automations that close every leak. We build them, write them and run them."
+        />
+
+        <motion.div
+          ref={rootRef}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ amount: 0.15 }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-14 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-10"
+        >
+          {/* Phone: horizontal tab strip */}
+          <div
+            ref={tabsRef}
+            role="tablist"
+            aria-label="Automations"
+            className="-mx-6 flex gap-2 overflow-x-auto px-6 pb-1 [scrollbar-width:none] lg:hidden"
+          >
+            {FIXES.map((fix, i) => (
+              <button
+                key={fix.title}
+                type="button"
+                role="tab"
+                aria-selected={active === i}
+                onClick={() => setActive(i)}
+                className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition-colors cursor-pointer ${
+                  active === i ? 'border-ink bg-ink text-white' : 'border-ink/15 bg-white text-ink/70'
+                }`}
+              >
+                {fix.title}
+              </button>
+            ))}
+          </div>
+
+          {/* Desktop: vertical list */}
+          <div role="tablist" aria-label="Automations" className="hidden flex-col gap-1.5 lg:flex">
+            {FIXES.map((fix, i) => {
+              const Icon = fix.icon;
+              const isActive = active === i;
+              return (
+                <button
+                  key={fix.title}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setActive(i)}
+                  className={`spotlight relative overflow-hidden rounded-2xl border px-5 py-4 text-left transition-colors duration-300 cursor-pointer ${
+                    isActive
+                      ? 'border-ink/10 bg-white shadow-[0_12px_30px_-18px_rgba(15,27,45,0.35)]'
+                      : 'border-transparent hover:border-[#626262]/15 hover:bg-[#626262]/[0.05]'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <span
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors duration-300 ${
+                        isActive ? 'bg-accent text-white' : 'bg-accent-soft text-accent'
+                      }`}
+                    >
+                      <Icon className="h-[1.125rem] w-[1.125rem]" />
+                    </span>
+                    <span className={`font-semibold transition-colors ${isActive ? 'text-ink' : 'text-ink/70'}`}>{fix.title}</span>
+                  </div>
+                  <AnimatePresence initial={false}>
+                    {isActive && (
+                      <motion.p
+                        key="text"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={snappy}
+                        className="overflow-hidden pl-[3.25rem] text-sm leading-relaxed text-muted"
+                      >
+                        <span className="block pt-1.5">{fix.text}</span>
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                  {isActive && (
+                    <span className="absolute inset-x-5 bottom-0 h-0.5 overflow-hidden rounded-full bg-ink/[0.06]">
+                      <motion.span className="block h-full origin-left bg-accent" style={{ scaleX: progress }} />
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Example conversation for the selected automation */}
+          <div className="relative flex min-h-[32.5rem] flex-col justify-center overflow-hidden rounded-[2rem] bg-[radial-gradient(120%_90%_at_50%_0%,#dfe9fb_0%,#ebf1f8_45%,#f2f0eb_100%)] px-5 py-10 sm:px-10">
+            <div className="mb-6 text-center lg:hidden">
+              <p className="font-semibold text-ink">{current.title}</p>
+              <p className="mt-1 text-sm text-muted">{current.text}</p>
+              <span className="mx-auto mt-4 block h-0.5 w-24 overflow-hidden rounded-full bg-ink/10">
+                <motion.span className="block h-full origin-left bg-accent" style={{ scaleX: progress }} />
+              </span>
+            </div>
+
+            <AnimatePresence mode="wait">
+              {started && (
+                <motion.div
+                  key={active}
+                  initial={{ opacity: 0, x: 16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -16, transition: { duration: 0.15 } }}
+                  transition={snappy}
+                >
+                  <ScenePreview fix={current} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
+
+        <p className="mt-10 text-center text-sm text-muted">
+          Not sure which you need?{' '}
+          <button
+            type="button"
+            onClick={onOpenAudit}
+            className="font-semibold text-accent underline decoration-accent/30 decoration-2 underline-offset-4 transition-colors hover:text-accent-hover hover:decoration-accent cursor-pointer"
+          >
+            Your free audit shows which leak costs you the most
+          </button>
+        </p>
+      </div>
+    </section>
+  );
+}
