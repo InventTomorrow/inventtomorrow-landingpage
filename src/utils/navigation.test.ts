@@ -4,7 +4,7 @@ import { NAV_ITEMS, calendlyLink, CALENDLY_URL } from './navigation';
 
 test('NAV_ITEMS lists the main pages in navbar order', () => {
   const ids = NAV_ITEMS.map((item) => item.id);
-  assert.deepEqual(ids, ['home', 'how-it-works', 'services', 'who-we-help', 'about', 'faq', 'blog']);
+  assert.deepEqual(ids, ['home', 'how-it-works', 'services', 'who-we-help', 'about', 'blog']);
 });
 
 test('every nav item links to its own page', () => {

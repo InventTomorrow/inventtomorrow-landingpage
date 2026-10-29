@@ -1,25 +1,27 @@
+import { MotionConfig } from 'motion/react';
 import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
-import { MotionConfig } from 'motion/react';
-import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
+import { TopBar } from './components/TopBar';
+import { Navbar } from './components/Navbar';
 import { ScrollManager } from './components/ScrollManager';
-import { startSmoothScroll } from './utils/smoothScroll';
-import { startSpotlight } from './utils/spotlight';
-import { HomePage } from './pages/HomePage';
-import { HowItWorksPage } from './pages/HowItWorksPage';
-import { ServicesPage } from './pages/ServicesPage';
-import { WhoWeHelpPage } from './pages/WhoWeHelpPage';
+import { ScrollToTop } from './components/ScrollToTop';
+import { LEGAL_DOCS } from './content/legal';
 import { AboutPage } from './pages/AboutPage';
-import { FaqPage } from './pages/FaqPage';
-import { ResultsPage } from './pages/ResultsPage';
-import { FreeAuditPage } from './pages/FreeAuditPage';
-import { ContactPage } from './pages/ContactPage';
 import { BlogPage } from './pages/BlogPage';
 import { BlogPostPage } from './pages/BlogPostPage';
+import { ContactPage } from './pages/ContactPage';
+import { FaqPage } from './pages/FaqPage';
+import { FreeAuditPage } from './pages/FreeAuditPage';
+import { HomePage } from './pages/HomePage';
+import { HowItWorksPage } from './pages/HowItWorksPage';
 import { LegalPage } from './pages/LegalPage';
 import { NotFoundPage } from './pages/NotFoundPage';
-import { LEGAL_DOCS } from './content/legal';
+import { ResultsPage } from './pages/ResultsPage';
+import { ServicesPage } from './pages/ServicesPage';
+import { WhoWeHelpPage } from './pages/WhoWeHelpPage';
+import { startSmoothScroll } from './utils/smoothScroll';
+import { startSpotlight } from './utils/spotlight';
 
 export default function App() {
   useEffect(() => startSmoothScroll(), []);
@@ -28,7 +30,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <MotionConfig reducedMotion="user">
-        <div className="relative min-h-screen w-full overflow-x-hidden bg-paper font-sans text-ink select-none">
+        <div className="relative min-h-screen w-full overflow-x-clip bg-paper font-sans text-ink select-none">
+          <TopBar />
           <Navbar />
           <ScrollManager />
           <main>
@@ -54,6 +57,7 @@ export default function App() {
             </Routes>
           </main>
           <Footer />
+          <ScrollToTop />
         </div>
       </MotionConfig>
     </BrowserRouter>

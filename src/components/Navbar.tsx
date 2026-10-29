@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Menu as MenuIcon } from 'lucide-react';
@@ -13,6 +13,8 @@ export function Navbar() {
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [overHero, setOverHero] = useState(true);
+  const [menuTop, setMenuTop] = useState(0);
+  const headerRef = useRef<HTMLElement>(null);
 
   // See-through with white text while it sits over a page's grey hero. Once the hero has scrolled
   // away (or the page has none) it turns white with a bottom border.
@@ -35,13 +37,20 @@ export function Navbar() {
 
   const solid = !overHero || menuOpen;
 
+  // The menu opens right under the bar, wherever the bar currently is (the top header may still be showing).
+  const toggleMenu = () => {
+    if (!menuOpen && headerRef.current) setMenuTop(headerRef.current.getBoundingClientRect().bottom);
+    setMenuOpen(!menuOpen);
+  };
+
   return (
     <>
       <motion.header
+        ref={headerRef}
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className={`fixed inset-x-0 top-0 z-50 border-b px-6 pt-3 transition-[background-color,border-color] duration-300 select-none sm:px-12 ${
+        className={`sticky top-0 z-50 -mb-[4.75rem] border-b px-6 pt-3 transition-[background-color,border-color] duration-300 select-none sm:px-12 ${
           solid ? 'border-ink/10 bg-white/95 backdrop-blur-md' : 'border-transparent bg-transparent'
         }`}
       >
@@ -53,11 +62,11 @@ export function Navbar() {
             className="flex items-center gap-2.5 justify-self-start"
             aria-label="Invent Tomorrow home"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-xs font-bold text-white">
+            <span className="flex h-10 w-10 items-center justify-center rounded-drop bg-primary text-sm font-bold text-on-primary">
               IT
             </span>
             <span
-              className={`whitespace-nowrap text-[0.9375rem] font-semibold tracking-tight transition-colors duration-300 ${
+              className={`whitespace-nowrap text-xl font-bold tracking-tight transition-colors duration-300 ${
                 solid ? 'text-ink' : 'text-white'
               }`}
             >
@@ -65,14 +74,14 @@ export function Navbar() {
             </span>
           </Link>
 
-          <nav aria-label="Primary navigation" className="hidden h-16 items-stretch xl:flex">
+          <nav aria-label="Primary navigation" className="hidden h-16 items-center xl:flex">
             {NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.id}
                 to={item.to}
                 end={item.to === '/'}
                 className={({ isActive }) =>
-                  `relative flex items-center whitespace-nowrap px-3 text-sm font-medium transition-colors duration-300 ${
+                  `relative flex items-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-colors duration-300 ${
                     solid
                       ? isActive
                         ? 'text-ink'
@@ -107,10 +116,10 @@ export function Navbar() {
 
             <button
               type="button"
-              onClick={() => setMenuOpen(!menuOpen)}
+              onClick={toggleMenu}
               aria-expanded={menuOpen}
               aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className={`flex h-10 w-10 items-center justify-center rounded-md border transition-colors duration-300 cursor-pointer xl:hidden ${
+              className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors duration-300 cursor-pointer xl:hidden ${
                 solid ? 'border-ink/15 text-ink hover:bg-ink/5' : 'border-white/30 text-white hover:bg-white/10'
               }`}
             >
@@ -123,7 +132,7 @@ export function Navbar() {
       {/* Menu for phones, tablets and small laptops: drops down from the bar */}
       <AnimatePresence>
         {menuOpen && (
-          <div className="fixed inset-x-0 bottom-0 top-[4.75rem] z-40 xl:hidden" data-lenis-prevent>
+          <div className="fixed inset-x-0 bottom-0 z-40 xl:hidden" style={{ top: menuTop }} data-lenis-prevent>
             <motion.button
               type="button"
               aria-label="Close navigation menu"
@@ -131,7 +140,7 @@ export function Navbar() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-ink/30 cursor-default"
+              className="absolute inset-0 bg-navy/30 cursor-default"
             />
             <motion.nav
               aria-label="Mobile navigation"
@@ -139,7 +148,7 @@ export function Navbar() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="relative max-h-full overflow-y-auto border-b border-ink/10 bg-white px-6 pb-6 shadow-[0_16px_30px_-20px_rgba(15,27,45,0.4)] sm:px-12"
+              className="relative max-h-full overflow-y-auto border-b border-ink/10 bg-white px-6 pb-6 shadow-menu sm:px-12"
             >
               <div className="mx-auto max-w-7xl">
                 {NAV_ITEMS.map((item) => (
@@ -150,7 +159,7 @@ export function Navbar() {
                     onClick={() => setMenuOpen(false)}
                     className={({ isActive }) =>
                       `flex w-full items-center border-b border-ink/[0.07] py-4 text-left text-base font-medium transition-colors ${
-                        isActive ? 'text-accent' : 'text-ink hover:text-[#626262]'
+                        isActive ? 'text-accent' : 'text-ink hover:text-ink'
                       }`
                     }
                   >
