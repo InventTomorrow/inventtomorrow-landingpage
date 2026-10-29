@@ -1,8 +1,8 @@
-import { RefObject } from 'react';
+import { Award, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { motion } from 'motion/react';
-import { ShieldCheck, CheckCircle2, Award } from 'lucide-react';
-import { CtaButton } from './CtaButton';
+import { RefObject } from 'react';
 import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
+import { CtaButton } from './CtaButton';
 
 interface HeroSectionProps {
   animationKey: number;
@@ -66,14 +66,14 @@ export function HeroSection({ animationKey, videoRef, videoSrc }: HeroSectionPro
             </span>
           </motion.h1>
 
-          <motion.p
+          {/* <motion.p
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.22, ease }}
             className="mt-6 text-lg leading-relaxed text-white/80 text-balance"
           >
             Spend less time following up and more time getting jobs done.
-          </motion.p>
+          </motion.p> */}
 
           <motion.div
             initial={{ opacity: 0, y: 16 }}

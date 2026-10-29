@@ -1,7 +1,7 @@
-import { PageHero } from '../components/PageHero';
-import { Section } from '../components/Section';
-import { PostCard } from '../components/PostCard';
 import { DefaultClosingCta } from '../components/FinalCtaSection';
+import { PageHero } from '../components/PageHero';
+import { PostCard } from '../components/PostCard';
+import { Section } from '../components/Section';
 import { POSTS } from '../content/blog';
 import { usePageMeta } from '../hooks/usePageMeta';
 
