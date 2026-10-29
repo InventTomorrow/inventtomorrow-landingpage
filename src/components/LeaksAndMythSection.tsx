@@ -22,7 +22,7 @@ const LEAKS = [
 
 export function LeaksAndMythSection() {
   return (
-    <section id="the-leaks" className="relative z-10 w-full border-t border-ink/[0.06] bg-stone px-6 py-24 sm:px-12 sm:py-32">
+    <section id="the-leaks" className="relative z-10 w-full border-t border-ink/[0.06] bg-fade-stone section-y section-deco px-6 sm:px-12">
       <div className="mx-auto max-w-5xl">
         <SectionHeading eyebrow="The leaks" title="Jobs slip through the same three cracks every week" />
 
@@ -34,10 +34,10 @@ export function LeaksAndMythSection() {
                 key={leak.title}
                 delay={0.1 + i * 0.08}
                 y={18}
-                className="spotlight flex flex-col rounded-2xl border border-ink/[0.08] bg-white p-7 transition-[border-color,box-shadow] duration-300 hover:border-[#626262]/25 hover:shadow-[0_10px_30px_-18px_rgba(60,60,60,0.35)]"
+                className="spotlight flex flex-col rounded-2xl border border-ink/[0.08] bg-white p-7 transition-[border-color,box-shadow] duration-300 hover:border-ink/25 hover:shadow-hover-lift"
               >
                 <div className="flex items-center justify-between">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-drop bg-accent-soft text-accent">
                     <Icon className="h-[1.125rem] w-[1.125rem]" />
                   </span>
                   <span className="text-4xl font-bold leading-none tracking-tight text-ink/[0.12] tabular-nums">

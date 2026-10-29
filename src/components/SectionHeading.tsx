@@ -11,6 +11,9 @@ interface SectionHeadingProps {
 export function SectionHeading({ eyebrow, title, subtitle, className = '' }: SectionHeadingProps) {
   return (
     <div className={`flex flex-col items-center text-center ${className}`}>
+      <FadeUp delay={0} y={8} className="mb-5">
+        <span className="droplet-mark" aria-hidden="true" />
+      </FadeUp>
       {eyebrow && (
         <FadeUp delay={0.05} y={12} className="mb-4">
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">{eyebrow}</span>

@@ -14,14 +14,16 @@ interface PageHeroProps {
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
-// The grey hero at the top of every inner page. Same studio grey as the home video, with a soft light
-// from the top right and two faint rings echoing the orb. The navbar stays see-through over it.
+// The navy hero at the top of every inner page, with a soft blue glow and brand drops.
+// The navbar stays see-through over it.
 export function PageHero({ eyebrow, title, titleMuted, description, children, meta, size = 'default' }: PageHeroProps) {
   return (
     <section data-dark-hero className="page-hero relative z-10 w-full overflow-hidden px-6 pt-[4.75rem] sm:px-12">
+      <div className="graphic-grid pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
       <div className="pointer-events-none absolute inset-0 hidden md:block" aria-hidden="true">
-        <span className="absolute -right-[12rem] -top-[14rem] h-[44rem] w-[44rem] rounded-full border border-white/[0.09]" />
-        <span className="absolute -right-[9rem] -top-[11rem] h-[38rem] w-[38rem] rounded-full border border-white/[0.06]" />
+        <span className="graphic-drop-outline absolute -right-[10rem] -top-[12rem] h-[40rem] w-[40rem]" />
+        <span className="graphic-drop absolute -bottom-24 -left-16 h-64 w-64" />
+        <span className="absolute right-[12%] bottom-[18%] h-6 w-6 rounded-drop bg-sky" />
       </div>
 
       <div

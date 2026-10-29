@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
 import { motion, useInView, useReducedMotion } from 'motion/react';
-import { RotateCcw } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { FadeUp } from './FadeUp';
 import { SectionHeading } from './SectionHeading';
 
@@ -72,7 +71,7 @@ export function TimelineSection() {
   const playing = inView && active < LAST;
 
   return (
-    <section id="stay-focused" className="relative z-10 w-full bg-paper px-6 py-24 sm:px-12 sm:py-32">
+    <section id="stay-focused" className="relative z-10 w-full bg-fade-paper section-y section-deco px-6 sm:px-12">
       <div className="mx-auto max-w-5xl">
         <SectionHeading eyebrow="Stay focused" title="It's 2:14 pm. You're on a job." />
 
@@ -174,7 +173,7 @@ export function TimelineSection() {
           <p className="text-xl sm:text-2xl font-semibold tracking-tight text-ink">
             You stay focused. <span className="text-muted font-normal">The opportunity keeps moving.</span>
           </p>
-          <button
+          {/* <button
             type="button"
             onClick={() => setRun((r) => r + 1)}
             disabled={!inView || playing}
@@ -182,7 +181,7 @@ export function TimelineSection() {
           >
             <RotateCcw className="h-3.5 w-3.5" />
             Replay
-          </button>
+          </button> */}
         </FadeUp>
       </div>
     </section>

@@ -76,9 +76,9 @@ export function AboutPage() {
                 key={item.title}
                 delay={0.08 + i * 0.07}
                 y={18}
-                className="spotlight rounded-2xl border border-ink/[0.08] bg-white p-7 transition-colors duration-300 hover:border-[#626262]/25"
+                className="spotlight rounded-2xl border border-ink/[0.08] bg-white p-7 transition-colors duration-300 hover:border-ink/25"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft text-accent">
+                <span className="flex h-11 w-11 items-center justify-center rounded-drop bg-accent-soft text-accent">
                   <Icon className="h-5 w-5" />
                 </span>
                 <h3 className="mt-5 text-lg font-semibold text-ink">{item.title}</h3>
@@ -102,10 +102,10 @@ export function AboutPage() {
                 key={item.title}
                 delay={0.08 + i * 0.07}
                 y={18}
-                className="spotlight flex min-h-[17rem] flex-col rounded-3xl border border-ink/[0.08] bg-white p-8 transition-colors duration-300 hover:border-[#626262]/25"
+                className="spotlight flex min-h-[17rem] flex-col rounded-3xl border border-ink/[0.08] bg-white p-8 transition-colors duration-300 hover:border-ink/25"
               >
                 <div className="flex items-start justify-between">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft text-accent">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-drop bg-accent-soft text-accent">
                     <Icon className="h-5 w-5" />
                   </span>
                   <span className="text-4xl font-bold leading-none tracking-tight text-ink/[0.1] tabular-nums">0{i + 1}</span>
@@ -133,9 +133,9 @@ export function AboutPage() {
           <FadeUp
             delay={0.1}
             y={18}
-            className="spotlight rounded-3xl border border-ink/[0.08] bg-white p-8 shadow-[0_24px_50px_-34px_rgba(15,27,45,0.35)] sm:p-10"
+            className="spotlight rounded-3xl border border-ink/[0.08] bg-white p-8 shadow-card sm:p-10"
           >
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-ink text-white">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-navy text-white">
               <Users className="h-5 w-5" />
             </span>
             <p className="mt-6 text-xl font-semibold leading-snug tracking-tight text-ink">

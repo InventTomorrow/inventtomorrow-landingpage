@@ -18,7 +18,7 @@ const GRID = 'grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_3.5rem_minmax(0,1fr)]
 
 export function BeforeAfterSection() {
   return (
-    <section id="before-after" className="relative z-10 w-full border-t border-ink/[0.06] bg-stone px-6 py-24 sm:px-12 sm:py-32">
+    <section id="before-after" className="relative z-10 w-full border-t border-ink/[0.06] bg-fade-stone section-y section-deco px-6 sm:px-12">
       <div className="mx-auto max-w-5xl">
         <SectionHeading eyebrow="Before and after" title="What changes in your week" />
 
@@ -26,11 +26,11 @@ export function BeforeAfterSection() {
           initial="hidden"
           whileInView="shown"
           viewport={{ amount: 0.35 }}
-          className="relative mt-14 overflow-hidden rounded-[1.75rem] border border-ink/[0.08] bg-white shadow-[0_30px_70px_-40px_rgba(15,27,45,0.45)]"
+          className="relative mt-14 overflow-hidden rounded-[1.75rem] border border-ink/[0.08] bg-white shadow-card-lg"
         >
           {/* Highlighted "After" column */}
           <div
-            className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/2 bg-[linear-gradient(180deg,#e3ecfb_0%,#eef3fb_100%)] md:block"
+            className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/2 bg-[linear-gradient(180deg,var(--color-accent-soft)_0%,var(--color-mist)_100%)] md:block"
             aria-hidden="true"
           />
 
@@ -53,13 +53,13 @@ export function BeforeAfterSection() {
             return (
               <div
                 key={row.before}
-                className={`spotlight relative border-b border-ink/[0.06] transition-colors duration-300 last:border-b-0 hover:bg-[#626262]/[0.03] ${GRID} md:items-center`}
+                className={`spotlight relative border-b border-ink/[0.06] transition-colors duration-300 last:border-b-0 hover:bg-ink/[0.03] ${GRID} md:items-center`}
               >
                 {/* Before: muted, struck through as the row transforms */}
                 <div className="flex items-center gap-3 px-6 pt-5 sm:px-8 md:py-5">
                   <Icon className="h-[1.125rem] w-[1.125rem] shrink-0 text-ink/30" />
                   <motion.span
-                    className="bg-no-repeat text-[0.9375rem] text-muted [background-image:linear-gradient(rgba(15,27,45,0.45),rgba(15,27,45,0.45))] [background-position:0_55%]"
+                    className="bg-no-repeat text-[0.9375rem] text-muted [background-image:linear-gradient(var(--color-muted),var(--color-muted))] [background-position:0_55%]"
                     variants={{
                       hidden: { backgroundSize: '0% 1.5px' },
                       shown: { backgroundSize: '100% 1.5px', transition: { delay: d, duration: 0.45, ease } },
@@ -74,11 +74,11 @@ export function BeforeAfterSection() {
                   <motion.span
                     className="flex h-8 w-8 items-center justify-center rounded-full border"
                     variants={{
-                      hidden: { backgroundColor: '#ffffff', borderColor: 'rgba(15,27,45,0.12)', color: 'rgba(15,27,45,0.35)' },
+                      hidden: { backgroundColor: 'var(--color-paper)', borderColor: 'var(--color-faint)', color: 'var(--color-muted)' },
                       shown: {
-                        backgroundColor: '#2f63d8',
-                        borderColor: '#2f63d8',
-                        color: '#ffffff',
+                        backgroundColor: 'var(--color-blue)',
+                        borderColor: 'var(--color-blue)',
+                        color: 'var(--color-paper)',
                         transition: { delay: d + 0.3, duration: 0.3 },
                       },
                     }}

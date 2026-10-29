@@ -41,7 +41,7 @@ function BlockView({ block }: { block: Block }) {
     case 'message':
       return (
         <figure className="my-7 flex justify-end">
-          <p className="max-w-[85%] rounded-2xl rounded-br-md bg-accent px-5 py-3.5 text-[0.9375rem] leading-snug text-white shadow-[0_10px_24px_-14px_rgba(47,99,216,0.6)]">
+          <p className="max-w-[85%] rounded-2xl rounded-br-md bg-accent px-5 py-3.5 text-[0.9375rem] leading-snug text-white shadow-bubble">
             {block.text}
           </p>
         </figure>

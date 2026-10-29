@@ -20,7 +20,7 @@ const OUR_PART: { label: string; icon: LucideIcon }[] = [
 
 export function DoneForYouSection() {
   return (
-    <section id="done-for-you" className="relative z-10 w-full border-t border-ink/[0.06] bg-paper px-6 py-24 sm:px-12 sm:py-32">
+    <section id="done-for-you" className="relative z-10 w-full border-t border-ink/[0.06] bg-fade-paper section-y section-deco px-6 sm:px-12">
       <div className="mx-auto max-w-5xl">
         <SectionHeading
           eyebrow="Done for you"
@@ -33,7 +33,7 @@ export function DoneForYouSection() {
           <FadeUp
             delay={0.1}
             y={18}
-            className="spotlight flex flex-col rounded-3xl border border-ink/[0.08] bg-white p-8 shadow-[0_24px_50px_-34px_rgba(15,27,45,0.35)] transition-colors duration-300 hover:border-[#626262]/25 sm:p-10"
+            className="spotlight flex flex-col rounded-3xl border border-ink/[0.08] bg-white p-8 shadow-card transition-colors duration-300 hover:border-ink/25 sm:p-10"
           >
             <div className="flex items-end justify-between gap-4">
               <div>
@@ -67,21 +67,21 @@ export function DoneForYouSection() {
           <FadeUp
             delay={0.18}
             y={18}
-            className="relative flex flex-col overflow-hidden rounded-3xl bg-ink p-8 text-white shadow-[0_30px_60px_-30px_rgba(15,27,45,0.7)] sm:p-10"
+            className="relative flex flex-col overflow-hidden rounded-3xl bg-navy p-8 text-white shadow-card-dark sm:p-10"
           >
             <div
-              className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-accent/30 blur-[90px]"
+              className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-blue/30 blur-[90px]"
               aria-hidden="true"
             />
             <div className="relative flex items-end justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent-light">Our system</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky">Our system</p>
                 <p className="mt-2 text-2xl font-bold tracking-tight">Everything else</p>
               </div>
               <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3 py-1 text-xs font-medium text-white/80">
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-light opacity-60 motion-reduce:hidden" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-light" />
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky opacity-60 motion-reduce:hidden" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-sky" />
                 </span>
                 Running day and night
               </span>
@@ -97,7 +97,7 @@ export function DoneForYouSection() {
                   transition={{ delay: 0.25 + i * 0.07, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                   className="spotlight spotlight-light flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4 transition-colors hover:border-white/20 hover:bg-white/[0.08]"
                 >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/20 text-accent-light">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-drop bg-white/10 text-sky">
                     <Icon className="h-[1.125rem] w-[1.125rem]" />
                   </span>
                   <span className="text-sm font-medium leading-snug text-white/90">{label}</span>

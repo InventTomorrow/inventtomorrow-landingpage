@@ -8,7 +8,7 @@ export function PostCard({ post, delay = 0 }: { post: Post; delay?: number }) {
     <FadeUp delay={delay} y={18} className="h-full">
       <Link
         to={`/blog/${post.slug}`}
-        className="spotlight group flex h-full flex-col rounded-2xl border border-ink/[0.08] bg-white p-7 transition-[border-color,box-shadow] duration-300 hover:border-[#626262]/25 hover:shadow-[0_10px_30px_-18px_rgba(60,60,60,0.35)] sm:p-8"
+        className="spotlight group flex h-full flex-col rounded-2xl border border-ink/[0.08] bg-white p-7 transition-[border-color,box-shadow] duration-300 hover:border-ink/25 hover:shadow-hover-lift sm:p-8"
       >
         <span className="w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-semibold text-accent">{post.category}</span>
         <h3 className="mt-5 text-xl font-semibold leading-snug tracking-tight text-ink text-balance">{post.title}</h3>

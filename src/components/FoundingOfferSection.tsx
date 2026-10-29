@@ -15,7 +15,7 @@ const PERKS = [
 
 export function FoundingOfferSection() {
   return (
-    <section id="founding-offer" className="relative z-10 w-full border-t border-ink/[0.06] bg-mist px-6 py-24 sm:px-12 sm:py-32">
+    <section id="founding-offer" className="relative z-10 w-full border-t border-ink/[0.06] bg-fade-mist section-y section-deco px-6 sm:px-12">
       <div className="mx-auto max-w-4xl">
         <SectionHeading
           eyebrow="Founding clients"
@@ -26,7 +26,7 @@ export function FoundingOfferSection() {
         <FadeUp
           delay={0.1}
           y={18}
-          className="spotlight mt-14 rounded-2xl border border-ink/[0.08] bg-white p-8 transition-colors duration-300 hover:border-[#626262]/25 sm:p-10"
+          className="spotlight mt-14 rounded-2xl border border-ink/[0.08] bg-white p-8 transition-colors duration-300 hover:border-ink/25 sm:p-10"
         >
           <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
             <ul className="space-y-3">
@@ -57,9 +57,9 @@ export function FoundingOfferSection() {
         </FadeUp>
 
         <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-[minmax(0,7fr)_minmax(0,6fr)]">
-          <FadeUp delay={0.18} y={18} className="spotlight spotlight-light rounded-2xl bg-ink p-8 text-white">
-            <Award className="h-6 w-6 text-accent-light" />
-            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-accent-light">Our promise</p>
+          <FadeUp delay={0.18} y={18} className="spotlight spotlight-light rounded-2xl bg-navy p-8 text-white">
+            <Award className="h-6 w-6 text-sky" />
+            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-sky">Our promise</p>
             <p className="mt-2 text-xl font-semibold leading-snug">
               If we don't book jobs that cover our fee within 90 days, we work free until we do.
             </p>
@@ -68,7 +68,7 @@ export function FoundingOfferSection() {
           <FadeUp
             delay={0.24}
             y={18}
-            className="spotlight flex flex-col justify-between rounded-2xl border border-ink/[0.08] bg-white p-8 transition-colors duration-300 hover:border-[#626262]/25"
+            className="spotlight flex flex-col justify-between rounded-2xl border border-ink/[0.08] bg-white p-8 transition-colors duration-300 hover:border-ink/25"
           >
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">An easy start</p>

@@ -36,7 +36,7 @@ export function CapabilitiesSection() {
   return (
     <section
       id="capabilities"
-      className="relative z-10 w-full py-28 sm:py-36 px-6 sm:px-12 max-w-6xl mx-auto flex flex-col items-center text-center"
+      className="relative z-10 w-full section-y section-deco px-6 sm:px-12 max-w-6xl mx-auto flex flex-col items-center text-center"
     >
       <FadeUp delay={0.1} y={16}>
         <span className="text-xs font-semibold tracking-[0.25em] uppercase text-blue-400 font-mono">

@@ -103,7 +103,7 @@ export function HowItWorksSection() {
   return (
     <section
       id="how-it-works"
-      className="relative z-10 w-full overflow-hidden border-t border-ink/[0.06] bg-mist px-6 py-24 sm:px-12 sm:py-32"
+      className="relative z-10 w-full overflow-hidden border-t border-ink/[0.06] bg-fade-mist section-y section-deco px-6 sm:px-12"
     >
       <div className="mx-auto max-w-6xl">
         <SectionHeading eyebrow="How it works" title="Three steps. You stay focused." />
@@ -162,13 +162,13 @@ export function HowItWorksSection() {
                   <div
                     className={`spotlight relative flex h-[18.75rem] flex-col rounded-3xl border bg-white p-8 transition-[border-color,box-shadow] duration-500 ${
                       centre
-                        ? 'border-accent/25 shadow-[0_30px_60px_-30px_rgba(15,27,45,0.45)]'
+                        ? 'border-accent/25 shadow-card-lg'
                         : 'border-ink/[0.08] shadow-none'
                     }`}
                   >
                     <div className="flex items-start justify-between">
                       <span
-                        className={`flex h-12 w-12 items-center justify-center rounded-2xl transition-colors duration-500 ${
+                        className={`flex h-12 w-12 items-center justify-center rounded-drop transition-colors duration-500 ${
                           centre ? 'bg-accent text-white' : 'bg-accent-soft text-accent'
                         }`}
                       >
@@ -195,7 +195,7 @@ export function HowItWorksSection() {
               type="button"
               onClick={() => go(-1)}
               aria-label="Previous step"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 bg-white text-ink transition-colors hover:border-[#626262]/40 hover:bg-[#f1f1f1] cursor-pointer"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 bg-white text-ink transition-colors hover:border-ink/40 hover:bg-surface-raised cursor-pointer"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -227,7 +227,7 @@ export function HowItWorksSection() {
               type="button"
               onClick={() => go(1)}
               aria-label="Next step"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 bg-white text-ink transition-colors hover:border-[#626262]/40 hover:bg-[#f1f1f1] cursor-pointer"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 bg-white text-ink transition-colors hover:border-ink/40 hover:bg-surface-raised cursor-pointer"
             >
               <ChevronRight className="h-5 w-5" />
             </button>

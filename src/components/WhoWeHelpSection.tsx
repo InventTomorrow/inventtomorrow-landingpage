@@ -36,7 +36,7 @@ export function WhoWeHelpSection() {
   return (
     <section
       id="who-we-help"
-      className="relative z-10 w-full min-h-screen text-white flex flex-col items-center justify-center px-4 sm:px-8 py-28 sm:py-36"
+      className="relative z-10 w-full min-h-screen text-white flex flex-col items-center justify-center px-4 sm:px-8 section-y section-deco"
     >
       <div className="w-full max-w-6xl mx-auto flex flex-col items-center text-center">
         <FadeUp delay={0.1} y={16}>

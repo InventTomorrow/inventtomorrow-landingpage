@@ -1,10 +1,10 @@
-import { useEffect, useState, type FormEvent } from 'react';
 import { Check } from 'lucide-react';
+import { useEffect, useState, type FormEvent } from 'react';
+import { CtaButton } from '../components/CtaButton';
+import { FadeUp } from '../components/FadeUp';
+import { FinalCtaSection } from '../components/FinalCtaSection';
 import { PageHero } from '../components/PageHero';
 import { Section } from '../components/Section';
-import { FadeUp } from '../components/FadeUp';
-import { CtaButton } from '../components/CtaButton';
-import { FinalCtaSection } from '../components/FinalCtaSection';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { calendlyLink } from '../utils/navigation';
 
@@ -73,7 +73,7 @@ export function FreeAuditPage() {
           <FadeUp
             delay={0.1}
             y={18}
-            className="rounded-3xl border border-ink/[0.08] bg-white p-7 shadow-[0_24px_50px_-34px_rgba(15,27,45,0.35)] sm:p-10"
+            className="rounded-3xl border border-ink/[0.08] bg-white p-7 shadow-card sm:p-10"
           >
             <form onSubmit={onSubmit} className="space-y-5">
               <div>

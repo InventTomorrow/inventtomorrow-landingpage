@@ -44,11 +44,11 @@ export function ResultsPage() {
                 key={item.title}
                 delay={0.08 + i * 0.06}
                 y={18}
-                className={`spotlight rounded-2xl border border-ink/[0.08] bg-white p-7 transition-colors duration-300 hover:border-[#626262]/25 lg:col-span-2 ${
+                className={`spotlight rounded-2xl border border-ink/[0.08] bg-white p-7 transition-colors duration-300 hover:border-ink/25 lg:col-span-2 ${
                   i === 3 ? 'lg:col-start-2' : ''
                 }`}
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft text-accent">
+                <span className="flex h-11 w-11 items-center justify-center rounded-drop bg-accent-soft text-accent">
                   <Icon className="h-5 w-5" />
                 </span>
                 <h3 className="mt-5 text-lg font-semibold text-ink">{item.title}</h3>

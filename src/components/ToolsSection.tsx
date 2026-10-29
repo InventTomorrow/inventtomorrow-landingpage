@@ -14,7 +14,7 @@ const TOOL_CATEGORIES = [
 
 export function ToolsSection() {
   return (
-    <section id="tools" className="relative z-10 w-full border-t border-ink/[0.06] bg-stone px-6 py-24 sm:px-12 sm:py-32">
+    <section id="tools" className="relative z-10 w-full border-t border-ink/[0.06] bg-fade-stone section-y section-deco px-6 sm:px-12">
       <div className="mx-auto max-w-6xl">
         <SectionHeading
           eyebrow="Works with your tools"
@@ -27,7 +27,7 @@ export function ToolsSection() {
             {TOOL_CATEGORIES.map(({ category, tools, icon: Icon }) => (
               <li
                 key={category}
-                className="spotlight flex flex-col gap-3 border-b border-ink/[0.07] px-6 py-5 transition-colors duration-300 hover:bg-[#626262]/[0.03] sm:flex-row sm:items-center sm:justify-between"
+                className="spotlight flex flex-col gap-3 border-b border-ink/[0.07] px-6 py-5 transition-colors duration-300 hover:bg-ink/[0.03] sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="flex items-center gap-3">
                   <Icon className="h-4 w-4 shrink-0 text-accent" />

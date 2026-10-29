@@ -1,27 +1,66 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 /*
-  One palette for the whole site.
-  ink    – headings, dark sections (final CTA, footer). The hero uses the video's own grey.
-  paper / stone / mist – the three light section backgrounds, alternated down the page
-  accent – the only brand colour; used for CTAs, icons and the timeline
+  One theme for the whole site (palette from the Cleener design system). Components only use these tokens.
+  navy / ink            – headings, dark surfaces (cards, closing CTA)
+  primary / on-primary  – brand blue and the white text on it: every main call to action, icons, eyebrows, progress
+  sky                   – light blue for highlights on dark surfaces (navy cards, closing CTA)
+  body / muted          – paragraph and supporting text
+  paper / stone / mist  – the light section backgrounds: white, then two pale blues, alternated down the page
+  footer                – the footer surface
+  To re-theme, change the values here only.
 */
-@theme {
-  --color-ink: #0f1b2d;
-  --color-ink-deep: #0a1322;
-  --color-paper: #fafaf7;
-  --color-stone: #f2f0eb;
-  --color-mist: #ebf1f8;
-  --color-muted: #4b5768;
-  --color-accent: #2f63d8;
-  --color-accent-hover: #2552bb;
-  --color-accent-soft: #e3ecfb;
-  --color-accent-light: #9dbbf5;
+@theme static {
+  --font-sans: 'Mulish', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-weight-bold: 800;
+
+  --color-primary: #2e72ff;
+  --color-primary-hover: #1f5fe6;
+  --color-primary-active: #1850c4;
+  --color-sky: #9dc0ff;
+  --color-navy: #13287e;
+  --color-navy-deep: #0d1c5a;
+  --color-on-primary: #ffffff;
+  --color-blue: var(--color-primary);
+
+  --color-ink: var(--color-navy);
+  --color-body: #5c5c5c;
+  --color-muted: #59617e;
+  --color-faint: #e2e2e2;
+
+  --color-paper: #ffffff;
+  --color-stone: #f6faff;
+  --color-mist: #eaf2fe;
+  --color-surface-raised: #eef3fb;
+  --color-footer: #05173d;
+
+  --color-accent: var(--color-primary);
+  --color-accent-hover: var(--color-primary-hover);
+  --color-accent-soft: #e3eefe;
+
+  --shadow-card: 0 24px 50px -34px color-mix(in srgb, var(--color-navy) 35%, transparent);
+  --shadow-card-lg: 0 30px 60px -30px color-mix(in srgb, var(--color-navy) 45%, transparent);
+  --shadow-card-dark: 0 30px 60px -30px color-mix(in srgb, var(--color-navy) 70%, transparent);
+  --shadow-cta: 0 30px 80px -20px color-mix(in srgb, var(--color-navy) 55%, transparent);
+  --shadow-chip: 0 12px 30px -18px color-mix(in srgb, var(--color-navy) 35%, transparent);
+  --shadow-hover-lift: 0 10px 30px -18px color-mix(in srgb, var(--color-ink) 35%, transparent);
+  --shadow-menu: 0 16px 30px -20px color-mix(in srgb, var(--color-navy) 40%, transparent);
+  --shadow-modal: 0 24px 80px color-mix(in srgb, var(--color-navy) 25%, transparent);
+  --shadow-pop: 0 8px 24px color-mix(in srgb, var(--color-navy) 25%, transparent);
+  --shadow-pop-hover: 0 12px 32px color-mix(in srgb, var(--color-navy) 40%, transparent);
+  --shadow-bubble: 0 10px 24px -14px color-mix(in srgb, var(--color-navy) 60%, transparent);
+}
+
+/* Vertical rhythm for every full-width section: 80px phones, 112px tablets, 144px laptops */
+@utility section-y {
+  padding-block: 5rem;
+  @media (min-width: 40rem) { padding-block: 7rem; }
+  @media (min-width: 64rem) { padding-block: 9rem; }
 }
 
 * {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
 }
 
 /*
@@ -33,7 +72,7 @@
 html {
   font-size: max(100%, min(1.7778svh, 1.1111vw));
   color-scheme: light;
-  background-color: var(--color-ink);
+  background-color: var(--color-footer);
 }
 
 body {
@@ -50,8 +89,8 @@ body {
 
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--color-paper); }
-::-webkit-scrollbar-thumb { background: #cfd3da; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #b4bac4; }
+::-webkit-scrollbar-thumb { background: var(--color-faint); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
 
 /*
   Hero. The video plays in its original colours. Its backdrop is a grey studio gradient (dark on the
@@ -134,11 +173,12 @@ body {
   }
 }
 
-/* Inner pages: the same studio grey as the home video, lit softly from the top right. */
+/* Inner pages: a navy band lit by a soft blue glow from the top right, matching the closing CTA. */
 .page-hero {
   background:
-    radial-gradient(70rem 42rem at 100% -12%, rgba(224, 224, 224, 0.55) 0%, rgba(190, 190, 190, 0.28) 32%, transparent 70%),
-    linear-gradient(180deg, #646464 0%, #5d5d5d 60%, #565656 100%);
+    radial-gradient(60rem 36rem at 100% -10%, color-mix(in srgb, var(--color-primary) 45%, transparent) 0%, transparent 70%),
+    radial-gradient(36rem 26rem at 0% 110%, color-mix(in srgb, var(--color-primary) 22%, transparent) 0%, transparent 70%),
+    linear-gradient(180deg, var(--color-navy) 0%, var(--color-navy-deep) 100%);
 }
 
 /*
@@ -160,8 +200,8 @@ body {
   pointer-events: none;
   background: radial-gradient(
     22rem circle at var(--spot-x, 50%) var(--spot-y, 50%),
-    rgba(98, 98, 98, 0.13),
-    rgba(98, 98, 98, 0.04) 45%,
+    color-mix(in srgb, var(--color-ink) 13%, transparent),
+    color-mix(in srgb, var(--color-ink) 4%, transparent) 45%,
     transparent 70%
   );
   opacity: 0;
@@ -182,5 +222,145 @@ body {
 
 @media (hover: none) {
   .spotlight::before { display: none; }
+}
+}
+
+/* Decorative CSS-only graphics for the dark blocks (final CTA card, footer). Always aria-hidden. */
+@layer components {
+.graphic-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 3rem 3rem;
+  -webkit-mask-image: radial-gradient(ellipse 70% 80% at 50% 40%, #000 0%, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 80% at 50% 40%, #000 0%, transparent 75%);
+}
+.graphic-rings {
+  background: repeating-radial-gradient(circle at center, transparent 0 2.5rem, rgba(255, 255, 255, 0.09) 2.5rem calc(2.5rem + 1px));
+  -webkit-mask-image: radial-gradient(circle closest-side, #000 20%, transparent 100%);
+  mask-image: radial-gradient(circle closest-side, #000 20%, transparent 100%);
+}
+.graphic-glow {
+  background: radial-gradient(circle closest-side, color-mix(in srgb, var(--color-blue) 55%, transparent), transparent 100%);
+}
+}
+
+/* Loading placeholder: a grey block with a light band sweeping across it */
+@layer components {
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-surface-raised);
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-paper) 75%, transparent), transparent);
+  animation: skeleton-sweep 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after { animation: none; }
+}
+}
+@keyframes skeleton-sweep {
+  to { transform: translateX(100%); }
+}
+
+/* Brand shapes: a teardrop is a circle with one sharp corner. Used for icon chips and decoration. */
+@utility rounded-drop {
+  border-radius: 50% 50% 0 50%;
+}
+
+/* The small blue + yellow droplet pair that sits above section headings */
+@layer components {
+.droplet-mark {
+  position: relative;
+  display: inline-block;
+  width: 2.25rem;
+  height: 1.5rem;
+}
+.droplet-mark::before,
+.droplet-mark::after {
+  content: '';
+  position: absolute;
+  border-radius: 50% 0 50% 50%;
+}
+.droplet-mark::before {
+  left: 0;
+  bottom: 0;
+  width: 0.95rem;
+  height: 0.95rem;
+  background: var(--color-blue);
+}
+.droplet-mark::after {
+  left: 1.1rem;
+  top: 0;
+  width: 0.8rem;
+  height: 0.8rem;
+  background: var(--color-sky);
+}
+/* Large translucent drops for dark blocks */
+.graphic-drop {
+  border-radius: 50% 50% 0 50%;
+  background: color-mix(in srgb, var(--color-blue) 28%, transparent);
+}
+.graphic-drop-outline {
+  border-radius: 50% 50% 0 50%;
+  border: 1px solid color-mix(in srgb, var(--color-paper) 18%, transparent);
+}
+}
+
+/* Soft gradient section backgrounds: each fades slightly toward the next shade down the page */
+@utility bg-fade-paper {
+  background-image: linear-gradient(165deg, var(--color-paper) 0%, color-mix(in srgb, var(--color-stone) 55%, var(--color-paper)) 100%);
+}
+@utility bg-fade-stone {
+  background-image: linear-gradient(165deg, var(--color-stone) 0%, color-mix(in srgb, var(--color-mist) 45%, var(--color-stone)) 100%);
+}
+@utility bg-fade-mist {
+  background-image: linear-gradient(165deg, var(--color-mist) 0%, color-mix(in srgb, var(--color-stone) 60%, var(--color-mist)) 100%);
+}
+
+/*
+  Section decoration: a soft blue glow on one side of every section, alternating right / left.
+  The first two sections after the hero also get a teardrop. overflow: clip (not hidden) keeps sticky children working.
+*/
+@layer components {
+.section-deco {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+}
+.section-deco::before,
+.section-deco:nth-of-type(-n+3)::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+}
+.section-deco::before {
+  top: -8rem;
+  width: 32rem;
+  height: 32rem;
+  border-radius: 50%;
+  background: radial-gradient(circle closest-side, color-mix(in srgb, var(--color-primary) 14%, transparent), transparent);
+}
+.section-deco:nth-of-type(-n+3)::after {
+  bottom: 3rem;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 50% 50% 0 50%;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 16%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 12%, transparent), color-mix(in srgb, var(--color-sky) 6%, transparent));
+}
+.section-deco:nth-of-type(odd)::before { right: -12rem; }
+.section-deco:nth-of-type(odd)::after { right: -4rem; }
+.section-deco:nth-of-type(even)::before { left: -12rem; }
+.section-deco:nth-of-type(even)::after { left: -4rem; transform: scaleX(-1); }
+@media (min-width: 64rem) {
+  .section-deco::before { width: 44rem; height: 44rem; }
+  .section-deco:nth-of-type(-n+3)::after { width: 20rem; height: 20rem; }
 }
 }

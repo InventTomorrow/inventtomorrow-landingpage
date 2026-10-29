@@ -15,8 +15,8 @@ export const TIMELINE_MILESTONES: TimelineMilestone[] = [
     time: '2:14',
     accent: 'blue',
     description: 'Your phone rings. You keep working.',
-    dotColor: '#60a5fa',
-    glowColor: 'rgba(96, 165, 250, 0.6)',
+    dotColor: 'var(--color-blue)',
+    glowColor: 'color-mix(in srgb, var(--color-blue) 60%, transparent)',
     durationOffsetMinutes: 0,
   },
   {
@@ -24,8 +24,8 @@ export const TIMELINE_MILESTONES: TimelineMilestone[] = [
     time: '2:14',
     accent: 'blue',
     description: 'Our system texts the customer back in seconds.',
-    dotColor: '#818cf8',
-    glowColor: 'rgba(129, 140, 248, 0.6)',
+    dotColor: 'var(--color-navy)',
+    glowColor: 'color-mix(in srgb, var(--color-navy) 60%, transparent)',
     durationOffsetMinutes: 0,
   },
   {
@@ -33,8 +33,8 @@ export const TIMELINE_MILESTONES: TimelineMilestone[] = [
     time: '2:20',
     accent: 'coral',
     description: 'The lead is handled without interrupting the clean.',
-    dotColor: '#fb7185',
-    glowColor: 'rgba(251, 113, 133, 0.6)',
+    dotColor: 'var(--color-sky)',
+    glowColor: 'color-mix(in srgb, var(--color-sky) 60%, transparent)',
     durationOffsetMinutes: 6,
   },
 ];

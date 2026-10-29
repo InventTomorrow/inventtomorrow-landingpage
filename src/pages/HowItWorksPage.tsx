@@ -76,9 +76,9 @@ export function HowItWorksPage() {
                 key={step.title}
                 delay={0.08 + i * 0.07}
                 y={18}
-                className="spotlight flex gap-5 rounded-2xl border border-ink/[0.08] bg-white p-7 transition-colors duration-300 hover:border-[#626262]/25 sm:p-8"
+                className="spotlight flex gap-5 rounded-2xl border border-ink/[0.08] bg-white p-7 transition-colors duration-300 hover:border-ink/25 sm:p-8"
               >
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-drop bg-accent-soft text-accent">
                   <Icon className="h-5 w-5" />
                 </span>
                 <div>
@@ -101,7 +101,7 @@ export function HowItWorksPage() {
           <FadeUp
             delay={0.1}
             y={18}
-            className="spotlight rounded-3xl border border-ink/[0.08] bg-white p-8 transition-colors duration-300 hover:border-[#626262]/25 sm:p-10"
+            className="spotlight rounded-3xl border border-ink/[0.08] bg-white p-8 transition-colors duration-300 hover:border-ink/25 sm:p-10"
           >
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">Your role</p>
             <ul className="mt-6 space-y-4">
@@ -113,13 +113,13 @@ export function HowItWorksPage() {
               ))}
             </ul>
           </FadeUp>
-          <FadeUp delay={0.18} y={18} className="spotlight spotlight-light relative overflow-hidden rounded-3xl bg-ink p-8 text-white sm:p-10">
-            <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-accent/30 blur-[90px]" aria-hidden="true" />
-            <p className="relative text-xs font-semibold uppercase tracking-[0.2em] text-accent-light">Our system</p>
+          <FadeUp delay={0.18} y={18} className="spotlight spotlight-light relative overflow-hidden rounded-3xl bg-navy p-8 text-white sm:p-10">
+            <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-blue/30 blur-[90px]" aria-hidden="true" />
+            <p className="relative text-xs font-semibold uppercase tracking-[0.2em] text-sky">Our system</p>
             <ul className="relative mt-6 space-y-4">
               {OUR_SYSTEM.map((item) => (
                 <li key={item} className="flex items-start gap-3 text-white/90">
-                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-accent-light" />
+                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-sky" />
                   {item}
                 </li>
               ))}

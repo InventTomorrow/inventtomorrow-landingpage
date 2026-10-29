@@ -70,9 +70,9 @@ export function WhoWeHelpPage() {
                 key={type.title}
                 delay={0.08 + i * 0.07}
                 y={18}
-                className="spotlight flex flex-col rounded-2xl border border-ink/[0.08] bg-white p-7 transition-colors duration-300 hover:border-[#626262]/25 sm:p-8"
+                className="spotlight flex flex-col rounded-2xl border border-ink/[0.08] bg-white p-7 transition-colors duration-300 hover:border-ink/25 sm:p-8"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+                <span className="flex h-12 w-12 items-center justify-center rounded-drop bg-accent-soft text-accent">
                   <Icon className="h-5 w-5" />
                 </span>
                 <h3 className="mt-6 text-xl font-semibold tracking-tight text-ink">{type.title}</h3>

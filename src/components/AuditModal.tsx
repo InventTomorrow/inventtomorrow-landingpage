@@ -41,14 +41,14 @@ export function AuditModal({ isOpen, onClose }: AuditModalProps) {
           aria-modal="true"
           aria-label="Free follow-up audit"
           data-lenis-prevent
-          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/50 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-navy/50 p-4 backdrop-blur-sm"
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 16 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white p-6 text-ink shadow-[0_24px_80px_rgba(15,27,45,0.25)] sm:p-8"
+            className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white p-6 text-ink shadow-modal sm:p-8"
           >
             <div className="flex items-start justify-between gap-4 border-b border-ink/10 pb-5">
               <div>
@@ -147,7 +147,7 @@ export function AuditModal({ isOpen, onClose }: AuditModalProps) {
                       type="button"
                       onClick={() => setStep(2)}
                       disabled={!businessName.trim()}
-                      className="mt-2 flex h-11 w-full items-center justify-center rounded-lg border border-ink bg-ink text-sm font-semibold text-white transition-colors hover:bg-ink/90 disabled:opacity-40 cursor-pointer disabled:cursor-default"
+                      className="mt-2 flex h-11 w-full items-center justify-center rounded-full border border-navy bg-navy text-sm font-semibold text-white transition-colors hover:bg-navy/90 disabled:opacity-40 cursor-pointer disabled:cursor-default"
                     >
                       Continue
                     </button>
@@ -188,13 +188,13 @@ export function AuditModal({ isOpen, onClose }: AuditModalProps) {
                       <button
                         type="button"
                         onClick={() => setStep(1)}
-                        className="h-11 rounded-lg border border-ink/15 px-5 text-sm font-medium text-ink transition-colors hover:bg-ink/5 cursor-pointer"
+                        className="h-11 rounded-full border border-ink/15 px-6 text-sm font-medium text-ink transition-colors hover:bg-ink/5 cursor-pointer"
                       >
                         Back
                       </button>
                       <button
                         type="submit"
-                        className="h-11 flex-1 rounded-lg border border-[#2552bb] bg-accent text-sm font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.16),0_1px_2px_rgba(15,27,45,0.22)] transition-colors hover:bg-accent-hover cursor-pointer"
+                        className="h-11 flex-1 rounded-full bg-primary text-sm font-semibold text-on-primary transition-colors hover:bg-primary-hover active:bg-primary-active cursor-pointer"
                       >
                         Get my free audit
                       </button>

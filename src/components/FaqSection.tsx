@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
 import { Plus } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useState } from 'react';
+import type { Faq } from '../content/faq';
 import { FadeUp } from './FadeUp';
 import { SectionHeading } from './SectionHeading';
 import { TextLink } from './TextLink';
-import type { Faq } from '../content/faq';
 
 function FaqList({ faqs }: { faqs: Faq[] }) {
   // The first answer starts open.
@@ -12,7 +12,7 @@ function FaqList({ faqs }: { faqs: Faq[] }) {
 
   return (
     <div className="border-t border-ink/10">
-      {faqs.map((faq, idx) => {
+      {faqs?.map((faq, idx) => {
         const isOpen = openIndex === idx;
         const panelId = `faq-panel-${idx}`;
         return (
@@ -28,7 +28,7 @@ function FaqList({ faqs }: { faqs: Faq[] }) {
               <motion.span
                 animate={{ rotate: isOpen ? 45 : 0 }}
                 transition={{ duration: 0.2 }}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-ink/15 text-ink/60 transition-colors group-hover:border-[#626262]/40 group-hover:bg-[#ececec] group-hover:text-ink"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-ink/15 text-ink/60 transition-colors group-hover:border-ink/40 group-hover:bg-surface-raised group-hover:text-ink"
               >
                 <Plus className="h-4 w-4" />
               </motion.span>
@@ -65,9 +65,9 @@ interface FaqSectionProps {
 // Short FAQ on the home page.
 export function FaqSection({ faqs, showAllLink = false }: FaqSectionProps) {
   return (
-    <section id="faq" className="relative z-10 w-full border-t border-ink/[0.06] bg-paper px-6 py-24 sm:px-12 sm:py-32">
+    <section id="faq" className="relative z-10 w-full border-t border-ink/[0.06] bg-fade-paper section-y section-deco px-6 sm:px-12">
       <div className="mx-auto max-w-3xl">
-        <SectionHeading eyebrow="FAQ" title="Fair questions" />
+        <SectionHeading eyebrow="FAQ" title="FAQ questions" />
         <FadeUp delay={0.1} y={16} className="mt-12">
           <FaqList faqs={faqs} />
         </FadeUp>
@@ -84,7 +84,7 @@ export function FaqSection({ faqs, showAllLink = false }: FaqSectionProps) {
 // FAQ page: intro on the left (stays in place while you scroll), questions on the right.
 export function FaqSplitSection({ faqs }: { faqs: Faq[] }) {
   return (
-    <section className="relative z-10 w-full bg-paper px-6 py-24 sm:px-12 sm:py-32">
+    <section className="relative z-10 w-full bg-fade-paper section-y section-deco px-6 sm:px-12">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-16">
         <FadeUp y={16} className="lg:sticky lg:top-32 lg:self-start">
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Before you start</span>
