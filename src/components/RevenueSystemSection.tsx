@@ -15,6 +15,7 @@ import {
   Sparkles,
   type LucideIcon,
 } from 'lucide-react';
+import { useParallaxStage } from '../hooks/useParallaxStage';
 import { SectionHeading } from './SectionHeading';
 import { TextLink } from './TextLink';
 import { AUDIT_PATH } from '../utils/navigation';
@@ -135,19 +136,20 @@ const FIXES: Fix[] = [
   },
 ];
 
-// Each example plays in about a second, holds briefly, then moves on.
-const SLIDE_SECONDS = 4;
-const MESSAGE_GAP = 0.4;
-const snappy = { duration: 0.25, ease: [0.22, 1, 0.36, 1] as const };
+// Each example plays in under a second, holds briefly, then moves on.
+const SLIDE_SECONDS = 3.2;
+const MESSAGE_GAP = 0.28;
+const snappy = { duration: 0.2, ease: [0.22, 1, 0.36, 1] as const };
+const tabSpring = { type: 'spring', stiffness: 460, damping: 36 } as const;
 
 function ScenePreview({ fix }: { fix: Fix }) {
   const { scene } = fix;
   const TriggerIcon = scene.triggerIcon;
   return (
     <div className="mx-auto w-full max-w-sm">
-      <div className="overflow-hidden rounded-[1.75rem] border border-ink/[0.08] bg-white shadow-[0_30px_60px_-30px_rgba(15,27,45,0.45)]">
+      <div className="overflow-hidden rounded-[1.75rem] border border-ink/[0.08] bg-white shadow-card-lg">
         <div className="flex items-center gap-3 border-b border-ink/[0.07] px-5 py-4">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink text-xs font-semibold text-white">BH</span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-navy text-xs font-semibold text-white">BH</span>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-ink">Bright Home Cleaning</p>
             <p className="text-xs text-muted">Example conversation</p>
@@ -213,6 +215,7 @@ export function RevenueSystemSection({ showMoreLink = false }: RevenueSystemSect
   const tabsRef = useRef<HTMLDivElement>(null);
   const inView = useInView(rootRef, { amount: 0.35 });
   const reduceMotion = useReducedMotion();
+  const parallax = useParallaxStage();
   const progress = useMotionValue(0);
   const controlsRef = useRef<ReturnType<typeof animate> | null>(null);
   // Nothing plays until the section is on screen, so the first example animates in front of the visitor.
@@ -254,7 +257,7 @@ export function RevenueSystemSection({ showMoreLink = false }: RevenueSystemSect
   const current = FIXES[active];
 
   return (
-    <section id="services" className="relative z-10 w-full border-t border-ink/[0.06] bg-paper px-6 py-24 sm:px-12 sm:py-32">
+    <section id="services" className="relative z-10 w-full border-t border-ink/[0.06] bg-fade-paper section-y px-6 sm:px-12">
       <div className="mx-auto max-w-6xl">
         <SectionHeading
           eyebrow="The system"
@@ -287,7 +290,7 @@ export function RevenueSystemSection({ showMoreLink = false }: RevenueSystemSect
                 aria-selected={active === i}
                 onClick={() => setActive(i)}
                 className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition-colors cursor-pointer ${
-                  active === i ? 'border-ink bg-ink text-white' : 'border-ink/15 bg-white text-ink/70'
+                  active === i ? 'border-ink bg-navy text-white' : 'border-ink/15 bg-white text-ink/70'
                 }`}
               >
                 {fix.title}
@@ -308,14 +311,20 @@ export function RevenueSystemSection({ showMoreLink = false }: RevenueSystemSect
                   aria-selected={isActive}
                   onClick={() => setActive(i)}
                   className={`spotlight relative overflow-hidden rounded-2xl border px-5 py-4 text-left transition-colors duration-300 cursor-pointer ${
-                    isActive
-                      ? 'border-ink/10 bg-white shadow-[0_12px_30px_-18px_rgba(15,27,45,0.35)]'
-                      : 'border-transparent hover:border-[#626262]/15 hover:bg-[#626262]/[0.05]'
+                    isActive ? 'border-transparent' : 'border-transparent hover:border-ink/15 hover:bg-ink/[0.05]'
                   }`}
                 >
+                  {isActive && (
+                    <motion.span
+                      layoutId="fix-active-tab"
+                      transition={tabSpring}
+                      className="absolute inset-0 -z-10 rounded-2xl border border-ink/10 bg-white shadow-chip"
+                      aria-hidden="true"
+                    />
+                  )}
                   <div className="flex items-center gap-4">
                     <span
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors duration-300 ${
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-drop transition-colors duration-300 ${
                         isActive ? 'bg-accent text-white' : 'bg-accent-soft text-accent'
                       }`}
                     >
@@ -348,7 +357,19 @@ export function RevenueSystemSection({ showMoreLink = false }: RevenueSystemSect
           </div>
 
           {/* Example conversation for the selected automation */}
-          <div className="relative flex min-h-[32.5rem] flex-col justify-center overflow-hidden rounded-[2rem] bg-[radial-gradient(120%_90%_at_50%_0%,#dfe9fb_0%,#ebf1f8_45%,#f2f0eb_100%)] px-5 py-10 sm:px-10">
+          <div
+            ref={parallax.stageRef}
+            onPointerMove={reduceMotion ? undefined : parallax.onPointerMove}
+            onPointerLeave={reduceMotion ? undefined : parallax.onPointerLeave}
+            className="relative flex min-h-[32.5rem] flex-col justify-center overflow-hidden rounded-[2rem] bg-[radial-gradient(120%_90%_at_50%_0%,var(--color-accent-soft)_0%,var(--color-mist)_45%,var(--color-stone)_100%)] px-5 py-10 sm:px-10"
+          >
+            <motion.div style={reduceMotion ? undefined : parallax.back} className="pointer-events-none absolute inset-0" aria-hidden="true">
+              <span className="absolute -right-16 -top-12 h-64 w-64 rounded-drop bg-primary/10" />
+              <span className="absolute -left-10 bottom-4 h-44 w-44 rounded-drop border border-primary/20" />
+              <span className="absolute bottom-16 right-10 h-14 w-14 rounded-drop bg-sky/50" />
+              <span className="absolute left-12 top-14 h-5 w-5 rounded-drop bg-primary/40" />
+            </motion.div>
+
             <div className="mb-6 text-center lg:hidden">
               <p className="font-semibold text-ink">{current.title}</p>
               <p className="mt-1 text-sm text-muted">{current.text}</p>
@@ -357,19 +378,21 @@ export function RevenueSystemSection({ showMoreLink = false }: RevenueSystemSect
               </span>
             </div>
 
-            <AnimatePresence mode="wait">
-              {started && (
-                <motion.div
-                  key={active}
-                  initial={{ opacity: 0, x: 16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -16, transition: { duration: 0.15 } }}
-                  transition={snappy}
-                >
-                  <ScenePreview fix={current} />
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <motion.div style={reduceMotion ? undefined : parallax.front} className="relative">
+              <AnimatePresence mode="wait">
+                {started && (
+                  <motion.div
+                    key={active}
+                    initial={{ opacity: 0, x: 20, scale: 0.98 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -20, scale: 0.98, transition: { duration: 0.12 } }}
+                    transition={snappy}
+                  >
+                    <ScenePreview fix={current} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           </div>
         </motion.div>
 
