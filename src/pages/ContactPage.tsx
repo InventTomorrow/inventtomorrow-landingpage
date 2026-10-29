@@ -1,13 +1,16 @@
+import { useState } from 'react';
+import { BookingSkeleton } from '../components/BookingSkeleton';
+import { CtaButton } from '../components/CtaButton';
+import { FadeUp } from '../components/FadeUp';
 import { PageHero } from '../components/PageHero';
 import { Section } from '../components/Section';
 import { SectionHeading } from '../components/SectionHeading';
-import { FadeUp } from '../components/FadeUp';
-import { CtaButton } from '../components/CtaButton';
 import { textLinkClass } from '../components/TextLink';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { CALENDLY_URL } from '../utils/navigation';
 
 export function ContactPage() {
+  const [isCalendarLoaded, setIsCalendarLoaded] = useState(false);
   usePageMeta('Schedule a Call | Invent Tomorrow', 'Talk through the calls, quotes and follow-ups taking up your day.');
 
   return (
@@ -27,14 +30,16 @@ export function ContactPage() {
         <FadeUp
           delay={0.1}
           y={18}
-          className="mt-12 overflow-hidden rounded-3xl border border-ink/[0.08] bg-white shadow-[0_24px_50px_-34px_rgba(15,27,45,0.35)]"
+          className="relative mt-12 overflow-hidden rounded-3xl border border-ink/[0.08] bg-white shadow-card"
         >
           <iframe
-            src={`${CALENDLY_URL}?hide_gdpr_banner=1`}
+            src={`${CALENDLY_URL}`}
             title="Schedule a call with Invent Tomorrow"
             loading="lazy"
-            className="block h-[47.5rem] w-full border-0"
+            onLoad={() => setIsCalendarLoaded(true)}
+            className="-my-12 block h-[53.5rem] w-full p-0 md:-mx-[8%] md:mb-0 md:-mt-[56px] md:h-[720px] md:w-[116%]"
           />
+          <BookingSkeleton isVisible={!isCalendarLoaded} />
         </FadeUp>
         <p className="mt-6 text-center text-sm text-muted">
           Can't see the calendar?{' '}
