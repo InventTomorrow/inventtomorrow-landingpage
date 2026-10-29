@@ -1,17 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
 import { useInView } from 'motion/react';
-import { Volume2, VolumeX, RotateCcw } from 'lucide-react';
-import { HeroSection } from '../components/HeroSection';
-import { TimelineSection } from '../components/TimelineSection';
-import { LeaksAndMythSection } from '../components/LeaksAndMythSection';
-import { RevenueSystemSection } from '../components/RevenueSystemSection';
-import { ToolsSection } from '../components/ToolsSection';
-import { HowItWorksSection } from '../components/HowItWorksSection';
-import { DoneForYouSection } from '../components/DoneForYouSection';
+import { useEffect, useRef, useState } from 'react';
 import { BeforeAfterSection } from '../components/BeforeAfterSection';
-import { FoundingOfferSection } from '../components/FoundingOfferSection';
+import { DoneForYouSection } from '../components/DoneForYouSection';
 import { FaqSection } from '../components/FaqSection';
 import { FinalCtaSection } from '../components/FinalCtaSection';
+import { FoundingOfferSection } from '../components/FoundingOfferSection';
+import { HeroSection } from '../components/HeroSection';
+import { HowItWorksSection } from '../components/HowItWorksSection';
+import { LeaksAndMythSection } from '../components/LeaksAndMythSection';
+import { RevenueSystemSection } from '../components/RevenueSystemSection';
+import { TimelineSection } from '../components/TimelineSection';
+import { ToolsSection } from '../components/ToolsSection';
 import { HOME_FAQS } from '../content/faq';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { smoothScrollTo } from '../utils/smoothScroll';
@@ -20,7 +19,7 @@ const VIDEO_SRC =
   'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260514_135830_bb6491d1-9b66-4aec-9722-13b4dfe3fb46.mp4';
 
 const mediaButtonClass =
-  'flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium bg-ink/70 hover:bg-ink/90 text-white/85 hover:text-white backdrop-blur-md border border-white/10 transition-colors cursor-pointer';
+  'flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium bg-navy/70 hover:bg-navy/90 text-white/85 hover:text-white backdrop-blur-md border border-white/10 transition-colors cursor-pointer';
 
 export function HomePage() {
   usePageMeta(
@@ -63,7 +62,8 @@ export function HomePage() {
         <HeroSection animationKey={animationKey} videoRef={videoRef} videoSrc={VIDEO_SRC} />
       </div>
 
-      {/* Video controls: only shown while the hero video is on screen */}
+      {/* Video controls */}
+      {/*
       <div
         className={`fixed bottom-6 right-6 z-30 flex items-center gap-2 transition-opacity duration-300 ${
           onHero ? 'opacity-100' : 'pointer-events-none opacity-0'
@@ -87,6 +87,7 @@ export function HomePage() {
           <span className="hidden sm:inline">{isMuted ? 'Muted' : 'Sound'}</span>
         </button>
       </div>
+      */}
 
       {/* Sections alternate paper / stone / mist backgrounds */}
       <TimelineSection />
