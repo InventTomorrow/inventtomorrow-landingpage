@@ -1,6 +1,9 @@
+
+// Previous version (restore: comment out the component above, uncomment this block, merge the imports)
+import { ArrowRight, Check, FileText, Moon, PhoneCall, Repeat, Star, type LucideIcon } from 'lucide-react';
 import { motion } from 'motion/react';
-import { PhoneCall, FileText, Moon, Star, Repeat, ArrowRight, Check, type LucideIcon } from 'lucide-react';
 import { SectionHeading } from './SectionHeading';
+import { FocusScene } from './illustrations/processScenes';
 
 const ROWS: { icon: LucideIcon; before: string; after: string }[] = [
   { icon: PhoneCall, before: 'Stop during a job to answer calls', after: 'Keep cleaning while every caller gets a reply' },
@@ -20,7 +23,7 @@ export function BeforeAfterSection() {
   return (
     <section id="before-after" className="relative z-10 w-full border-t border-ink/[0.06] bg-fade-stone section-y section-deco px-6 sm:px-12">
       <div className="mx-auto max-w-5xl">
-        <SectionHeading eyebrow="Before and after" title="What changes in your week" />
+        <SectionHeading scene={FocusScene} eyebrow="Before and after" title="What changes in your week" />
 
         <motion.div
           initial="hidden"

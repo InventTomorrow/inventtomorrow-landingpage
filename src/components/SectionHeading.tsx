@@ -1,16 +1,23 @@
-import { ReactNode } from 'react';
+import { ComponentType, ReactNode } from 'react';
 import { FadeUp } from './FadeUp';
 
 interface SectionHeadingProps {
   eyebrow?: string;
   title: ReactNode;
   subtitle?: ReactNode;
+  // Optional illustration shown above the heading
+  scene?: ComponentType;
   className?: string;
 }
 
-export function SectionHeading({ eyebrow, title, subtitle, className = '' }: SectionHeadingProps) {
+export function SectionHeading({ eyebrow, title, subtitle, scene: Scene, className = '' }: SectionHeadingProps) {
   return (
     <div className={`flex flex-col items-center text-center ${className}`}>
+      {Scene && (
+        <FadeUp delay={0} y={16} className="mb-2 h-32 w-52 sm:h-36 sm:w-60">
+          <Scene />
+        </FadeUp>
+      )}
       <FadeUp delay={0} y={8} className="mb-5">
         <span className="droplet-mark" aria-hidden="true" />
       </FadeUp>
