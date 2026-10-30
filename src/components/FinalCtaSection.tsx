@@ -54,7 +54,6 @@ export function FinalCtaSection({ title, titleAccent, body, smallLine, buttons =
               )}
               {buttons !== 'audit' && (
                 <CtaButton size="lg" variant={buttons === 'call' ? 'primary' : 'outline-light'} to={BOOKING_PATH}>
-                  <CalendarCheck className="h-5 w-5" aria-hidden="true" />
                   Schedule a Call
                 </CtaButton>
               )}
