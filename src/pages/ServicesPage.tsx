@@ -1,9 +1,13 @@
 import { PageHero } from '../components/PageHero';
 import { Section } from '../components/Section';
 import { SectionHeading } from '../components/SectionHeading';
+import { BuildScene } from '../components/illustrations/processScenes';
 import { FadeUp } from '../components/FadeUp';
 import { CtaButton } from '../components/CtaButton';
-import { JourneyCarousel } from '../components/JourneyCarousel';
+// import { JourneyCarousel } from '../components/JourneyCarousel';
+import { JourneyPathway } from '../components/JourneyPathway';
+// import { JourneySteps } from '../components/JourneySteps';
+import { ServiceTypesSection } from '../components/ServiceTypesSection';
 import { RevenueSystemSection } from '../components/RevenueSystemSection';
 import { FinalCtaSection } from '../components/FinalCtaSection';
 import { usePageMeta } from '../hooks/usePageMeta';
@@ -31,14 +35,19 @@ export function ServicesPage() {
         </CtaButton>
       </PageHero>
 
-      <Section bg="stone" id="services-system" className="overflow-hidden">
+      <ServiceTypesSection />
+
+      <Section bg="stone" id="services-system">
         <SectionHeading
+          scene={BuildScene}
           title="From inquiry to repeat business."
           subtitle="See what your system takes care of, every step of the way."
         />
-        <FadeUp delay={0.1} y={20} className="mt-14">
+        {/* <FadeUp delay={0.1} y={20} className="mt-14">
           <JourneyCarousel />
-        </FadeUp>
+        </FadeUp> */}
+        <JourneyPathway />
+        {/* <JourneySteps /> */}
         <FadeUp delay={0.15} y={12} className="mt-10 text-center">
           <p className="text-lg font-semibold tracking-tight text-ink">
             You approve the messages. <span className="text-muted font-normal">Our system handles the follow-through.</span>
