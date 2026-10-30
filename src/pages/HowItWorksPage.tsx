@@ -2,6 +2,7 @@ import { Search, SlidersHorizontal, Plug, RefreshCw, Check } from 'lucide-react'
 import { PageHero } from '../components/PageHero';
 import { Section } from '../components/Section';
 import { SectionHeading } from '../components/SectionHeading';
+import { AuditScene, BuildScene } from '../components/illustrations/processScenes';
 import { FadeUp } from '../components/FadeUp';
 import { CtaButton } from '../components/CtaButton';
 import { DefaultClosingCta } from '../components/FinalCtaSection';
@@ -64,6 +65,7 @@ export function HowItWorksPage() {
 
       <Section bg="paper">
         <SectionHeading
+          scene={AuditScene}
           eyebrow="The process"
           title="A smarter way to connect everything"
           subtitle="Each step has a clear purpose, a clear owner and a practical result."
@@ -94,6 +96,7 @@ export function HowItWorksPage() {
 
       <Section bg="stone" width="max-w-5xl">
         <SectionHeading
+          scene={BuildScene}
           title="Clear roles at every step"
           subtitle="You make the decisions that need your expertise while the system keeps the agreed process moving."
         />

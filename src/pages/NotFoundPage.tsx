@@ -1,3 +1,4 @@
+import { House } from 'lucide-react';
 import { PageHero } from '../components/PageHero';
 import { CtaButton } from '../components/CtaButton';
 import { usePageMeta } from '../hooks/usePageMeta';
@@ -12,7 +13,7 @@ export function NotFoundPage() {
       title="We couldn't find that page"
       description="It may have moved. Start from the home page, or book your free audit."
     >
-      <CtaButton size="lg" to="/">
+      <CtaButton size="lg" to="/" icon={House}>
         Go to the home page
       </CtaButton>
       <CtaButton size="lg" variant="outline-light" to={AUDIT_PATH}>

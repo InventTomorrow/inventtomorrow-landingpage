@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react';
+import { CalendarDays, Check } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { CtaButton } from '../components/CtaButton';
 import { FadeUp } from '../components/FadeUp';
@@ -108,7 +108,7 @@ export function FreeAuditPage() {
                 Next, choose a time in our booking calendar. Your audit is booked when you complete the calendar
                 confirmation.
               </p>
-              <CtaButton type="submit" size="lg" className="w-full" disabled={sending}>
+              <CtaButton type="submit" size="lg" icon={CalendarDays} className="w-full" disabled={sending}>
                 {sending ? 'Opening the calendar…' : 'Choose My Audit Time'}
               </CtaButton>
             </form>

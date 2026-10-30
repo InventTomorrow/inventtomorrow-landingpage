@@ -1,39 +1,43 @@
-import { Home, Building2, KeyRound, Sparkles } from 'lucide-react';
 import { PageHero } from '../components/PageHero';
-import { Section } from '../components/Section';
-import { SectionHeading } from '../components/SectionHeading';
-import { FadeUp } from '../components/FadeUp';
 import { CtaButton } from '../components/CtaButton';
 import { FinalCtaSection } from '../components/FinalCtaSection';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
 
-const TYPES = [
-  {
-    title: 'Residential cleaning',
-    text: 'Keep regular customers and new inquiries organized.',
-    tags: ['Recurring bookings', 'Appointment reminders', 'Customer preferences'],
-    icon: Home,
-  },
-  {
-    title: 'Commercial cleaning',
-    text: 'Keep client communication and team handoffs consistent.',
-    tags: ['Site visit reminders', 'Quote follow-ups', 'Job and client updates'],
-    icon: Building2,
-  },
-  {
-    title: 'Move-out and deep cleaning',
-    text: 'Keep time-sensitive inquiries and one-off jobs moving.',
-    tags: ['Quote details', 'Booking confirmations', 'Access instructions'],
-    icon: KeyRound,
-  },
-  {
-    title: 'Specialist cleaning',
-    text: 'Support the details around carpet, window, upholstery and other specialist jobs.',
-    tags: ['Service inquiries', 'Preparation instructions', 'Repeat booking reminders'],
-    icon: Sparkles,
-  },
-];
+// Moved to the Services page (components/ServiceTypesSection). To bring it back here, uncomment the
+// imports below, the TYPES list and the section further down.
+// import { Home, Building2, KeyRound, Sparkles } from 'lucide-react';
+// import { Section } from '../components/Section';
+// import { SectionHeading } from '../components/SectionHeading';
+// import { FocusScene } from '../components/illustrations/processScenes';
+// import { FadeUp } from '../components/FadeUp';
+
+// const TYPES = [
+//   {
+//     title: 'Residential cleaning',
+//     text: 'Keep regular customers and new inquiries organized.',
+//     tags: ['Recurring bookings', 'Appointment reminders', 'Customer preferences'],
+//     icon: Home,
+//   },
+//   {
+//     title: 'Commercial cleaning',
+//     text: 'Keep client communication and team handoffs consistent.',
+//     tags: ['Site visit reminders', 'Quote follow-ups', 'Job and client updates'],
+//     icon: Building2,
+//   },
+//   {
+//     title: 'Move-out and deep cleaning',
+//     text: 'Keep time-sensitive inquiries and one-off jobs moving.',
+//     tags: ['Quote details', 'Booking confirmations', 'Access instructions'],
+//     icon: KeyRound,
+//   },
+//   {
+//     title: 'Specialist cleaning',
+//     text: 'Support the details around carpet, window, upholstery and other specialist jobs.',
+//     tags: ['Service inquiries', 'Preparation instructions', 'Repeat booking reminders'],
+//     icon: Sparkles,
+//   },
+// ];
 
 export function WhoWeHelpPage() {
   usePageMeta(
@@ -57,8 +61,10 @@ export function WhoWeHelpPage() {
         </CtaButton>
       </PageHero>
 
+      {/*
       <Section bg="paper" id="service-types" width="max-w-5xl">
         <SectionHeading
+          scene={FocusScene}
           title="Built around the services you offer"
           subtitle="The jobs may be different. The need for clear, consistent follow-through is the same."
         />
@@ -95,6 +101,7 @@ export function WhoWeHelpPage() {
           </p>
         </FadeUp>
       </Section>
+      */}
 
       <FinalCtaSection
         title="See how it could fit your business"
