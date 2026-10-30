@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { Faq } from '../content/faq';
 import { FadeUp } from './FadeUp';
 import { SectionHeading } from './SectionHeading';
+import { HelpScene } from './illustrations/leakScenes';
 import { TextLink } from './TextLink';
 
 function FaqList({ faqs }: { faqs: Faq[] }) {
@@ -67,7 +68,7 @@ export function FaqSection({ faqs, showAllLink = false }: FaqSectionProps) {
   return (
     <section id="faq" className="relative z-10 w-full border-t border-ink/[0.06] bg-fade-paper section-y section-deco px-6 sm:px-12">
       <div className="mx-auto max-w-3xl">
-        <SectionHeading eyebrow="FAQ" title="FAQ questions" />
+        <SectionHeading scene={HelpScene} eyebrow="FAQ" title="FAQ questions" />
         <FadeUp delay={0.1} y={16} className="mt-12">
           <FaqList faqs={faqs} />
         </FadeUp>
