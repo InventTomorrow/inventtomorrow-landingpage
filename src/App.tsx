@@ -2,10 +2,10 @@ import { MotionConfig } from 'motion/react';
 import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { Footer } from './components/Footer';
-import { TopBar } from './components/TopBar';
 import { Navbar } from './components/Navbar';
 import { ScrollManager } from './components/ScrollManager';
 import { ScrollToTop } from './components/ScrollToTop';
+import { TopBar } from './components/TopBar';
 import { LEGAL_DOCS } from './content/legal';
 import { AboutPage } from './pages/AboutPage';
 import { BlogPage } from './pages/BlogPage';
@@ -19,7 +19,6 @@ import { LegalPage } from './pages/LegalPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { ResultsPage } from './pages/ResultsPage';
 import { ServicesPage } from './pages/ServicesPage';
-import { WhoWeHelpPage } from './pages/WhoWeHelpPage';
 import { startSmoothScroll } from './utils/smoothScroll';
 import { startSpotlight } from './utils/spotlight';
 
@@ -39,7 +38,7 @@ export default function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/how-it-works" element={<HowItWorksPage />} />
               <Route path="/services" element={<ServicesPage />} />
-              <Route path="/who-we-help" element={<WhoWeHelpPage />} />
+              {/* <Route path="/who-we-help" element={<WhoWeHelpPage />} /> */}
               <Route path="/about" element={<AboutPage />} />
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/results" element={<ResultsPage />} />

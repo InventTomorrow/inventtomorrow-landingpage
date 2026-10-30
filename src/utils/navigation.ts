@@ -9,7 +9,7 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'home', label: 'Home', to: '/' },
   { id: 'how-it-works', label: 'How It Works', to: '/how-it-works' },
   { id: 'services', label: 'Services', to: '/services' },
-  { id: 'who-we-help', label: 'Who We Help', to: '/who-we-help' },
+  // { id: 'who-we-help', label: 'Who We Help', to: '/who-we-help' },
   { id: 'about', label: 'About Us', to: '/about' },
   { id: 'blog', label: 'Blog', to: '/blog' },
 ];

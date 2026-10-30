@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import { SocialLinks } from './SocialLinks';
 // import { SocialLinks } from './SocialLinks';
 
 const LINKS = [
@@ -21,7 +22,7 @@ export function TopBar() {
               </Link>
             ))}
           </nav>
-          {/* <SocialLinks size="sm" /> */}
+          <SocialLinks size="sm" />
         </div>
       </div>
     </div>
