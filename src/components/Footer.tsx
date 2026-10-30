@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { BOOKING_PATH } from '../utils/navigation';
+import { SocialLinks } from './SocialLinks';
 // import { SocialLinks } from './SocialLinks';
 
 const COLUMNS = [
@@ -8,7 +9,7 @@ const COLUMNS = [
     links: [
       { to: '/services', label: 'Services' },
       { to: '/how-it-works', label: 'How It Works' },
-      { to: '/who-we-help', label: 'Who We Help' },
+      // { to: '/who-we-help', label: 'Who We Help' },
       { to: '/blog', label: 'Blog' },
     ],
   },
@@ -46,7 +47,7 @@ export function Footer() {
               <span className="text-lg font-semibold tracking-tight text-white">Invent Tomorrow</span>
             </Link>
             <p className="mt-4 text-base text-white/95">Win back the jobs you already earned.</p>
-            {/* <SocialLinks className="mt-6" /> */}
+            <SocialLinks className="mt-6" />
           </div>
 
           {COLUMNS.map((column) => (
