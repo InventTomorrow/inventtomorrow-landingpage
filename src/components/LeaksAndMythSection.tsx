@@ -1,20 +1,25 @@
 import { FadeUp } from './FadeUp';
 import { SectionHeading } from './SectionHeading';
 import { PhoneMissed, Clock, FileText } from 'lucide-react';
+import { TiltCard } from './TiltCard';
+import { ForgottenQuoteScene, MissedCallScene, SlowReplyScene } from './illustrations/leakScenes';
 
 const LEAKS = [
   {
     icon: PhoneMissed,
+    scene: MissedCallScene,
     title: 'The missed call',
     text: 'About half of calls to home service businesses never reach a real person.',
   },
   {
     icon: Clock,
+    scene: SlowReplyScene,
     title: 'The slow reply',
     text: "71% of companies take over an hour to answer a web lead. Customers won't wait.",
   },
   {
     icon: FileText,
+    scene: ForgottenQuoteScene,
     title: 'The forgotten quote',
     text: 'You send the estimate, follow up once, then get busy.',
   },
@@ -29,13 +34,16 @@ export function LeaksAndMythSection() {
         <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
           {LEAKS.map((leak, i) => {
             const Icon = leak.icon;
+            const Scene = leak.scene;
             return (
-              <FadeUp
+              <TiltCard
                 key={leak.title}
                 delay={0.1 + i * 0.08}
-                y={18}
-                className="spotlight flex flex-col rounded-2xl border border-ink/[0.08] bg-white p-7 transition-[border-color,box-shadow] duration-300 hover:border-ink/25 hover:shadow-hover-lift"
+                className="spotlight flex flex-col rounded-2xl border border-ink/[0.08] bg-white p-7 transition-[border-color,box-shadow] duration-300 hover:border-ink/25 hover:shadow-card-lg"
               >
+                <div className="-mx-1 -mt-1 mb-6 h-36 overflow-hidden rounded-xl bg-gradient-to-b from-accent-soft/60 to-transparent">
+                  <Scene />
+                </div>
                 <div className="flex items-center justify-between">
                   <span className="flex h-10 w-10 items-center justify-center rounded-drop bg-accent-soft text-accent">
                     <Icon className="h-[1.125rem] w-[1.125rem]" />
@@ -46,7 +54,7 @@ export function LeaksAndMythSection() {
                 </div>
                 <p className="mt-6 text-lg font-semibold text-ink">{leak.title}</p>
                 <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted">{leak.text}</p>
-              </FadeUp>
+              </TiltCard>
             );
           })}
         </div>
