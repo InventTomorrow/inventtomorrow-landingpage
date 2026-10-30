@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { motion } from 'motion/react';
+import { GraphicShape } from './GraphicShape';
 
 interface PageHeroProps {
   eyebrow: string;
@@ -24,6 +25,8 @@ export function PageHero({ eyebrow, title, titleMuted, description, children, me
         <span className="graphic-drop-outline absolute -right-[10rem] -top-[12rem] h-[40rem] w-[40rem]" />
         <span className="graphic-drop absolute -bottom-24 -left-16 h-64 w-64" />
         <span className="absolute right-[12%] bottom-[18%] h-6 w-6 rounded-drop bg-sky" />
+        <GraphicShape name="swirl" className="-bottom-28 -right-10 w-[24rem] opacity-25" />
+        <GraphicShape name="dots-grid" className="left-[9%] top-[34%] h-14 w-14 opacity-70" />
       </div>
 
       <div

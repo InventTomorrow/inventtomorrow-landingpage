@@ -364,3 +364,28 @@ body {
   .section-deco:nth-of-type(-n+3)::after { width: 20rem; height: 20rem; }
 }
 }
+
+/* Illustration motion: gentle float, ring pulses. All switched off for reduced motion. */
+@keyframes illu-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes illu-ring { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@keyframes illu-dot { 0%, 100% { opacity: 0.3; } 40% { opacity: 1; } }
+@keyframes illu-spin { to { transform: rotate(360deg); } }
+@keyframes illu-sweep { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-8px, -6px); } }
+@keyframes illu-flow { to { stroke-dashoffset: -22; } }
+@keyframes illu-pulse { 0% { transform: scale(0.8); opacity: 0.9; } 100% { transform: scale(1.35); opacity: 0; } }
+@layer components {
+.illu-float { animation: illu-float 4.5s ease-in-out infinite; }
+.illu-float-slow { animation: illu-float 6s ease-in-out infinite 0.6s; }
+.illu-ring { animation: illu-ring 1.8s ease-in-out infinite; }
+.illu-dot-1 { animation: illu-dot 1.2s infinite; }
+.illu-dot-2 { animation: illu-dot 1.2s infinite 0.2s; }
+.illu-dot-3 { animation: illu-dot 1.2s infinite 0.4s; }
+.illu-spin { animation: illu-spin 14s linear infinite; }
+.illu-flow { animation: illu-flow 1.1s linear infinite; }
+.illu-sweep { animation: illu-sweep 3.6s ease-in-out infinite; }
+.illu-pulse { animation: illu-pulse 1.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+@media (prefers-reduced-motion: reduce) {
+  .illu-float, .illu-float-slow, .illu-ring, .illu-dot-1, .illu-dot-2, .illu-dot-3,
+  .illu-spin, .illu-flow, .illu-sweep, .illu-pulse { animation: none; }
+}
+}
