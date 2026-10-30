@@ -2,6 +2,7 @@ import { Timer, Send, Clock3, TrendingUp, Repeat } from 'lucide-react';
 import { PageHero } from '../components/PageHero';
 import { Section } from '../components/Section';
 import { SectionHeading } from '../components/SectionHeading';
+import { AuditScene } from '../components/illustrations/processScenes';
 import { FadeUp } from '../components/FadeUp';
 import { CtaButton } from '../components/CtaButton';
 import { DefaultClosingCta } from '../components/FinalCtaSection';
@@ -35,7 +36,7 @@ export function ResultsPage() {
       </PageHero>
 
       <Section bg="paper" width="max-w-5xl">
-        <SectionHeading title="What to keep track of" />
+        <SectionHeading scene={AuditScene} title="What to keep track of" />
         <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-6">
           {MEASURES.map((item, i) => {
             const Icon = item.icon;

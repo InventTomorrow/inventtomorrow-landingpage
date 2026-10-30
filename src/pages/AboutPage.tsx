@@ -12,6 +12,9 @@ import {
 import { PageHero } from '../components/PageHero';
 import { Section } from '../components/Section';
 import { SectionHeading } from '../components/SectionHeading';
+import { BuildScene, CleanScene } from '../components/illustrations/processScenes';
+// import { FocusScene } from '../components/illustrations/processScenes';
+import { HoverCard } from '../components/HoverCard';
 import { FadeUp } from '../components/FadeUp';
 import { CtaButton } from '../components/CtaButton';
 import { TextLink } from '../components/TextLink';
@@ -65,9 +68,16 @@ export function AboutPage() {
 
       <Section bg="paper" width="max-w-5xl">
         <SectionHeading
+          scene={CleanScene}
           eyebrow="Our mission"
           title="We build simple systems that cut paperwork, save time, reduce costs, and help cleaning businesses grow."
         />
+        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
+          {OUTCOMES.map((item, i) => (
+            <HoverCard key={item.title} icon={item.icon} title={item.title} text={item.text} delay={0.08 + i * 0.07} />
+          ))}
+        </div>
+        {/* Previous cards
         <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
           {OUTCOMES.map((item, i) => {
             const Icon = item.icon;
@@ -87,13 +97,21 @@ export function AboutPage() {
             );
           })}
         </div>
+        */}
       </Section>
 
       <Section bg="stone" width="max-w-5xl">
         <SectionHeading
+          scene={BuildScene}
           eyebrow="What we believe"
           title="Three principles guide every system we design and every decision we make."
         />
+        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
+          {BELIEFS.map((item, i) => (
+            <HoverCard key={item.title} icon={item.icon} title={item.title} text={item.text} number={`0${i + 1}`} delay={0.08 + i * 0.07} />
+          ))}
+        </div>
+        {/* Previous cards
         <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
           {BELIEFS.map((item, i) => {
             const Icon = item.icon;
@@ -116,6 +134,7 @@ export function AboutPage() {
             );
           })}
         </div>
+        */}
       </Section>
 
       <Section bg="mist" width="max-w-6xl">
