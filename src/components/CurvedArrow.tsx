@@ -25,11 +25,11 @@ const SHAPES: Record<CurvedArrowVariant, { viewBox: string; line: string; head: 
   },
 };
 
-const DRAW_SECONDS = 0.9;
-const HEAD_FADE_SECONDS = 0.3;
+const DRAW_SECONDS = 0.6;
+const HEAD_FADE_SECONDS = 0.2;
 
 // A hand-off arrow that draws itself from its start dot to its head as it scrolls into view.
-export function CurvedArrow({ variant, className, delay = 0.5 }: CurvedArrowProps) {
+export function CurvedArrow({ variant, className, delay = 0.3 }: CurvedArrowProps) {
   const shape = SHAPES[variant];
   const line: Variants = {
     hidden: { pathLength: 0, opacity: 0 },
@@ -51,7 +51,7 @@ export function CurvedArrow({ variant, className, delay = 0.5 }: CurvedArrowProp
       className={`text-accent ${className ?? ''}`}
       initial="hidden"
       whileInView="shown"
-      viewport={{ amount: 0.6 }}
+      viewport={{ once: true, amount: 0.6 }}
       aria-hidden="true"
     >
       <motion.circle cx={shape.dot.cx} cy={shape.dot.cy} r={5} fill="currentColor" variants={dot} style={{ transformBox: 'fill-box', transformOrigin: 'center' }} />

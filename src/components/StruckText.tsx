@@ -1,14 +1,14 @@
 import { motion, type Variants } from 'motion/react';
 import type { ReactNode } from 'react';
 
-const STRIKE_DELAY_SECONDS = 0.55;
+const STRIKE_DELAY_SECONDS = 0.25;
 
 const strikeVariants: Variants = {
   hidden: { pathLength: 0, opacity: 0 },
   shown: {
     pathLength: 1,
     opacity: 1,
-    transition: { delay: STRIKE_DELAY_SECONDS, duration: 0.6, ease: [0.65, 0, 0.35, 1], opacity: { delay: STRIKE_DELAY_SECONDS, duration: 0.05 } },
+    transition: { delay: STRIKE_DELAY_SECONDS, duration: 0.35, ease: [0.65, 0, 0.35, 1], opacity: { delay: STRIKE_DELAY_SECONDS, duration: 0.05 } },
   },
 };
 

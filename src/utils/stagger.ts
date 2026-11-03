@@ -16,15 +16,6 @@ export function calculateWordDelay(
   return Number((baseDelay + index * step).toFixed(3));
 }
 
-export type ScrollDirection = 'down' | 'up';
-
-// Rows enter top-first while scrolling down and bottom-first while scrolling up.
-export function getRowDelay(index: number, count: number, direction: ScrollDirection, step = 0.09): number {
-  if (index < 0 || index >= count) return 0;
-  const position = direction === 'down' ? index : count - 1 - index;
-  return Number((position * step).toFixed(3));
-}
-
 export interface WordStaggerItem {
   word: string;
   delay: number;
