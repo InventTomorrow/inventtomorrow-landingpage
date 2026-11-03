@@ -324,15 +324,18 @@ body {
 }
 
 /*
-  Section decoration: a soft blue glow on one side of every section, alternating right / left.
-  The first two sections after the hero also get a teardrop. overflow: clip (not hidden) keeps sticky children working.
+  Section decoration: a soft mesh gradient across every section, like a lit studio backdrop. Layered blue lights
+  fade toward white; the main one sits top right on odd sections and top left on even ones (--mesh-x).
+  The first three sections after the hero also get a teardrop. overflow: clip (not hidden) keeps sticky children working.
 */
 @layer components {
 .section-deco {
   position: relative;
   isolation: isolate;
   overflow: clip;
+  --mesh-x: 92%;
 }
+.section-deco:nth-of-type(even) { --mesh-x: 8%; }
 .section-deco::before,
 .section-deco:nth-of-type(-n+3)::after {
   content: '';
@@ -341,11 +344,11 @@ body {
   pointer-events: none;
 }
 .section-deco::before {
-  top: -8rem;
-  width: 32rem;
-  height: 32rem;
-  border-radius: 50%;
-  background: radial-gradient(circle closest-side, color-mix(in srgb, var(--color-primary) 14%, transparent), transparent);
+  inset: 0;
+  background:
+    radial-gradient(48rem 34rem at var(--mesh-x) -4%, color-mix(in srgb, var(--color-primary) 22%, transparent), transparent 70%),
+    radial-gradient(40rem 30rem at calc(100% - var(--mesh-x)) 100%, color-mix(in srgb, var(--color-sky) 40%, transparent), transparent 70%),
+    radial-gradient(30rem 22rem at 50% 55%, color-mix(in srgb, var(--color-accent-soft) 80%, transparent), transparent 75%);
 }
 .section-deco:nth-of-type(-n+3)::after {
   bottom: 3rem;
@@ -355,12 +358,9 @@ body {
   border: 1px solid color-mix(in srgb, var(--color-primary) 16%, transparent);
   background: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 12%, transparent), color-mix(in srgb, var(--color-sky) 6%, transparent));
 }
-.section-deco:nth-of-type(odd)::before { right: -12rem; }
 .section-deco:nth-of-type(odd)::after { right: -4rem; }
-.section-deco:nth-of-type(even)::before { left: -12rem; }
 .section-deco:nth-of-type(even)::after { left: -4rem; transform: scaleX(-1); }
 @media (min-width: 64rem) {
-  .section-deco::before { width: 44rem; height: 44rem; }
   .section-deco:nth-of-type(-n+3)::after { width: 20rem; height: 20rem; }
 }
 }
