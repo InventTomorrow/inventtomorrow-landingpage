@@ -35,7 +35,7 @@ const OUR_PART: { label: string; icon: LucideIcon }[] = [
 ];
 
 // Wide screens: our card starts tucked behind yours, up and to the left, and slides out to its place.
-const SYSTEM_CARD_START: FanOutStart = { fromX: -30, fromY: -22, delay: 0.3, layer: 1 };
+const SYSTEM_CARD_START: FanOutStart = { fromX: -30, fromY: -22, delay: 0.2, layer: 1 };
 const WIDE_QUERY = '(min-width: 64rem)';
 
 export function DoneForYouSection() {
@@ -120,8 +120,8 @@ export function DoneForYouSection() {
                   key={label}
                   initial={{ opacity: 0, y: 12 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ amount: 0.4 }}
-                  transition={{ delay: 0.55 + i * 0.07, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  viewport={{ once: true, amount: 0.4 }}
+                  transition={{ delay: 0.35 + i * 0.05, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                   className="spotlight spotlight-light flex items-center gap-3.5 border-white/10 px-5 py-4 max-sm:not-first:border-t sm:nth-[n+3]:border-t sm:odd:border-r"
                 >
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-drop bg-white/10 text-sky">

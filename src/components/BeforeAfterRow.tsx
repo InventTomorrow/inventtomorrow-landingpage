@@ -1,7 +1,6 @@
 import { Check, type LucideIcon } from 'lucide-react';
-import { motion, useReducedMotion, type Variants } from 'motion/react';
+import { motion, useInView, useReducedMotion, type Variants } from 'motion/react';
 import { useRef } from 'react';
-import { useDirectionalReveal } from '../hooks/useDirectionalReveal';
 import { StruckText } from './StruckText';
 
 interface BeforeAfterRowProps {
@@ -13,36 +12,38 @@ interface BeforeAfterRowProps {
 }
 
 const EASE = [0.22, 1, 0.36, 1] as const;
+// The row starts as soon as its top edge is this far up from the bottom of the screen, so it plays while the visitor is still looking at it.
+const ENTRY_MARGIN = '0px 0px -12% 0px';
 
 // One beat per line: the icon and old line appear, the old line is struck through, then the new line arrives.
 const iconVariants: Variants = {
   hidden: { opacity: 0, scale: 0.85 },
-  shown: { opacity: 1, scale: 1, transition: { duration: 0.45, ease: EASE } },
+  shown: { opacity: 1, scale: 1, transition: { duration: 0.3, ease: EASE } },
 };
 const beforeVariants: Variants = {
   hidden: { opacity: 0, y: 8 },
-  shown: { opacity: 1, y: 0, transition: { delay: 0.1, duration: 0.4, ease: EASE } },
+  shown: { opacity: 1, y: 0, transition: { delay: 0.03, duration: 0.25, ease: EASE } },
 };
 const afterVariants: Variants = {
   hidden: { opacity: 0, y: 12, filter: 'blur(4px)' },
-  shown: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { delay: 1.15, duration: 0.55, ease: EASE } },
+  shown: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { delay: 0.55, duration: 0.35, ease: EASE } },
 };
 const checkVariants: Variants = {
   hidden: { opacity: 0, scale: 0 },
-  shown: { opacity: 1, scale: 1, transition: { delay: 1.3, type: 'spring', stiffness: 500, damping: 22 } },
+  shown: { opacity: 1, scale: 1, transition: { delay: 0.65, type: 'spring', stiffness: 600, damping: 24 } },
 };
 
-// Plays when the row is nearly all on screen and again every time it comes back into view.
+// Plays once, the first time the row scrolls into view.
 export function BeforeAfterRow({ icon: Icon, before, after, label }: BeforeAfterRowProps) {
   const rowRef = useRef<HTMLLIElement>(null);
   const reduceMotion = useReducedMotion();
-  const { isVisible } = useDirectionalReveal(rowRef, 0.9);
+  const isInView = useInView(rowRef, { once: true, margin: ENTRY_MARGIN });
 
   return (
     <motion.li
       ref={rowRef}
       initial="hidden"
-      animate={isVisible || reduceMotion ? 'shown' : 'hidden'}
+      animate={isInView || reduceMotion ? 'shown' : 'hidden'}
       className="spotlight relative flex items-start gap-4 px-2 py-6 sm:items-center sm:gap-6 sm:px-5 sm:py-7"
     >
       <motion.span

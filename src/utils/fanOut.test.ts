@@ -7,12 +7,12 @@ test('getFanOutStart keeps the first item in place and on top', () => {
 });
 
 test('getFanOutStart starts later items on the first column, one step later each', () => {
-  assert.deepEqual(getFanOutStart(2, 3, 3), { fromX: -200, fromY: 0, delay: 0.32, layer: 1 });
+  assert.deepEqual(getFanOutStart(2, 3, 3), { fromX: -200, fromY: 0, delay: 0.2, layer: 1 });
 });
 
 test('getFanOutStart piles a two-column grid on its first cell', () => {
-  assert.deepEqual(getFanOutStart(3, 4, 2), { fromX: -100, fromY: -100, delay: 0.48, layer: 1 });
-  assert.deepEqual(getFanOutStart(2, 4, 2), { fromX: 0, fromY: -100, delay: 0.32, layer: 2 });
+  assert.deepEqual(getFanOutStart(3, 4, 2), { fromX: -100, fromY: -100, delay: 0.3, layer: 1 });
+  assert.deepEqual(getFanOutStart(2, 4, 2), { fromX: 0, fromY: -100, delay: 0.2, layer: 2 });
 });
 
 test('getFanOutStart slips out from behind the item above in a single column', () => {
