@@ -1,4 +1,6 @@
 import { Home, Building2, KeyRound, Sparkles } from 'lucide-react';
+import { useMediaQuery } from '../hooks/useMediaQuery';
+import { getFanOutStart } from '../utils/fanOut';
 import { FadeUp } from './FadeUp';
 import { HoverCard } from './HoverCard';
 import { Section } from './Section';
@@ -39,11 +41,13 @@ function getDividerClasses(index: number, count: number): string {
     index < count - 1 ? 'border-b' : '',
     isLastRow ? 'md:border-b-0' : 'md:border-b',
     index % 2 === 0 ? 'md:border-r' : '',
-    'border-ink/10 hover:border-navy',
+    'border-ink/[0.08]',
   ].join(' ');
 }
 
 export function ServiceTypesSection() {
+  const columns = useMediaQuery('(min-width: 48rem)') ? 2 : 1;
+
   return (
     <Section bg="paper" id="service-types" width="max-w-5xl">
       <SectionHeading
@@ -55,13 +59,12 @@ export function ServiceTypesSection() {
         {TYPES.map((type, i) => (
           <HoverCard
             key={type.title}
-            variant="plain"
             className={getDividerClasses(i, TYPES.length)}
             icon={type.icon}
             title={type.title}
             text={type.text}
             tags={type.tags}
-            delay={0.08 + i * 0.07}
+            start={getFanOutStart(i, TYPES.length, columns)}
           />
         ))}
       </div>
