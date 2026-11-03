@@ -12,7 +12,7 @@ const ALTERNATE_LEAN_PERCENT = 6;
 
 // Items in a grid start piled on its first cell, then slide out to their own in reading order.
 // A single column (phones) can't fan sideways, so each item slips out from behind the one above it.
-export function getFanOutStart(index: number, count: number, columns: number, step = 0.16): FanOutStart {
+export function getFanOutStart(index: number, count: number, columns: number, step = 0.1): FanOutStart {
   const layer = count - index;
   if (columns <= 1) return { fromX: 0, fromY: STACKED_OFFSET_PERCENT, delay: 0, layer };
   const column = index % columns;

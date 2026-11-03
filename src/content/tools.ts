@@ -1,4 +1,4 @@
-import { Calendar, CreditCard, Database, Phone, Star, type LucideIcon } from 'lucide-react';
+import { Phone, type LucideIcon } from 'lucide-react';
 
 export interface Tool {
   name: string;
@@ -8,16 +8,14 @@ export interface Tool {
   icon?: LucideIcon;
 }
 
-export interface ToolCategory {
-  category: string;
-  tools: Tool[];
-  icon: LucideIcon;
-}
-
-export const TOOL_CATEGORIES: ToolCategory[] = [
-  { category: 'Booking and scheduling', tools: [{ name: 'Jobber' }, { name: 'Housecall Pro' }], icon: Calendar },
-  { category: 'Calls and texts', tools: [{ name: 'Your business line', icon: Phone }, { name: 'OpenPhone' }], icon: Phone },
-  { category: 'Payments and invoicing', tools: [{ name: 'Stripe' }, { name: 'QuickBooks' }], icon: CreditCard },
-  { category: 'Reviews', tools: [{ name: 'Google Business Profile' }], icon: Star },
-  { category: 'CRM and leads', tools: [{ name: 'HubSpot' }, { name: 'Google Sheets' }], icon: Database },
+export const TOOLS: Tool[] = [
+  { name: 'Jobber' },
+  { name: 'Housecall Pro' },
+  { name: 'Your business line', icon: Phone },
+  { name: 'OpenPhone' },
+  { name: 'Stripe' },
+  { name: 'QuickBooks' },
+  { name: 'Google Business Profile' },
+  { name: 'HubSpot' },
+  { name: 'Google Sheets' },
 ];

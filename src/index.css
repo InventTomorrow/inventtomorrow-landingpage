@@ -268,6 +268,14 @@ body {
   to { transform: translateX(100%); }
 }
 
+/* Tool slider: the track holds two identical copies, so sliding half its width loops seamlessly */
+@utility animate-marquee {
+  animation: marquee 32s linear infinite;
+}
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
 /* Brand shapes: a teardrop is a circle with one sharp corner. Used for icon chips and decoration. */
 @utility rounded-drop {
   border-radius: 50% 50% 0 50%;

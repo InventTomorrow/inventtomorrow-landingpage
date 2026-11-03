@@ -15,12 +15,12 @@ export type FadeUpProps = {
 export function FadeUp({
   children,
   delay = 0,
-  duration = 0.7,
+  duration = 0.5,
   y = 24,
   className,
   style,
   as = 'div',
-  once = false,
+  once = true,
 }: FadeUpProps) {
   const Tag = motion[as];
   return (

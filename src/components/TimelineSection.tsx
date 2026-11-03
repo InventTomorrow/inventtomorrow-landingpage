@@ -78,12 +78,12 @@ function TimePill({ time, reached, size = 'md' }: { time: string; reached: boole
 
 export function TimelineSection() {
   const timelineRef = useRef<HTMLDivElement>(null);
-  const inView = useInView(timelineRef, { amount: 0.5 });
+  const inView = useInView(timelineRef, { amount: 0.5, once: true });
   const reduceMotion = useReducedMotion();
   const [active, setActive] = useState(-1);
   const [run, setRun] = useState(0);
 
-  // Plays every time the timeline scrolls into view, and resets while it's off screen.
+  // Plays the first time the timeline scrolls into view; the replay button runs it again.
   useEffect(() => {
     if (!inView) {
       if (!reduceMotion) setActive(-1);
