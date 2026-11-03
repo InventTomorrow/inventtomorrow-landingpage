@@ -1,25 +1,28 @@
 import {
-  Clock3,
   CircleDollarSign,
+  Clock3,
   Focus,
   Handshake,
-  Workflow,
+  Lightbulb,
   ShieldCheck,
   Users,
+  Workflow,
   Wrench,
-  Lightbulb,
 } from 'lucide-react';
 import { PageHero } from '../components/PageHero';
 import { Section } from '../components/Section';
 import { SectionHeading } from '../components/SectionHeading';
 import { BuildScene, CleanScene } from '../components/illustrations/processScenes';
 // import { FocusScene } from '../components/illustrations/processScenes';
-import { HoverCard } from '../components/HoverCard';
-import { FadeUp } from '../components/FadeUp';
+// HoverCard replaced with line-style cards below
 import { CtaButton } from '../components/CtaButton';
-import { TextLink } from '../components/TextLink';
+import { EmergeFromBehind } from '../components/EmergeFromBehind';
+import { FadeUp } from '../components/FadeUp';
 import { FinalCtaSection } from '../components/FinalCtaSection';
+import { TextLink } from '../components/TextLink';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { getFanOutStart } from '../utils/fanOut';
 import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
 
 const OUTCOMES = [
@@ -45,6 +48,8 @@ const STRENGTHS = [
 ];
 
 export function AboutPage() {
+  const columns = useMediaQuery('(min-width: 48rem)') ? 3 : 1;
+
   usePageMeta(
     'About Us | Invent Tomorrow',
     'Invent Tomorrow builds simple, reliable automation systems that make everyday work easier for cleaning businesses.',
@@ -72,32 +77,25 @@ export function AboutPage() {
           eyebrow="Our mission"
           title="We build simple systems that cut paperwork, save time, reduce costs, and help cleaning businesses grow."
         />
-        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
-          {OUTCOMES.map((item, i) => (
-            <HoverCard key={item.title} icon={item.icon} title={item.title} text={item.text} delay={0.08 + i * 0.07} />
-          ))}
-        </div>
-        {/* Previous cards
-        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
+        <div className="mt-14 grid grid-cols-1 divide-y divide-ink/[0.08] md:grid-cols-3 md:divide-x md:divide-y-0 md:-mx-9 md:mt-5">
           {OUTCOMES.map((item, i) => {
             const Icon = item.icon;
             return (
-              <FadeUp
+              <EmergeFromBehind
                 key={item.title}
-                delay={0.08 + i * 0.07}
-                y={18}
-                className="spotlight rounded-2xl border border-ink/[0.08] bg-white p-7 transition-colors duration-300 hover:border-ink/25"
+                start={getFanOutStart(i, OUTCOMES.length, columns)}
+                className="spotlight py-8 max-md:first:pt-0 max-md:last:pb-0 md:p-9"
+                innerClassName="group"
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-drop bg-accent-soft text-accent">
-                  <Icon className="h-5 w-5" />
+                <span className="flex h-11 w-11 items-center justify-center rounded-drop bg-accent-soft text-accent transition-colors duration-300 group-hover:bg-accent group-hover:text-white">
+                  <Icon className="h-5 w-5" strokeWidth={1.75} />
                 </span>
-                <h3 className="mt-5 text-lg font-semibold text-ink">{item.title}</h3>
+                <h3 className="mt-5 text-lg font-semibold tracking-tight text-ink">{item.title}</h3>
                 <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted">{item.text}</p>
-              </FadeUp>
+              </EmergeFromBehind>
             );
           })}
         </div>
-        */}
       </Section>
 
       <Section bg="stone" width="max-w-5xl">
@@ -106,35 +104,28 @@ export function AboutPage() {
           eyebrow="What we believe"
           title="Three principles guide every system we design and every decision we make."
         />
-        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
-          {BELIEFS.map((item, i) => (
-            <HoverCard key={item.title} icon={item.icon} title={item.title} text={item.text} number={`0${i + 1}`} delay={0.08 + i * 0.07} />
-          ))}
-        </div>
-        {/* Previous cards
-        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-3">
+        <div className="mt-14 grid grid-cols-1 divide-y divide-ink/[0.08] md:grid-cols-3 md:divide-x md:divide-y-0 md:-mx-9 md:mt-5">
           {BELIEFS.map((item, i) => {
             const Icon = item.icon;
             return (
-              <FadeUp
+              <EmergeFromBehind
                 key={item.title}
-                delay={0.08 + i * 0.07}
-                y={18}
-                className="spotlight flex min-h-[17rem] flex-col rounded-3xl border border-ink/[0.08] bg-white p-8 transition-colors duration-300 hover:border-ink/25"
+                start={getFanOutStart(i, BELIEFS.length, columns)}
+                className="spotlight py-8 max-md:first:pt-0 max-md:last:pb-0 md:p-9"
+                innerClassName="group"
               >
                 <div className="flex items-start justify-between">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-drop bg-accent-soft text-accent">
-                    <Icon className="h-5 w-5" />
+                  <span className="flex h-11 w-11 items-center justify-center rounded-drop bg-accent-soft text-accent transition-colors duration-300 group-hover:bg-accent group-hover:text-white">
+                    <Icon className="h-5 w-5" strokeWidth={1.75} />
                   </span>
-                  <span className="text-4xl font-bold leading-none tracking-tight text-ink/[0.1] tabular-nums">0{i + 1}</span>
+                  <span className="text-3xl font-bold leading-none tracking-tight tabular-nums text-ink/[0.07]">0{i + 1}</span>
                 </div>
-                <h3 className="mt-auto pt-10 text-xl font-semibold tracking-tight text-ink">{item.title}</h3>
+                <h3 className="mt-5 text-lg font-semibold tracking-tight text-ink">{item.title}</h3>
                 <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted">{item.text}</p>
-              </FadeUp>
+              </EmergeFromBehind>
             );
           })}
         </div>
-        */}
       </Section>
 
       <Section bg="mist" width="max-w-6xl">
