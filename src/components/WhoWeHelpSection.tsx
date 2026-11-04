@@ -40,21 +40,21 @@ export function WhoWeHelpSection() {
     >
       <div className="w-full max-w-6xl mx-auto flex flex-col items-center text-center">
         <FadeUp delay={0.1} y={16}>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] backdrop-blur-sm">
-            <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#60A5FA]">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08]">
+            <span className="text-xs font-bold text-white/90">
               WHO WE SERVE
             </span>
           </div>
         </FadeUp>
 
         <FadeUp delay={0.2} y={24}>
-          <h2 className="mt-4 text-3xl sm:text-5xl font-bold tracking-tight text-white max-w-3xl">
+          <h2 className="mt-4 text-3xl sm:text-5xl font-bold text-white max-w-3xl">
             Built For Operators Who Win By Doing, Not Sitting At A Desk.
           </h2>
         </FadeUp>
 
         <FadeUp delay={0.3} y={20}>
-          <p className="mt-4 text-sm sm:text-base text-neutral-400 max-w-xl mx-auto">
+          <p className="mt-4 text-sm sm:text-base text-white/70 max-w-xl mx-auto">
             When you're doing high-craft work in the field, every second spent answering price-shoppers pulls you out of revenue-generating work.
           </p>
         </FadeUp>
@@ -65,35 +65,35 @@ export function WhoWeHelpSection() {
               key={sector.title}
               delay={0.2 + index * 0.1}
               y={24}
-              className="p-6 sm:p-8 rounded-2xl bg-neutral-900/50 border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between"
+       className="p-6 sm:p-8 rounded-2xl bg-white/[0.06] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-white tracking-tight">
+                  <h3 className="text-xl font-bold text-white">
                     {sector.title}
                   </h3>
-                  <span className="text-[11px] font-medium text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2.5 py-0.5 rounded-full">
+                  <span className="text-xs font-medium text-white bg-white/10 border border-white/20 px-2.5 py-0.5 rounded-full">
                     {sector.metrics}
                   </span>
                 </div>
 
                 <div className="space-y-3 mt-4 text-sm">
-                  <div className="flex items-start gap-2.5 text-neutral-400">
-                    <span className="text-red-400 font-medium text-xs uppercase tracking-wider shrink-0 mt-0.5">
+                  <div className="flex items-start gap-2.5 text-white/70">
+                    <span className="text-white/70 font-medium text-xs shrink-0 mt-0.5">
                       The Pain:
                     </span>
                     <span>{sector.pain}</span>
                   </div>
 
-                  <div className="flex items-start gap-2.5 text-neutral-200">
-                    <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
+                  <div className="flex items-start gap-2.5 text-white/90">
+                    <CheckCircle2 className="w-4 h-4 text-white shrink-0 mt-0.5" />
                     <span>{sector.solution}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-white/5 flex items-center gap-2 text-xs text-neutral-400">
-                <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+              <div className="mt-6 pt-4 border-t border-white/5 flex items-center gap-2 text-xs text-white/70">
+                <Sparkles className="w-3.5 h-3.5 text-white" />
                 <span>Zero interruption workflow active</span>
               </div>
             </FadeUp>
