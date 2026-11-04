@@ -1,4 +1,4 @@
-import { motion, useInView } from 'motion/react';
+import { m, useInView } from 'motion/react';
 import { ReactNode, useRef } from 'react';
 import type { FanOutStart } from '../utils/fanOut';
 
@@ -23,7 +23,7 @@ export function EmergeFromBehind({ start, children, className, innerClassName }:
 
   return (
     <div ref={holderRef} className={className}>
-      <motion.div
+      <m.div
         initial={tucked}
         animate={isInView ? placed : tucked}
         transition={{ duration: 0.55, delay: start.delay, ease: EASE, opacity: { duration: 0.35, delay: start.delay } }}
@@ -31,7 +31,7 @@ export function EmergeFromBehind({ start, children, className, innerClassName }:
         className={innerClassName}
       >
         {children}
-      </motion.div>
+      </m.div>
     </div>
   );
 }

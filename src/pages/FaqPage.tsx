@@ -20,7 +20,7 @@ export function FaqPage() {
         titleMuted="Straight answers."
         description="What your system handles and how you stay in control."
       >
-        <CtaButton size="lg" to={AUDIT_PATH}>
+        <CtaButton size="lg" variant="accent" to={AUDIT_PATH}>
           Run My Audit
         </CtaButton>
       </PageHero>

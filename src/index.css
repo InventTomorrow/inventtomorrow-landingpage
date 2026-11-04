@@ -1,66 +1,74 @@
-@import url('https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 /*
-  One theme for the whole site (palette from the Cleener design system). Components only use these tokens.
-  navy / ink            – headings, dark surfaces (cards, closing CTA)
-  primary / on-primary  – brand blue and the white text on it: every main call to action, icons, eyebrows, progress
-  sky                   – light blue for highlights on dark surfaces (navy cards, closing CTA)
-  body / muted          – paragraph and supporting text
-  paper / stone / mist  – the light section backgrounds: white, then two pale blues, alternated down the page
-  footer                – the footer surface
-  To re-theme, change the values here only.
+  One theme for the whole site (Poolax design system): flat colour blocking, navy and blue, Outfit and DM Sans.
+  Components only use these tokens.
+  primary / on-primary  – deep navy and the white on it: headings, main buttons, dark bands (hero, closing CTA, footer)
+  accent                – vibrant blue: secondary buttons, icons, accent lines, highlights on navy
+  ink / body            – paragraph text, and supporting text (captions, dates)
+  paper / stone         – the two section backgrounds (canvas white, surface pale blue), alternated down the page
+  border                – 1px lines around cards and between sections
+  Fonts: DM Sans for paragraphs, buttons, navigation and labels (the default); Outfit (font-display) for headings and big numerals.
+  To re-theme, change the values here only. Depth comes from colour blocks, not shadows; only floating panels get shadow-float.
 */
 @theme static {
-  --font-sans: 'Mulish', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-weight-bold: 800;
+  --font-sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --default-font-family: var(--font-sans);
 
-  --color-primary: #2e72ff;
-  --color-primary-hover: #1f5fe6;
-  --color-primary-active: #1850c4;
-  --color-sky: #9dc0ff;
-  --color-navy: #13287e;
-  --color-navy-deep: #0d1c5a;
+  --color-primary: #010f34;
   --color-on-primary: #ffffff;
-  --color-blue: var(--color-primary);
+  --color-accent: #0181f5;
+  --color-accent-hover: color-mix(in srgb, var(--color-accent) 85%, var(--color-primary));
+  --color-accent-active: color-mix(in srgb, var(--color-accent) 70%, var(--color-primary));
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 12%, var(--color-paper));
 
-  --color-ink: var(--color-navy);
-  --color-body: #5c5c5c;
-  --color-muted: #59617e;
-  --color-faint: #e2e2e2;
+  --color-ink: #515151;
+  --color-body: #788094;
 
   --color-paper: #ffffff;
-  --color-stone: #f6faff;
-  --color-mist: #eaf2fe;
-  --color-surface-raised: #eef3fb;
-  --color-footer: #05173d;
+  --color-stone: #f5f7fa;
+  --color-border: #d8dde1;
 
-  --color-accent: var(--color-primary);
-  --color-accent-hover: var(--color-primary-hover);
-  --color-accent-soft: #e3eefe;
+  /* Corner scale: xs (10px) for buttons, inputs and icon chips. Cards stay square. */
+  --radius-xs: 0.625rem;
 
-  --shadow-card: 0 24px 50px -34px color-mix(in srgb, var(--color-navy) 35%, transparent);
-  --shadow-card-lg: 0 30px 60px -30px color-mix(in srgb, var(--color-navy) 45%, transparent);
-  --shadow-card-dark: 0 30px 60px -30px color-mix(in srgb, var(--color-navy) 70%, transparent);
-  --shadow-cta: 0 30px 80px -20px color-mix(in srgb, var(--color-navy) 55%, transparent);
-  --shadow-chip: 0 12px 30px -18px color-mix(in srgb, var(--color-navy) 35%, transparent);
-  --shadow-hover-lift: 0 10px 30px -18px color-mix(in srgb, var(--color-ink) 35%, transparent);
-  --shadow-menu: 0 16px 30px -20px color-mix(in srgb, var(--color-navy) 40%, transparent);
-  --shadow-modal: 0 24px 80px color-mix(in srgb, var(--color-navy) 25%, transparent);
-  --shadow-pop: 0 8px 24px color-mix(in srgb, var(--color-navy) 25%, transparent);
-  --shadow-pop-hover: 0 12px 32px color-mix(in srgb, var(--color-navy) 40%, transparent);
-  --shadow-bubble: 0 10px 24px -14px color-mix(in srgb, var(--color-navy) 60%, transparent);
+  /* Tight tracking on the large display headlines only */
+  --tracking-display: -0.03em;
+
+  /* Paragraph size and line: 16px on a 28px line */
+  --text-base--line-height: calc(28 / 16);
+
+  --shadow-float: 0 0 2.125rem 0 rgb(0 0 0 / 0.08);
 }
 
-/* Vertical rhythm for every full-width section: 80px phones, 112px tablets, 144px laptops */
+/* Vertical rhythm for every full-width section: 64px phones, 80px tablets, 96px laptops */
 @utility section-y {
-  padding-block: 5rem;
-  @media (min-width: 40rem) { padding-block: 7rem; }
-  @media (min-width: 64rem) { padding-block: 9rem; }
+  padding-block: 4rem;
+  @media (min-width: 40rem) { padding-block: 5rem; }
+  @media (min-width: 64rem) { padding-block: 6rem; }
 }
 
-* {
-  font-family: var(--font-sans);
+/* Soft gradient backdrops. Colours come from the theme tokens; change them in @theme only. */
+@utility bg-hero-soft {
+  background-color: var(--color-stone);
+  background-image:
+    radial-gradient(48rem 32rem at 6% 0%, color-mix(in srgb, var(--color-accent) 10%, transparent), transparent 70%),
+    radial-gradient(54rem 38rem at 100% 100%, color-mix(in srgb, var(--color-accent) 24%, transparent), transparent 70%);
+}
+@utility bg-navy-glow {
+  background-color: var(--color-primary);
+  background-image:
+    radial-gradient(46rem 28rem at 100% 0%, color-mix(in srgb, var(--color-accent) 40%, transparent), transparent 70%),
+    radial-gradient(36rem 24rem at 0% 100%, color-mix(in srgb, var(--color-accent) 18%, transparent), transparent 70%);
+}
+@utility bg-accent-glow {
+  background-color: var(--color-accent);
+  background-image: linear-gradient(135deg, var(--color-accent), color-mix(in srgb, var(--color-accent) 60%, var(--color-primary)));
+}
+@utility bg-fade-stone {
+  background-color: var(--color-stone);
+  background-image: linear-gradient(180deg, var(--color-stone), color-mix(in srgb, var(--color-stone) 30%, var(--color-paper)));
 }
 
 /*
@@ -72,7 +80,7 @@
 html {
   font-size: max(100%, min(1.7778svh, 1.1111vw));
   color-scheme: light;
-  background-color: var(--color-footer);
+  background-color: var(--color-primary);
 }
 
 body {
@@ -81,183 +89,56 @@ body {
   width: 100%;
   min-height: 100vh;
   background-color: var(--color-paper);
-  color: var(--color-ink);
+  color: var(--color-body);
+  line-height: calc(28 / 16);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+@layer base {
+  h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); }
+}
+
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--color-paper); }
-::-webkit-scrollbar-thumb { background: var(--color-faint); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: var(--radius-sm); }
+::-webkit-scrollbar-thumb:hover { background: var(--color-body); }
 
-/*
-  Hero. The video plays in its original colours. Its backdrop is a grey studio gradient (dark on the
-  left, light at the top right), so the section background continues that same grey and the frame
-  has no visible edge.
-*/
-.hero-stage {
-  background: linear-gradient(180deg, #626262 0%, #5d5d5d 50%, #555555 100%);
-}
-
-/* Phones and tablets: the orb sits above the copy, and a round fade blends its edges into the grey. */
-.hero-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  -webkit-mask-image: radial-gradient(circle closest-side at 50% 50%, #000 78%, transparent 100%);
-  mask-image: radial-gradient(circle closest-side at 50% 50%, #000 78%, transparent 100%);
-}
-
-/*
-  Desktop: the orb sits to the right of the copy, centred in the space below the navbar, with its ring
-  ending exactly where the navbar button ends.
-
-  The video's backdrop is one soft light falling from just above its top-right corner. The section
-  background recreates that light (measured from the footage, within ~2 shades), anchored to wherever
-  the video sits, so the video can be any size and its edges simply fade into the same grey.
-
-  --v   video height: 93% of the space below the navbar, leaving room above and below the orb
-  --ox  orb centre: 40rem = half the 80rem content column, 3rem = side padding, 0.431 = ring radius ÷ video height
-  --oy  orb centre: middle of the space below the navbar
-  Light centre = orb centre + (1.031, -0.94) video heights. Gradient stops are in video heights too.
-*/
-@media (min-width: 64rem) {
-  .hero-stage {
-    --hero-h: clamp(40rem, 100svh, 62.5vw);
-    --nav-h: 4.75rem;
-    --v: calc(0.93 * (var(--hero-h) - var(--nav-h)));
-    --ox: calc(50% + min(40rem, 50% - 3rem) - 0.431 * var(--v));
-    --oy: calc(var(--nav-h) + (var(--hero-h) - var(--nav-h)) / 2);
-    height: var(--hero-h);
-    background: radial-gradient(
-      circle at calc(var(--ox) + 1.031 * var(--v)) calc(var(--oy) - 0.94 * var(--v)),
-      #e0e0e0 0,
-      #dedede calc(0.48 * var(--v)),
-      #dadada calc(0.64 * var(--v)),
-      #cecece calc(0.8 * var(--v)),
-      #c0c0c0 calc(0.96 * var(--v)),
-      #b0b0b0 calc(1.12 * var(--v)),
-      #9d9d9d calc(1.28 * var(--v)),
-      #8c8c8c calc(1.44 * var(--v)),
-      #7c7c7c calc(1.6 * var(--v)),
-      #6f6f6f calc(1.76 * var(--v)),
-      #656565 calc(1.92 * var(--v)),
-      #5f5f5f calc(2 * var(--v)),
-      #5e5e5e calc(2.08 * var(--v)),
-      #595959 calc(2.24 * var(--v)),
-      #545454 calc(2.4 * var(--v)),
-      #4c4c4c calc(2.8 * var(--v)),
-      #454545 calc(3.4 * var(--v))
-    );
-  }
-  .hero-video {
-    inset: auto;
-    left: calc(var(--ox) - 0.8889 * var(--v));
-    top: calc(var(--oy) - 0.5 * var(--v));
-    height: var(--v);
-    width: auto;
-    max-width: none;
-    aspect-ratio: 16 / 9;
-    -webkit-mask-image:
-      linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%),
-      linear-gradient(180deg, transparent 0%, #000 10%, #000 90%, transparent 100%);
-    -webkit-mask-composite: source-in;
-    mask-image:
-      linear-gradient(90deg, transparent 0%, #000 10%, #000 90%, transparent 100%),
-      linear-gradient(180deg, transparent 0%, #000 10%, #000 90%, transparent 100%);
-    mask-composite: intersect;
-  }
-}
-
-/* Inner pages: a navy band lit by a soft blue glow from the top right, matching the closing CTA. */
-.page-hero {
-  background:
-    radial-gradient(60rem 36rem at 100% -10%, color-mix(in srgb, var(--color-primary) 45%, transparent) 0%, transparent 70%),
-    radial-gradient(36rem 26rem at 0% 110%, color-mix(in srgb, var(--color-primary) 22%, transparent) 0%, transparent 70%),
-    linear-gradient(180deg, var(--color-navy) 0%, var(--color-navy-deep) 100%);
-}
-
-/*
-  Hover: a soft grey light follows the cursor across cards, echoing the light in the hero video.
-  The position comes from a single pointer listener (src/utils/spotlight.ts). The glow sits behind the
-  card's content, so text is never tinted.
-*/
-@layer components {
-.spotlight {
-  position: relative;
-  isolation: isolate;
-}
-.spotlight::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  pointer-events: none;
-  background: radial-gradient(
-    22rem circle at var(--spot-x, 50%) var(--spot-y, 50%),
-    color-mix(in srgb, var(--color-ink) 13%, transparent),
-    color-mix(in srgb, var(--color-ink) 4%, transparent) 45%,
-    transparent 70%
-  );
-  opacity: 0;
-  transition: opacity 0.35s ease;
-}
-.spotlight:hover::before {
-  opacity: 1;
-}
-/* On dark cards the light is white */
-.spotlight-light::before {
-  background: radial-gradient(
-    18rem circle at var(--spot-x, 50%) var(--spot-y, 50%),
-    rgba(255, 255, 255, 0.12),
-    rgba(255, 255, 255, 0.03) 45%,
-    transparent 70%
-  );
-}
-
-@media (hover: none) {
-  .spotlight::before { display: none; }
-}
-}
-
-/* Decorative CSS-only graphics for the dark blocks (final CTA card, footer). Always aria-hidden. */
+/* Decorative CSS-only graphics for the navy blocks (page hero, closing CTA, footer). Always aria-hidden. */
 @layer components {
 .graphic-grid {
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+    linear-gradient(color-mix(in srgb, var(--color-on-primary) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-on-primary) 7%, transparent) 1px, transparent 1px);
   background-size: 3rem 3rem;
   -webkit-mask-image: radial-gradient(ellipse 70% 80% at 50% 40%, #000 0%, transparent 75%);
   mask-image: radial-gradient(ellipse 70% 80% at 50% 40%, #000 0%, transparent 75%);
 }
-.graphic-rings {
-  background: repeating-radial-gradient(circle at center, transparent 0 2.5rem, rgba(255, 255, 255, 0.09) 2.5rem calc(2.5rem + 1px));
-  -webkit-mask-image: radial-gradient(circle closest-side, #000 20%, transparent 100%);
-  mask-image: radial-gradient(circle closest-side, #000 20%, transparent 100%);
+/* Large flat drops: a solid blue tint and an outline */
+.graphic-drop {
+  border-radius: 50% 50% 0 50%;
+  background: color-mix(in srgb, var(--color-accent) 28%, transparent);
 }
-.graphic-glow {
-  background: radial-gradient(circle closest-side, color-mix(in srgb, var(--color-blue) 55%, transparent), transparent 100%);
+.graphic-drop-outline {
+  border-radius: 50% 50% 0 50%;
+  border: 1px solid color-mix(in srgb, var(--color-on-primary) 18%, transparent);
 }
 }
 
-/* Loading placeholder: a grey block with a light band sweeping across it */
+/* Loading placeholder: a flat block with a light band sweeping across it */
 @layer components {
 .skeleton {
   position: relative;
   overflow: hidden;
-  background-color: var(--color-surface-raised);
+  background-color: var(--color-stone);
 }
 .skeleton::after {
   content: '';
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-paper) 75%, transparent), transparent);
+  background: linear-gradient(90deg, transparent, var(--color-paper), transparent);
   animation: skeleton-sweep 1.4s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -276,95 +157,31 @@ body {
   to { transform: translateX(-50%); }
 }
 
-/* Brand shapes: a teardrop is a circle with one sharp corner. Used for icon chips and decoration. */
+/* Brand shape: a teardrop is a circle with one sharp corner. Used for decoration. */
 @utility rounded-drop {
   border-radius: 50% 50% 0 50%;
 }
 
-/* The small blue + yellow droplet pair that sits above section headings */
-@layer components {
-.droplet-mark {
-  position: relative;
-  display: inline-block;
-  width: 2.25rem;
-  height: 1.5rem;
-}
-.droplet-mark::before,
-.droplet-mark::after {
-  content: '';
-  position: absolute;
-  border-radius: 50% 0 50% 50%;
-}
-.droplet-mark::before {
-  left: 0;
-  bottom: 0;
-  width: 0.95rem;
-  height: 0.95rem;
-  background: var(--color-blue);
-}
-.droplet-mark::after {
-  left: 1.1rem;
-  top: 0;
-  width: 0.8rem;
-  height: 0.8rem;
-  background: var(--color-sky);
-}
-/* Large translucent drops for dark blocks */
-.graphic-drop {
-  border-radius: 50% 50% 0 50%;
-  background: color-mix(in srgb, var(--color-blue) 28%, transparent);
-}
-.graphic-drop-outline {
-  border-radius: 50% 50% 0 50%;
-  border: 1px solid color-mix(in srgb, var(--color-paper) 18%, transparent);
-}
-}
-
-/* Soft gradient section backgrounds: each fades slightly toward the next shade down the page */
-@utility bg-fade-paper {
-  background-image: linear-gradient(165deg, var(--color-paper) 0%, color-mix(in srgb, var(--color-stone) 55%, var(--color-paper)) 100%);
-}
-@utility bg-fade-stone {
-  background-image: linear-gradient(165deg, var(--color-stone) 0%, color-mix(in srgb, var(--color-mist) 45%, var(--color-stone)) 100%);
-}
-@utility bg-fade-mist {
-  background-image: linear-gradient(165deg, var(--color-mist) 0%, color-mix(in srgb, var(--color-stone) 60%, var(--color-mist)) 100%);
-}
-
 /*
-  Section decoration: a soft mesh gradient across every section, like a lit studio backdrop. Layered blue lights
-  fade toward white; the main one sits top right on odd sections and top left on even ones (--mesh-x).
-  The first three sections after the hero also get a teardrop. overflow: clip (not hidden) keeps sticky children working.
+  Section decoration: a flat outlined teardrop on the first three sections after the hero, top-right on odd
+  sections and top-left on even ones. overflow: clip (not hidden) keeps sticky children working.
 */
 @layer components {
 .section-deco {
   position: relative;
   isolation: isolate;
   overflow: clip;
-  --mesh-x: 92%;
 }
-.section-deco:nth-of-type(even) { --mesh-x: 8%; }
-.section-deco::before,
 .section-deco:nth-of-type(-n+3)::after {
   content: '';
   position: absolute;
   z-index: -1;
   pointer-events: none;
-}
-.section-deco::before {
-  inset: 0;
-  background:
-    radial-gradient(48rem 34rem at var(--mesh-x) -4%, color-mix(in srgb, var(--color-primary) 22%, transparent), transparent 70%),
-    radial-gradient(40rem 30rem at calc(100% - var(--mesh-x)) 100%, color-mix(in srgb, var(--color-sky) 40%, transparent), transparent 70%),
-    radial-gradient(30rem 22rem at 50% 55%, color-mix(in srgb, var(--color-accent-soft) 80%, transparent), transparent 75%);
-}
-.section-deco:nth-of-type(-n+3)::after {
   bottom: 3rem;
   width: 14rem;
   height: 14rem;
   border-radius: 50% 50% 0 50%;
-  border: 1px solid color-mix(in srgb, var(--color-primary) 16%, transparent);
-  background: linear-gradient(135deg, color-mix(in srgb, var(--color-primary) 12%, transparent), color-mix(in srgb, var(--color-sky) 6%, transparent));
+  border: 1px solid color-mix(in srgb, var(--color-accent) 16%, transparent);
 }
 .section-deco:nth-of-type(odd)::after { right: -4rem; }
 .section-deco:nth-of-type(even)::after { left: -4rem; transform: scaleX(-1); }

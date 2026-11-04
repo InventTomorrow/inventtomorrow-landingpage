@@ -1,7 +1,11 @@
+import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router';
 import { BOOKING_PATH } from '../utils/navigation';
+import { AccentHeading } from './AccentHeading';
+import { RecentPostsList } from './RecentPostsList';
 import { SocialLinks } from './SocialLinks';
-// import { SocialLinks } from './SocialLinks';
+import { Stagger } from './Stagger';
+import { StaggerItem } from './StaggerItem';
 
 const COLUMNS = [
   {
@@ -22,47 +26,66 @@ const COLUMNS = [
       { to: BOOKING_PATH, label: 'Schedule a Call' },
     ],
   },
-  {
-    title: 'Legal',
-    links: [
-      { to: '/privacy', label: 'Privacy Policy' },
-      { to: '/terms', label: 'Terms' },
-      { to: '/sms-consent', label: 'SMS Consent' },
-    ],
-  },
+];
+
+const LEGAL_LINKS = [
+  { to: '/privacy', label: 'Privacy Policy' },
+  { to: '/terms', label: 'Terms' },
+  { to: '/sms-consent', label: 'SMS Consent' },
 ];
 
 export function Footer() {
   return (
-    <footer className="relative z-10 mx-2 overflow-hidden rounded-t-[2rem] bg-footer px-6 pt-16 pb-12 sm:mx-4 sm:rounded-t-[3.5rem] sm:px-12 [main:has(.final-cta)+&]:pt-44 sm:[main:has(.final-cta)+&]:pt-60">
+    <footer className="relative z-10 overflow-hidden bg-navy-glow text-white [main:has(.final-cta)+&]:pt-32 sm:[main:has(.final-cta)+&]:pt-36">
       <div className="graphic-grid pointer-events-none absolute inset-0" aria-hidden="true" />
       <div className="graphic-drop-outline pointer-events-none absolute -bottom-40 -right-24 h-[30rem] w-[30rem]" aria-hidden="true" />
-      <div className="graphic-drop pointer-events-none absolute -bottom-24 right-40 hidden h-40 w-40 opacity-60 md:block" aria-hidden="true" />
-      <div className="graphic-glow pointer-events-none absolute -bottom-64 left-1/4 h-[28rem] w-[40rem] opacity-30" aria-hidden="true" />
-      <div className="relative mx-auto max-w-[90rem]">
-        <div className="grid grid-cols-2 gap-x-8 gap-y-12 border-b border-white/10 pb-12 md:grid-cols-12">
-          <div className="col-span-2 md:col-span-5">
-            <Link to="/" className="inline-flex items-center gap-2.5">
-              <span className="flex h-7 w-7 items-center justify-center rounded-drop bg-primary text-xs font-bold text-on-primary">IT</span>
-              <span className="text-lg font-semibold tracking-tight text-white">Invent Tomorrow</span>
-            </Link>
-            <p className="mt-4 text-base text-white/95">Win back the jobs you already earned.</p>
-            <SocialLinks className="mt-6" />
-          </div>
+
+      <div className="relative px-6 pb-12 pt-14 sm:px-12 sm:pt-16">
+        <Stagger gap={0.1} className="mx-auto grid max-w-7xl grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-12">
+          <StaggerItem className="col-span-2 md:col-span-4">
+            <AccentHeading>Invent Tomorrow</AccentHeading>
+            <p className="mt-4 font-display text-lg font-semibold text-white">Win back the jobs you already earned.</p>
+            <p className="mt-3 max-w-sm text-base text-white/70">
+              We're Invent Tomorrow, a team that works with cleaning businesses to solve everyday challenges and build simpler ways to work.
+              Follow-up and booking systems: inquiries answered, teams informed and less for you to chase.
+            </p>
+            <SocialLinks isSquare className="mt-6" />
+          </StaggerItem>
 
           {COLUMNS.map((column) => (
-            <div key={column.title} className="flex flex-col gap-3 text-sm md:col-span-2 md:last:col-span-3">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-white/70">{column.title}</span>
+            <StaggerItem key={column.title} className="flex flex-col gap-3 text-base md:col-span-2">
+              <AccentHeading>{column.title}</AccentHeading>
               {column.links.map((link) => (
-                <Link key={link.label} to={link.to} className="text-white/85 transition-colors hover:text-white">
+                <Link key={link.label} to={link.to} className="group inline-flex w-fit items-center gap-2 text-white/70 transition-colors hover:text-white">
+                  <ArrowRight className="h-4 w-4 text-accent transition-transform duration-300 motion-safe:group-hover:translate-x-1" aria-hidden="true" />
                   {link.label}
                 </Link>
               ))}
-            </div>
+            </StaggerItem>
           ))}
-        </div>
 
-        <p className="pt-8 text-xs text-white/65">© {new Date().getFullYear()} Invent Tomorrow. All rights reserved.</p>
+          <StaggerItem className="col-span-2 md:col-span-4">
+            <AccentHeading>Recent posts</AccentHeading>
+            <div className="mt-4">
+              <RecentPostsList />
+            </div>
+          </StaggerItem>
+        </Stagger>
+      </div>
+
+      <div className="relative bg-accent px-6 py-5 text-on-primary">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-sm sm:flex-row">
+          <p>© {new Date().getFullYear()} Invent Tomorrow. All rights reserved.</p>
+          <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+            {LEGAL_LINKS.map((link) => (
+              <li key={link.to}>
+                <Link to={link.to} className="underline-offset-4 transition-colors hover:underline">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </footer>
   );

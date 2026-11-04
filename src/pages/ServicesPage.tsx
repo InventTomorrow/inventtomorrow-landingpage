@@ -7,8 +7,8 @@ import { CtaButton } from '../components/CtaButton';
 // import { JourneyCarousel } from '../components/JourneyCarousel';
 import { JourneyPathway } from '../components/JourneyPathway';
 // import { JourneySteps } from '../components/JourneySteps';
+import { ServiceGridSection } from '../components/ServiceGridSection';
 import { ServiceTypesSection } from '../components/ServiceTypesSection';
-import { RevenueSystemSection } from '../components/RevenueSystemSection';
 import { FinalCtaSection } from '../components/FinalCtaSection';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
@@ -27,7 +27,7 @@ export function ServicesPage() {
         titleMuted="behind every job"
         description="From the first inquiry to the next booking, our system takes care of the routine follow-through."
       >
-        <CtaButton size="lg" to={AUDIT_PATH}>
+        <CtaButton size="lg" variant="accent" to={AUDIT_PATH}>
           Run My Audit
         </CtaButton>
         <CtaButton size="lg" variant="outline-light" to={BOOKING_PATH}>
@@ -35,12 +35,14 @@ export function ServicesPage() {
         </CtaButton>
       </PageHero>
 
+      <ServiceGridSection />
+
       <ServiceTypesSection />
 
-      <Section bg="stone" id="services-system">
+      <Section bg="soft" id="services-system">
         <SectionHeading
           scene={BuildScene}
-          title="From inquiry to repeat business."
+          title="From inquiry" titleMuted="to repeat business."
           subtitle="See what your system takes care of, every step of the way."
         />
         {/* <FadeUp delay={0.1} y={20} className="mt-14">
@@ -49,13 +51,12 @@ export function ServicesPage() {
         <JourneyPathway />
         {/* <JourneySteps /> */}
         <FadeUp delay={0.15} y={12} className="mt-10 text-center">
-          <p className="text-lg font-semibold tracking-tight text-ink">
-            You approve the messages. <span className="text-muted font-normal">Our system handles the follow-through.</span>
+          <p className="font-display text-lg font-semibold text-primary">
+            You approve the messages. <span className="text-body font-normal">Our system handles the follow-through.</span>
           </p>
         </FadeUp>
       </Section>
 
-      <RevenueSystemSection />
 
       <FinalCtaSection
         title="Simplify what happens behind every job"

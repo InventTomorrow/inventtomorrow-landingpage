@@ -13,7 +13,7 @@ export function NotFoundPage() {
       title="We couldn't find that page"
       description="It may have moved. Start from the home page, or book your free audit."
     >
-      <CtaButton size="lg" to="/" icon={House}>
+      <CtaButton size="lg" variant="accent" to="/" icon={House}>
         Go to the home page
       </CtaButton>
       <CtaButton size="lg" variant="outline-light" to={AUDIT_PATH}>

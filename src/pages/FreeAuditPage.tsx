@@ -15,7 +15,7 @@ const BULLETS = [
 ];
 
 const inputClass =
-  'w-full rounded-lg border border-ink/15 bg-white px-4 py-3 text-base text-ink placeholder-ink/35 transition-colors select-text focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15';
+  'w-full rounded-xs border border-border bg-paper px-4 py-3 text-base font-normal text-ink placeholder-primary/35 transition-colors select-text focus:border-accent focus:outline-2 focus:outline-offset-2 focus:outline-accent';
 
 export function FreeAuditPage() {
   usePageMeta(
@@ -52,32 +52,33 @@ export function FreeAuditPage() {
       <Section bg="paper" width="max-w-[70rem]">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
           <FadeUp y={16} className="lg:sticky lg:top-32 lg:self-start">
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">A clear starting point</span>
-            <h2 className="mt-4 text-3xl sm:text-[2.5rem] font-bold leading-[1.12] tracking-tight text-ink text-balance">
+            <span className="text-xs font-semibold text-accent">A clear starting point</span>
+            <h2 className="mt-4 text-3xl sm:text-4xl font-bold leading-[1.12] text-primary text-balance">
               What's taking up your day?
             </h2>
-            <p className="mt-4 text-base sm:text-lg leading-relaxed text-muted">
+            <p className="mt-4 text-base sm:text-lg text-body">
               Choose a time to walk through your business. Bring the tasks you keep putting off and the follow-ups you keep
               chasing.
             </p>
             <ul className="mt-8 space-y-3">
               {BULLETS.map((item) => (
-                <li key={item} className="flex items-start gap-3 text-ink">
+                <li key={item} className="flex items-start gap-3 text-primary">
                   <Check className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
                   {item}
                 </li>
               ))}
             </ul>
+            {/* <SiteImage alt="A cleaner on a job" label="Audit image" width={560} height={360} className="mt-8 rounded-2xl" /> */}
           </FadeUp>
 
           <FadeUp
             delay={0.1}
             y={18}
-            className="rounded-3xl border border-ink/[0.08] bg-white p-7 shadow-card sm:p-10"
+      className="rounded-3xl border border-border bg-paper p-7 sm:p-10"
           >
             <form onSubmit={onSubmit} className="space-y-5">
               <div>
-                <label htmlFor="audit-name" className="mb-2 block text-sm font-medium text-ink">
+                <label htmlFor="audit-name" className="mb-2 block text-sm font-medium text-primary">
                   Full name
                 </label>
                 <input
@@ -91,7 +92,7 @@ export function FreeAuditPage() {
                 />
               </div>
               <div>
-                <label htmlFor="audit-email" className="mb-2 block text-sm font-medium text-ink">
+                <label htmlFor="audit-email" className="mb-2 block text-sm font-medium text-primary">
                   Work email
                 </label>
                 <input
@@ -104,7 +105,7 @@ export function FreeAuditPage() {
                   className={inputClass}
                 />
               </div>
-              <p className="text-sm leading-relaxed text-muted">
+              <p className="text-sm leading-relaxed text-body">
                 Next, choose a time in our booking calendar. Your audit is booked when you complete the calendar
                 confirmation.
               </p>

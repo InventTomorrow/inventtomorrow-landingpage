@@ -53,7 +53,7 @@ export function WhoWeHelpPage() {
         titleMuted="Our flexibility."
         description="We adapt to your cleaning business with flexible automation that simplifies tasks, streamlines follow-ups, and keeps operations running smoothly."
       >
-        <CtaButton size="lg" to={AUDIT_PATH}>
+        <CtaButton size="lg" variant="accent" to={AUDIT_PATH}>
           Run My Audit
         </CtaButton>
         <CtaButton size="lg" variant="outline-light" to={BOOKING_PATH}>
@@ -65,7 +65,7 @@ export function WhoWeHelpPage() {
       <Section bg="paper" id="service-types" width="max-w-5xl">
         <SectionHeading
           scene={FocusScene}
-          title="Built around the services you offer"
+          title="Built around" titleMuted="the services you offer"
           subtitle="The jobs may be different. The need for clear, consistent follow-through is the same."
         />
         <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2">
@@ -76,16 +76,16 @@ export function WhoWeHelpPage() {
                 key={type.title}
                 delay={0.08 + i * 0.07}
                 y={18}
-                className="spotlight flex flex-col rounded-2xl border border-ink/[0.08] bg-white p-7 transition-colors duration-300 hover:border-ink/25 sm:p-8"
+        className="flex flex-col rounded-2xl border border-border bg-paper p-7 transition-colors duration-300 hover:border-accent sm:p-8"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-drop bg-accent-soft text-accent">
+                <span className="flex h-12 w-12 items-center justify-center rounded-xs bg-accent-soft text-accent">
                   <Icon className="h-5 w-5" />
                 </span>
-                <h3 className="mt-6 text-xl font-semibold tracking-tight text-ink">{type.title}</h3>
-                <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted">{type.text}</p>
-                <div className="mt-6 flex flex-wrap gap-2 border-t border-ink/[0.07] pt-6">
+                <h3 className="mt-6 text-xl font-semibold text-primary">{type.title}</h3>
+                <p className="mt-2 text-base text-body">{type.text}</p>
+                <div className="mt-6 flex flex-wrap gap-2 border-t border-border pt-6">
                   {type.tags.map((tag) => (
-                    <span key={tag} className="rounded-full bg-stone px-3 py-1 text-sm text-ink/80">
+                    <span key={tag} className="rounded-full bg-stone px-3 py-1 text-sm text-primary/80">
                       {tag}
                     </span>
                   ))}
@@ -95,9 +95,9 @@ export function WhoWeHelpPage() {
           })}
         </div>
         <FadeUp delay={0.15} y={12} className="mt-12 text-center">
-          <p className="text-lg font-semibold tracking-tight text-ink">
+          <p className="font-display text-lg font-semibold text-primary">
             Your business has its own way of working.{' '}
-            <span className="text-muted font-normal">Your system should support it.</span>
+            <span className="text-body font-normal">Your system should support it.</span>
           </p>
         </FadeUp>
       </Section>

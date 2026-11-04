@@ -1,41 +1,57 @@
 import { ComponentType, ReactNode } from 'react';
-import { FadeUp } from './FadeUp';
+import { Stagger } from './Stagger';
+import { StaggerItem } from './StaggerItem';
 
 interface SectionHeadingProps {
   eyebrow?: string;
   title: ReactNode;
+  // Second part of the heading, shown faded on its own line
+  titleMuted?: ReactNode;
   subtitle?: ReactNode;
   // Optional illustration shown above the heading
   scene?: ComponentType;
+  align?: 'center' | 'left';
   className?: string;
 }
 
-export function SectionHeading({ eyebrow, title, subtitle, scene: Scene, className = '' }: SectionHeadingProps) {
+const NOTCH = 'h-3 w-2 shrink-0 bg-accent [clip-path:polygon(0_0,100%_0,35%_100%,0_100%)]';
+
+// The heading block of a section. Its parts appear one after another, watched by a single observer.
+export function SectionHeading({ eyebrow, title, titleMuted, subtitle, scene: Scene, align = 'center', className = '' }: SectionHeadingProps) {
+  const isCentered = align === 'center';
+
   return (
-    <div className={`flex flex-col items-center text-center ${className}`}>
+    <Stagger gap={0.07} className={`flex flex-col ${isCentered ? 'items-center text-center' : 'items-start text-left'} ${className}`}>
       {Scene && (
-        <FadeUp delay={0} y={16} className="mb-2 h-32 w-52 sm:h-36 sm:w-60">
+        <StaggerItem distance={16} className="mb-2 h-32 w-52 sm:h-36 sm:w-60">
           <Scene />
-        </FadeUp>
+        </StaggerItem>
       )}
-      <FadeUp delay={0} y={8} className="mb-5">
-        <span className="droplet-mark" aria-hidden="true" />
-      </FadeUp>
       {eyebrow && (
-        <FadeUp delay={0.05} y={12} className="mb-4">
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">{eyebrow}</span>
-        </FadeUp>
+        <StaggerItem distance={12} className="mb-3">
+          <p className="flex items-center gap-2 font-display text-sm font-medium uppercase text-accent sm:text-base">
+            <span className={NOTCH} aria-hidden="true" />
+            {eyebrow}
+            {isCentered && <span className={`${NOTCH} -scale-x-100`} aria-hidden="true" />}
+          </p>
+        </StaggerItem>
       )}
-      <FadeUp delay={0.12} y={18}>
-        <h2 className="max-w-3xl text-3xl sm:text-[2.75rem] font-bold tracking-tight leading-[1.12] text-ink text-balance">
+      <StaggerItem distance={18}>
+        <h2 className="max-w-3xl text-3xl sm:text-4xl xl:text-5xl font-semibold leading-[1.2] tracking-display text-primary text-balance">
           {title}
+          {titleMuted && (
+            <>
+              {' '}
+              <span className="block text-primary/45">{titleMuted}</span>
+            </>
+          )}
         </h2>
-      </FadeUp>
+      </StaggerItem>
       {subtitle && (
-        <FadeUp delay={0.2} y={14}>
-          <p className="mt-4 max-w-xl text-base sm:text-lg leading-relaxed text-muted">{subtitle}</p>
-        </FadeUp>
+        <StaggerItem distance={14}>
+          <p className={`mt-4 max-w-xl text-base sm:text-lg ${isCentered ? '' : 'max-w-2xl'}`}>{subtitle}</p>
+        </StaggerItem>
       )}
-    </div>
+    </Stagger>
   );
 }

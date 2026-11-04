@@ -1,38 +1,11 @@
-import { motion } from 'motion/react';
-import { CSSProperties, ReactNode } from 'react';
+import { Reveal, type RevealProps } from './Reveal';
 
-export type FadeUpProps = {
-  children: ReactNode;
-  delay?: number;
-  duration?: number;
+export type FadeUpProps = Omit<RevealProps, 'variant' | 'distance'> & {
+  // How far it rises from, in px
   y?: number;
-  className?: string;
-  style?: CSSProperties;
-  as?: 'div' | 'section' | 'span' | 'h1' | 'h2' | 'h3' | 'p' | 'nav';
-  once?: boolean;
 };
 
-export function FadeUp({
-  children,
-  delay = 0,
-  duration = 0.5,
-  y = 24,
-  className,
-  style,
-  as = 'div',
-  once = true,
-}: FadeUpProps) {
-  const Tag = motion[as];
-  return (
-    <Tag
-      className={className}
-      style={style}
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once, amount: 0.2 }}
-      transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {children}
-    </Tag>
-  );
+// The original scroll-in: rises and fades in. A thin wrapper over Reveal, kept so existing pages don't change.
+export function FadeUp({ y = 24, ...rest }: FadeUpProps) {
+  return <Reveal variant="up" distance={y} {...rest} />;
 }

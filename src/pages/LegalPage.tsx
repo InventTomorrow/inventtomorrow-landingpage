@@ -15,14 +15,14 @@ export function LegalPage({ doc }: { doc: LegalDoc }) {
       <section className="relative z-10 w-full bg-paper px-6 py-20 sm:px-12 sm:py-24">
         <article className="mx-auto max-w-[51.25rem] select-text">
           {doc.sections.map((section) => (
-            <div key={section.heading} className="border-b border-ink/[0.08] py-8 first:pt-0">
-              <h2 className="text-xl font-semibold tracking-tight text-ink">{section.heading}</h2>
-              <p className="mt-3 text-base leading-relaxed text-muted">{section.text}</p>
+            <div key={section.heading} className="border-b border-border py-8 first:pt-0">
+              <h2 className="text-xl font-semibold text-primary">{section.heading}</h2>
+              <p className="mt-3 text-base text-body">{section.text}</p>
             </div>
           ))}
           <div className="py-8">
-            <h2 className="text-xl font-semibold tracking-tight text-ink">Contact</h2>
-            <p className="mt-3 text-base leading-relaxed text-muted">
+            <h2 className="text-xl font-semibold text-primary">Contact</h2>
+            <p className="mt-3 text-base text-body">
               Questions about this policy can be sent through our <TextLink to="/contact">contact page</TextLink>.
             </p>
           </div>

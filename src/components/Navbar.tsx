@@ -1,180 +1,114 @@
-import { useEffect, useRef, useState } from 'react';
+import { Menu } from 'lucide-react';
+import { m } from 'motion/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router';
-import { motion, AnimatePresence } from 'motion/react';
-import { X, Menu as MenuIcon } from 'lucide-react';
 import { AUDIT_PATH, NAV_ITEMS } from '../utils/navigation';
-import { CtaButton } from './CtaButton';
+import { useIsScrolled } from '../hooks/useIsScrolled';
 import { setScrollLocked, smoothScrollTo } from '../utils/smoothScroll';
+import { CtaButton } from './CtaButton';
+import { SITE_SHEET_ID, SiteSheet } from './SiteSheet';
 
-// Height of the bar (4.75rem); heroes start their content below it.
-const NAV_BOTTOM = 76;
-
+// The blue bar. The white logo block on the left hangs a little below it, and the bar and logo shrink once the page scrolls.
+// The menu button opens the side sheet.
 export function Navbar() {
   const { pathname } = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [overHero, setOverHero] = useState(true);
-  const [menuTop, setMenuTop] = useState(0);
-  const headerRef = useRef<HTMLElement>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const isScrolled = useIsScrolled();
 
-  // See-through with white text while it sits over a page's grey hero. Once the hero has scrolled
-  // away (or the page has none) it turns white with a bottom border.
-  useEffect(() => {
-    const update = () => {
-      const hero = document.querySelector('[data-dark-hero]');
-      setOverHero(!!hero && hero.getBoundingClientRect().bottom > NAV_BOTTOM);
-    };
-    update();
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-    return () => {
-      window.removeEventListener('scroll', update);
-      window.removeEventListener('resize', update);
-    };
-  }, [pathname]);
+  useEffect(() => setIsSheetOpen(false), [pathname]);
+  useEffect(() => setScrollLocked(isSheetOpen), [isSheetOpen]);
 
-  useEffect(() => setMenuOpen(false), [pathname]);
-  useEffect(() => setScrollLocked(menuOpen), [menuOpen]);
-
-  const solid = !overHero || menuOpen;
-
-  // The menu opens right under the bar, wherever the bar currently is (the top header may still be showing).
-  const toggleMenu = () => {
-    if (!menuOpen && headerRef.current) setMenuTop(headerRef.current.getBoundingClientRect().bottom);
-    setMenuOpen(!menuOpen);
-  };
+  const closeSheet = useCallback(() => {
+    setIsSheetOpen(false);
+    menuButtonRef.current?.focus();
+  }, []);
 
   return (
     <>
-      <motion.header
-        ref={headerRef}
+      <m.header
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className={`sticky top-0 z-50 -mb-[4.75rem] border-b px-6 pt-3 transition-[background-color,border-color] duration-300 select-none sm:px-12 ${
-          solid ? 'border-ink/10 bg-white/95 backdrop-blur-md' : 'border-transparent bg-transparent'
-        }`}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="pointer-events-none sticky top-0 z-50 h-[4.5rem] w-full select-none sm:h-[5.625rem]"
       >
-        {/* Same width as the hero content, so the logo lines up with the headline. */}
-        <div className="mx-auto grid h-16 max-w-7xl grid-cols-[1fr_auto] items-center gap-4 xl:grid-cols-[1fr_auto_1fr]">
-          <Link
-            to="/"
-            onClick={() => pathname === '/' && smoothScrollTo(0)}
-            className="flex items-center gap-2.5 justify-self-start"
-            aria-label="Invent Tomorrow home"
-          >
-            <span className="flex h-10 w-10 items-center justify-center rounded-drop bg-primary text-sm font-bold text-on-primary">
-              IT
-            </span>
-            <span
-              className={`whitespace-nowrap text-xl font-bold tracking-tight transition-colors duration-300 ${
-                solid ? 'text-ink' : 'text-white'
-              }`}
+        <div
+          className={`pointer-events-auto bg-accent transition-[height] duration-300 ease-out motion-reduce:transition-none ${
+            isScrolled ? 'h-[3.75rem] sm:h-[4.5rem]' : 'h-[4.5rem] sm:h-[5.625rem]'
+          }`}
+        >
+          <div className="mx-auto flex h-full max-w-7xl items-center px-6 sm:px-12">
+            <Link
+              to="/"
+              onClick={() => pathname === '/' && smoothScrollTo(0)}
+              aria-label="Invent Tomorrow home"
+              className="relative flex h-[calc(100%+1rem)] shrink-0 items-center gap-2.5 self-start rounded-br-[1.75rem] bg-paper pr-5 before:absolute before:right-full before:top-0 before:h-full before:w-screen before:bg-paper sm:rounded-br-[2.25rem] sm:pr-8"
             >
-              Invent Tomorrow
-            </span>
-          </Link>
-
-          <nav aria-label="Primary navigation" className="hidden h-16 items-center xl:flex">
-            {NAV_ITEMS.map((item) => (
-              <NavLink
-                key={item.id}
-                to={item.to}
-                end={item.to === '/'}
-                className={({ isActive }) =>
-                  `relative flex items-center whitespace-nowrap px-3 py-1.5 text-sm font-medium transition-colors duration-300 ${
-                    solid
-                      ? isActive
-                        ? 'text-ink'
-                        : 'text-ink/60 hover:text-ink'
-                      : isActive
-                        ? 'text-white'
-                        : 'text-white/75 hover:text-white'
-                  }`
-                }
+              <span
+                className={`flex items-center justify-center rounded-xs bg-primary font-bold text-on-primary transition-[width,height,font-size] duration-300 ease-out motion-reduce:transition-none ${
+                  isScrolled ? 'size-8 text-xs' : 'size-10 text-sm'
+                }`}
               >
-                {({ isActive }) => (
-                  <>
-                    {item.label}
-                    {isActive && (
-                      <motion.span
-                        layoutId="nav-underline"
-                        className="absolute inset-x-3 bottom-0 h-0.5 bg-accent"
-                        transition={{ type: 'spring', bounce: 0.15, duration: 0.4 }}
+                IT
+              </span>
+              <span
+                className={`whitespace-nowrap font-display font-bold text-primary transition-[font-size] duration-300 ease-out motion-reduce:transition-none ${
+                  isScrolled ? 'text-sm sm:text-lg' : 'text-base sm:text-xl'
+                }`}
+              >
+                Invent Tomorrow
+              </span>
+            </Link>
+
+            <nav aria-label="Primary navigation" className="ml-10 hidden items-center gap-8 xl:flex">
+              {NAV_ITEMS.map((item) => (
+                <NavLink
+                  key={item.id}
+                  to={item.to}
+                  end={item.to === '/'}
+                  className={({ isActive }) =>
+                    `group relative py-2 text-sm font-medium uppercase transition-colors duration-300 ${isActive ? 'text-white' : 'text-white/80 hover:text-white'}`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      {item.label}
+                      <span
+                        className={`absolute inset-x-0 bottom-0 h-0.5 origin-left bg-white transition-transform duration-300 ease-out motion-reduce:transition-none ${
+                          isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                        }`}
+                        aria-hidden="true"
                       />
-                    )}
-                  </>
-                )}
-              </NavLink>
-            ))}
-          </nav>
+                    </>
+                  )}
+                </NavLink>
+              ))}
+            </nav>
 
-          <div className="flex items-center gap-2 justify-self-end">
-            <CtaButton size="sm" to={AUDIT_PATH}>
-              <span className="sm:hidden">Free audit</span>
-              <span className="hidden sm:inline">Run My Audit</span>
-            </CtaButton>
-
-            <button
-              type="button"
-              onClick={toggleMenu}
-              aria-expanded={menuOpen}
-              aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
-              className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors duration-300 cursor-pointer xl:hidden ${
-                solid ? 'border-ink/15 text-ink hover:bg-ink/5' : 'border-white/30 text-white hover:bg-white/10'
-              }`}
-            >
-              {menuOpen ? <X className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
-            </button>
-          </div>
-        </div>
-      </motion.header>
-
-      {/* Menu for phones, tablets and small laptops: drops down from the bar */}
-      <AnimatePresence>
-        {menuOpen && (
-          <div className="fixed inset-x-0 bottom-0 z-40 xl:hidden" style={{ top: menuTop }} data-lenis-prevent>
-            <motion.button
-              type="button"
-              aria-label="Close navigation menu"
-              onClick={() => setMenuOpen(false)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-navy/30 cursor-default"
-            />
-            <motion.nav
-              aria-label="Mobile navigation"
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="relative max-h-full overflow-y-auto border-b border-ink/10 bg-white px-6 pb-6 shadow-menu sm:px-12"
-            >
-              <div className="mx-auto max-w-7xl">
-                {NAV_ITEMS.map((item) => (
-                  <NavLink
-                    key={item.id}
-                    to={item.to}
-                    end={item.to === '/'}
-                    onClick={() => setMenuOpen(false)}
-                    className={({ isActive }) =>
-                      `flex w-full items-center border-b border-ink/[0.07] py-4 text-left text-base font-medium transition-colors ${
-                        isActive ? 'text-accent' : 'text-ink hover:text-ink'
-                      }`
-                    }
-                  >
-                    {item.label}
-                  </NavLink>
-                ))}
-
-                <CtaButton className="mt-5 w-full" to={AUDIT_PATH} onClick={() => setMenuOpen(false)}>
+            <div className="ml-auto flex items-center gap-3">
+              <span className="hidden sm:inline-flex">
+                <CtaButton size="sm" to={AUDIT_PATH}>
                   Run My Audit
                 </CtaButton>
-              </div>
-            </motion.nav>
+              </span>
+              <button
+                ref={menuButtonRef}
+                type="button"
+                onClick={() => setIsSheetOpen(true)}
+                aria-label="Open menu"
+                aria-haspopup="dialog"
+                aria-expanded={isSheetOpen}
+                aria-controls={SITE_SHEET_ID}
+                className="relative isolate flex size-11 items-center justify-center overflow-hidden rounded-full bg-paper text-primary transition-colors duration-300 before:absolute before:inset-0 before:-z-10 before:origin-top before:scale-y-0 before:bg-primary before:transition-transform before:duration-300 before:ease-out hover:text-on-primary hover:before:scale-y-100 motion-reduce:before:transition-none sm:size-12 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+              >
+                <Menu className="h-5 w-5" aria-hidden="true" />
+              </button>
           </div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      </m.header>
+
+      <SiteSheet isOpen={isSheetOpen} onClose={closeSheet} />
     </>
   );
 }

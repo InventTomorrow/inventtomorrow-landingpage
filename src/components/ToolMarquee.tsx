@@ -11,14 +11,14 @@ function ToolList({ tools, isCopy = false }: ToolListProps) {
   return (
     <ul
       aria-hidden={isCopy || undefined}
-      className={`flex min-w-[100vw] shrink-0 items-center justify-around gap-4 pr-4 motion-reduce:min-w-0 motion-reduce:flex-wrap motion-reduce:justify-center ${
+      className={`flex min-w-[100vw] shrink-0 items-center justify-around gap-0 pr-0 motion-reduce:min-w-0 motion-reduce:flex-wrap motion-reduce:justify-center ${
         isCopy ? 'motion-reduce:hidden' : ''
       }`}
     >
       {tools.map((tool) => (
         <li
           key={tool.name}
-          className="flex shrink-0 items-center gap-3 whitespace-nowrap rounded-full border border-ink/[0.08] bg-white py-2.5 pl-2.5 pr-6 text-base font-semibold text-ink shadow-chip"
+          className="flex shrink-0 items-center gap-3 whitespace-nowrap border border-border bg-paper px-8 py-5 font-display text-lg font-semibold text-primary"
         >
           <ToolLogo tool={tool} />
           {tool.name}

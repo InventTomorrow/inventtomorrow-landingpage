@@ -9,7 +9,7 @@ export function ToolLogo({ tool }: { tool: Tool }) {
   const Glyph = tool.icon;
   return (
     <span
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-base font-bold text-accent"
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xs bg-accent-soft text-base font-bold text-accent"
       aria-hidden="true"
     >
       {Glyph ? <Glyph className="h-5 w-5" /> : tool.name.charAt(0)}

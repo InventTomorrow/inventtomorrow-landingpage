@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import {
   Check,
   ChevronLeft,
@@ -88,7 +88,7 @@ export function JourneyCarousel() {
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
-        className="-mx-6 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth scroll-px-6 px-6 pb-4 pt-2 [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue sm:-mx-12 sm:scroll-px-12 sm:px-12 lg:mx-0 lg:scroll-px-0 lg:px-0 cursor-grab active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
+        className="-mx-6 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth scroll-px-6 px-6 pb-4 pt-2 [scrollbar-width:none] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:-mx-12 sm:scroll-px-12 sm:px-12 lg:mx-0 lg:scroll-px-0 lg:px-0 cursor-grab active:cursor-grabbing [&::-webkit-scrollbar]:hidden"
       >
         {STAGES.map((stage, i) => {
           const Icon = stage.icon;
@@ -96,25 +96,25 @@ export function JourneyCarousel() {
             <article
               key={stage.title}
               aria-label={`Stage ${i + 1} of ${COUNT}: ${stage.title}`}
-              className={`spotlight flex w-[86.5%] shrink-0 snap-start flex-col rounded-3xl border bg-white p-7 transition-[border-color,box-shadow,opacity] duration-300 sm:p-8 md:w-[68%] lg:w-[38.5%] ${
+       className={`flex w-[86.5%] shrink-0 snap-start flex-col rounded-3xl border bg-paper p-7 transition-[border-color,box-shadow,opacity] duration-300 sm:p-8 md:w-[68%] lg:w-[38.5%] ${
                 i === index
-                  ? 'border-ink/10 shadow-card'
-                  : 'border-ink/[0.07] opacity-80 hover:opacity-100'
+                  ? 'border-border'
+                  : 'border-border opacity-80 hover:opacity-100'
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="flex h-11 w-11 items-center justify-center rounded-drop bg-accent-soft text-accent">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xs bg-accent-soft text-accent">
                   <Icon className="h-5 w-5" />
                 </span>
-                <span className="text-sm font-semibold tabular-nums text-ink/35">
+                <span className="text-sm font-semibold tabular-nums text-primary/35">
                   {pad(i + 1)} / {pad(COUNT)}
                 </span>
               </div>
-              <h3 className="mt-6 text-xl font-semibold tracking-tight text-ink">{stage.title}</h3>
-              <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted">{stage.text}</p>
-              <ul className="mt-6 space-y-2.5 border-t border-ink/[0.07] pt-6">
+              <h3 className="mt-6 text-xl font-semibold text-primary">{stage.title}</h3>
+              <p className="mt-2 text-base text-body">{stage.text}</p>
+              <ul className="mt-6 space-y-2.5 border-t border-border pt-6">
                 {stage.points.map((point) => (
-                  <li key={point} className="flex items-start gap-2.5 text-sm text-ink">
+                  <li key={point} className="flex items-start gap-2.5 text-sm text-primary">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" strokeWidth={2.5} />
                     {point}
                   </li>
@@ -128,11 +128,11 @@ export function JourneyCarousel() {
       </div>
 
       <div className="mt-8 flex items-center gap-5">
-        <span className="text-sm font-semibold tabular-nums text-ink">
-          {pad(index + 1)} <span className="text-ink/35">/ {pad(COUNT)}</span>
+        <span className="text-sm font-semibold tabular-nums text-primary">
+          {pad(index + 1)} <span className="text-primary/35">/ {pad(COUNT)}</span>
         </span>
-        <span className="relative h-0.5 flex-1 overflow-hidden rounded-full bg-ink/10">
-          <motion.span
+        <span className="relative h-0.5 flex-1 overflow-hidden rounded-full bg-primary/10">
+          <m.span
             className="absolute inset-y-0 left-0 bg-accent"
             animate={{ width: `${((index + 1) / COUNT) * 100}%` }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
@@ -144,7 +144,7 @@ export function JourneyCarousel() {
             onClick={() => goTo(index - 1)}
             disabled={index === 0}
             aria-label="View previous stage"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 bg-white text-ink transition-colors hover:border-ink/40 hover:bg-surface-raised disabled:opacity-35 disabled:hover:bg-white cursor-pointer disabled:cursor-default"
+            className="relative isolate flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-border bg-paper text-primary transition-[color,border-color] duration-300 before:absolute before:inset-0 before:-z-10 before:origin-top before:scale-y-0 before:bg-accent before:transition-transform before:duration-300 before:ease-out enabled:hover:border-accent enabled:hover:text-on-primary enabled:hover:before:scale-y-100 motion-reduce:before:transition-none disabled:opacity-35 cursor-pointer disabled:cursor-default"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -153,7 +153,7 @@ export function JourneyCarousel() {
             onClick={() => goTo(index + 1)}
             disabled={index === COUNT - 1}
             aria-label="View next stage"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 bg-white text-ink transition-colors hover:border-ink/40 hover:bg-surface-raised disabled:opacity-35 disabled:hover:bg-white cursor-pointer disabled:cursor-default"
+            className="relative isolate flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-border bg-paper text-primary transition-[color,border-color] duration-300 before:absolute before:inset-0 before:-z-10 before:origin-top before:scale-y-0 before:bg-accent before:transition-transform before:duration-300 before:ease-out enabled:hover:border-accent enabled:hover:text-on-primary enabled:hover:before:scale-y-100 motion-reduce:before:transition-none disabled:opacity-35 cursor-pointer disabled:cursor-default"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
