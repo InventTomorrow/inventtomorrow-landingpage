@@ -4,8 +4,6 @@ export interface TimelineMilestone {
   accent: 'blue' | 'coral';
   title?: string;
   description: string;
-  dotColor: string;
-  glowColor: string;
   durationOffsetMinutes: number;
 }
 
@@ -15,8 +13,6 @@ export const TIMELINE_MILESTONES: TimelineMilestone[] = [
     time: '2:14',
     accent: 'blue',
     description: 'Your phone rings. You keep working.',
-    dotColor: 'var(--color-blue)',
-    glowColor: 'color-mix(in srgb, var(--color-blue) 60%, transparent)',
     durationOffsetMinutes: 0,
   },
   {
@@ -24,8 +20,6 @@ export const TIMELINE_MILESTONES: TimelineMilestone[] = [
     time: '2:14',
     accent: 'blue',
     description: 'Our system texts the customer back in seconds.',
-    dotColor: 'var(--color-navy)',
-    glowColor: 'color-mix(in srgb, var(--color-navy) 60%, transparent)',
     durationOffsetMinutes: 0,
   },
   {
@@ -33,8 +27,6 @@ export const TIMELINE_MILESTONES: TimelineMilestone[] = [
     time: '2:20',
     accent: 'coral',
     description: 'The lead is handled without interrupting the clean.',
-    dotColor: 'var(--color-sky)',
-    glowColor: 'color-mix(in srgb, var(--color-sky) 60%, transparent)',
     durationOffsetMinutes: 6,
   },
 ];

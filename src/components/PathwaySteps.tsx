@@ -13,7 +13,7 @@ export interface PathwayStep {
 // Steps as rows split by thin lines, with a dotted line running through their markers.
 export function PathwaySteps({ steps }: { steps: PathwayStep[] }) {
   return (
-    <ol className="mx-auto mt-14 max-w-5xl border-b border-ink/[0.08]">
+    <ol className="mx-auto mt-14 max-w-5xl border-b border-border">
       {steps.map((step, index) => (
         <PathwayRow key={step.title} step={step} index={index} count={steps.length} />
       ))}

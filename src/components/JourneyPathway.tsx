@@ -1,17 +1,13 @@
-import { PathwaySteps, type PathwayStep } from './PathwaySteps';
 import { JOURNEY_STAGES } from '../content/journey';
+import { ProcessSteps, type ProcessStep } from './ProcessSteps';
 
-const pad = (n: number) => String(n).padStart(2, '0');
+const STEPS: ProcessStep[] = JOURNEY_STAGES.map(({ title, text, points, icon }) => ({ title, text, points, icon }));
 
-const STEPS: PathwayStep[] = JOURNEY_STAGES.map((stage, index) => ({
-  title: stage.title,
-  text: stage.text,
-  icon: stage.icon,
-  points: stage.points,
-  eyebrow: `Step ${pad(index + 1)} / ${pad(JOURNEY_STAGES.length)}`,
-}));
-
-// From inquiry to repeat business, as a road with a stop at every stage.
+// From inquiry to repeat business, as zig-zag steps (three to a row).
 export function JourneyPathway() {
-  return <PathwaySteps steps={STEPS} />;
+  return (
+    <div className="mt-14">
+      <ProcessSteps steps={STEPS} perRow={3} />
+    </div>
+  );
 }

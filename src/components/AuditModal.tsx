@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { m, AnimatePresence } from 'motion/react';
 import { X, CheckCircle2, PhoneCall, Building2 } from 'lucide-react';
 
 interface AuditModalProps {
@@ -8,8 +8,8 @@ interface AuditModalProps {
 }
 
 const inputClass =
-  'w-full rounded-xl border border-ink/15 bg-white py-3 text-sm text-ink placeholder-ink/35 transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/15';
-const labelClass = 'mb-2 block text-sm font-medium text-ink';
+  'w-full rounded-xs border border-border bg-paper py-3 text-sm font-normal text-ink placeholder-primary/35 transition-colors focus:border-accent focus:outline-2 focus:outline-offset-2 focus:outline-accent';
+const labelClass = 'mb-2 block text-sm font-medium text-primary';
 
 export function AuditModal({ isOpen, onClose }: AuditModalProps) {
   const [step, setStep] = useState<1 | 2>(1);
@@ -41,25 +41,25 @@ export function AuditModal({ isOpen, onClose }: AuditModalProps) {
           aria-modal="true"
           aria-label="Free follow-up audit"
           data-lenis-prevent
-          className="fixed inset-0 z-50 flex items-center justify-center bg-navy/50 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-primary/50 p-4"
         >
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.96, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 16 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white p-6 text-ink shadow-modal sm:p-8"
+      className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-paper p-6 text-body shadow-float sm:p-8"
           >
-            <div className="flex items-start justify-between gap-4 border-b border-ink/10 pb-5">
+            <div className="flex items-start justify-between gap-4 border-b border-border pb-5">
               <div>
-                <h3 className="text-lg font-bold tracking-tight">Free follow-up audit</h3>
-                <p className="mt-1 text-sm text-muted">We test your business like a customer would, then share the numbers.</p>
+                <h3 className="text-lg font-bold">Free follow-up audit</h3>
+                <p className="mt-1 text-sm text-body">We test your business like a customer would, then share the numbers.</p>
               </div>
               <button
                 type="button"
                 onClick={onClose}
                 aria-label="Close"
-                className="rounded-full p-1.5 text-ink/40 transition-colors hover:bg-ink/5 hover:text-ink cursor-pointer"
+                className="rounded-full p-1.5 text-primary/40 transition-colors hover:bg-primary/5 hover:text-primary cursor-pointer"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -71,13 +71,13 @@ export function AuditModal({ isOpen, onClose }: AuditModalProps) {
                   <CheckCircle2 className="h-7 w-7" />
                 </div>
                 <h4 className="mt-5 text-2xl font-bold">You're in.</h4>
-                <p className="mt-2 max-w-sm text-sm text-muted">
+                <p className="mt-2 max-w-sm text-sm text-body">
                   We'll run your test, then contact you to walk through the numbers.
                 </p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="mt-6 space-y-5">
-                <div className="flex items-center justify-between text-xs text-muted">
+                <div className="flex items-center justify-between text-xs text-body">
                   <span className="font-semibold text-accent">Step {step} of 2</span>
                   <span>Free and confidential</span>
                 </div>
@@ -87,7 +87,7 @@ export function AuditModal({ isOpen, onClose }: AuditModalProps) {
                     <div>
                       <label htmlFor="audit-business" className={labelClass}>Business name</label>
                       <div className="relative">
-                        <Building2 className="absolute left-3.5 top-3.5 h-4 w-4 text-ink/35" />
+                        <Building2 className="absolute left-3.5 top-3.5 h-4 w-4 text-primary/35" />
                         <input
                           id="audit-business"
                           type="text"
@@ -109,10 +109,10 @@ export function AuditModal({ isOpen, onClose }: AuditModalProps) {
                             type="button"
                             onClick={() => setSoftware(item)}
                             aria-pressed={software === item}
-                            className={`rounded-xl border p-2.5 text-xs font-medium transition-colors cursor-pointer ${
+                            className={`rounded-xs border p-2.5 text-xs font-medium transition-colors cursor-pointer ${
                               software === item
-                                ? 'border-accent bg-accent-soft text-ink'
-                                : 'border-ink/15 text-muted hover:border-ink/30 hover:text-ink'
+                                ? 'border-accent bg-accent-soft text-primary'
+                                : 'border-border text-body hover:border-accent hover:text-primary'
                             }`}
                           >
                             {item}
@@ -123,7 +123,7 @@ export function AuditModal({ isOpen, onClose }: AuditModalProps) {
 
                     <div>
                       <div className="mb-2 flex items-center justify-between">
-                        <label htmlFor="audit-missed" className="text-sm font-medium text-ink">
+                        <label htmlFor="audit-missed" className="text-sm font-medium text-primary">
                           Missed calls per week
                         </label>
                         <span className="text-sm font-semibold text-accent tabular-nums">{missedCallsPerWeek}</span>
@@ -135,11 +135,11 @@ export function AuditModal({ isOpen, onClose }: AuditModalProps) {
                         max="30"
                         value={missedCallsPerWeek}
                         onChange={(e) => setMissedCallsPerWeek(Number(e.target.value))}
-                        className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-ink/10 accent-accent"
+                        className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-border accent-accent"
                       />
-                      <div className="mt-3 flex items-center justify-between rounded-xl bg-stone px-4 py-3 text-sm">
-                        <span className="text-muted">Estimated revenue lost each month</span>
-                        <span className="font-bold text-ink tabular-nums">~${estimatedLostMonthly.toLocaleString()}</span>
+           <div className="mt-3 flex items-center justify-between rounded-xl bg-stone px-4 py-3 text-sm">
+                        <span className="text-body">Estimated revenue lost each month</span>
+                        <span className="font-bold text-primary tabular-nums">~${estimatedLostMonthly.toLocaleString()}</span>
                       </div>
                     </div>
 
@@ -147,7 +147,7 @@ export function AuditModal({ isOpen, onClose }: AuditModalProps) {
                       type="button"
                       onClick={() => setStep(2)}
                       disabled={!businessName.trim()}
-                      className="mt-2 flex h-11 w-full items-center justify-center rounded-full border border-navy bg-navy text-sm font-semibold text-white transition-colors hover:bg-navy/90 disabled:opacity-40 cursor-pointer disabled:cursor-default"
+                      className="mt-2 flex h-11 w-full items-center justify-center rounded-xs border border-primary bg-primary text-sm font-semibold text-white transition-colors hover:bg-primary/90 disabled:opacity-40 cursor-pointer disabled:cursor-default"
                     >
                       Continue
                     </button>
@@ -157,7 +157,7 @@ export function AuditModal({ isOpen, onClose }: AuditModalProps) {
                     <div>
                       <label htmlFor="audit-phone" className={labelClass}>Business phone number</label>
                       <div className="relative">
-                        <PhoneCall className="absolute left-3.5 top-3.5 h-4 w-4 text-ink/35" />
+                        <PhoneCall className="absolute left-3.5 top-3.5 h-4 w-4 text-primary/35" />
                         <input
                           id="audit-phone"
                           type="tel"
@@ -168,7 +168,7 @@ export function AuditModal({ isOpen, onClose }: AuditModalProps) {
                           className={`${inputClass} pl-10 pr-4`}
                         />
                       </div>
-                      <p className="mt-1.5 text-xs text-muted">We'll call it like a customer would to test your reply speed.</p>
+                      <p className="mt-1.5 text-xs text-body">We'll call it like a customer would to test your reply speed.</p>
                     </div>
 
                     <div>
@@ -188,23 +188,23 @@ export function AuditModal({ isOpen, onClose }: AuditModalProps) {
                       <button
                         type="button"
                         onClick={() => setStep(1)}
-                        className="h-11 rounded-full border border-ink/15 px-6 text-sm font-medium text-ink transition-colors hover:bg-ink/5 cursor-pointer"
+                        className="h-11 rounded-xs border border-border px-6 text-sm font-medium text-primary transition-colors hover:bg-primary/5 cursor-pointer"
                       >
                         Back
                       </button>
                       <button
                         type="submit"
-                        className="h-11 flex-1 rounded-full bg-primary text-sm font-semibold text-on-primary transition-colors hover:bg-primary-hover active:bg-primary-active cursor-pointer"
+                        className="h-11 flex-1 rounded-xs bg-accent text-sm font-semibold text-on-primary transition-colors hover:bg-accent-hover active:bg-accent-active cursor-pointer"
                       >
                         Get my free audit
                       </button>
                     </div>
-                    <p className="text-center text-xs text-muted">No contract. No pressure. Just the numbers.</p>
+                    <p className="text-center text-xs text-body">No contract. No pressure. Just the numbers.</p>
                   </>
                 )}
               </form>
             )}
-          </motion.div>
+          </m.div>
         </div>
       )}
     </AnimatePresence>

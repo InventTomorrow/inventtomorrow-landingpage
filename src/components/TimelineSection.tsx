@@ -1,9 +1,9 @@
-import { motion, useInView, useReducedMotion } from 'motion/react';
 import { Clock } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
 import { FadeUp } from './FadeUp';
+import { Reveal } from './Reveal';
 import { SectionHeading } from './SectionHeading';
-import { MissedCallScene } from './illustrations/leakScenes';
+import { StayFocusedVisual } from './StayFocusedVisual';
+import { WaveLines } from './WaveLines';
 
 const STEPS = [
   { id: 'call', time: '2:14', title: 'Your phone rings.', detail: 'You keep working.' },
@@ -11,389 +11,42 @@ const STEPS = [
   { id: 'handled', time: '2:20', title: 'The lead is handled', detail: 'without interrupting the clean.' },
 ] as const;
 
-const LAST = STEPS.length - 1;
-const START_DELAY_MS = 300;
-const STEP_MS = 1000;
-const LINE_LEAD_MS = 150;
-
-// The line between two dots starts drawing just after the first dot lights up
-// and finishes exactly when the next dot lights up.
-function lineTransition(drawing: boolean) {
-  return drawing
-    ? { duration: (STEP_MS - LINE_LEAD_MS) / 1000, delay: LINE_LEAD_MS / 1000, ease: [0.65, 0, 0.35, 1] as const }
-    : { duration: 0.2 };
-}
-
-function Dot({ reached }: { reached: boolean }) {
-  return (
-    <span className="relative z-10 flex h-4 w-4 items-center justify-center">
-      {reached && (
-        <motion.span
-          className="absolute inset-0 rounded-full bg-accent"
-          initial={{ scale: 1, opacity: 0.4 }}
-          animate={{ scale: 2.8, opacity: 0 }}
-          transition={{ duration: 0.9, ease: 'easeOut' }}
-          aria-hidden="true"
-        />
-      )}
-      <motion.span
-        className={`h-4 w-4 rounded-full border-2 transition-colors duration-300 ${
-          reached ? 'border-accent bg-accent' : 'border-ink/20 bg-white'
-        }`}
-        initial={false}
-        animate={{ scale: reached ? 1 : 0.75 }}
-        transition={{ type: 'spring', bounce: 0.45, visualDuration: 0.35 }}
-      />
-    </span>
-  );
-}
-
-const TIME_PILL_SIZES = {
-  md: 'h-12 gap-2.5 px-5 text-3xl',
-  sm: 'h-9 gap-2 px-3.5 text-xl',
-} as const;
-
-function TimePill({ time, reached, size = 'md' }: { time: string; reached: boolean; size?: keyof typeof TIME_PILL_SIZES }) {
-  return (
-    <span
-      className={`inline-flex items-center rounded-full border font-bold tracking-tight tabular-nums transition-colors duration-500 ${TIME_PILL_SIZES[size]} ${
-        reached ? 'border-accent/25 bg-accent-soft text-ink' : 'border-ink/10 bg-white text-ink/25'
-      }`}
-    >
-      <motion.span
-        className="flex"
-        initial={false}
-        animate={{ rotate: reached ? 360 : 0 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <Clock
-          className={`${size === 'md' ? 'h-6 w-6' : 'h-[1.125rem] w-[1.125rem]'} transition-colors duration-500 ${reached ? 'text-accent' : 'text-ink/20'}`}
-          aria-hidden="true"
-        />
-      </motion.span>
-      {time}
-    </span>
-  );
-}
-
+// Two columns: the 2:14 pm story as a timeline on the left, a photo with floating cards on the right.
 export function TimelineSection() {
-  const timelineRef = useRef<HTMLDivElement>(null);
-  const inView = useInView(timelineRef, { amount: 0.5, once: true });
-  const reduceMotion = useReducedMotion();
-  const [active, setActive] = useState(-1);
-  const [run, setRun] = useState(0);
-
-  // Plays the first time the timeline scrolls into view; the replay button runs it again.
-  useEffect(() => {
-    if (!inView) {
-      if (!reduceMotion) setActive(-1);
-      return;
-    }
-    if (reduceMotion) {
-      setActive(LAST);
-      return;
-    }
-    setActive(-1);
-    const timers = STEPS.map((_, i) => window.setTimeout(() => setActive(i), START_DELAY_MS + i * STEP_MS));
-    return () => timers.forEach((t) => window.clearTimeout(t));
-  }, [inView, run, reduceMotion]);
-
-  const playing = inView && active < LAST;
-
   return (
-    <section id="stay-focused" className="relative z-10 w-full bg-fade-paper section-y section-deco px-6 sm:px-12">
-      <div className="mx-auto max-w-5xl">
-        <SectionHeading scene={MissedCallScene} eyebrow="Stay focused" title="It's 2:14 pm. You're on a job." />
+    <section id="stay-focused" className="relative z-10 w-full overflow-hidden bg-paper section-y px-6 sm:px-12">
+      <WaveLines className="-left-24 top-0 h-96 w-[44rem] opacity-70" />
+      <div className="relative mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-2 lg:gap-20">
+        <div>
+          <SectionHeading align="left" eyebrow="Stay focused" title="It's 2:14 pm." titleMuted="You're on a job." />
 
-        <div ref={timelineRef} className="mt-16 sm:mt-20">
-          {/* Desktop: horizontal */}
-          <ol className="hidden md:grid grid-cols-3">
-            {STEPS.map((step, i) => {
-              const reached = active >= i;
-              return (
-                <li key={step.id} className="flex flex-col items-center text-center">
-                  <TimePill time={step.time} reached={reached} />
-
-                  {/* Dot row. The connector lives in the same row, centred with top-1/2 and a
-                      negative margin of half its height, so it runs through the dot centres. */}
-                  <div className="relative mt-6 flex h-6 w-full items-center justify-center">
-                    {i < LAST && (
-                      <div className="absolute left-1/2 top-1/2 -mt-px h-0.5 w-full bg-ink/10" aria-hidden="true">
-                        <motion.div
-                          className="h-full w-full origin-left bg-accent"
-                          initial={{ scaleX: 0 }}
-                          animate={{ scaleX: active >= i ? 1 : 0 }}
-                          transition={lineTransition(active >= i)}
-                        />
-                      </div>
-                    )}
-                    <Dot reached={reached} />
-                  </div>
-
-                  <p
-                    className={`mt-6 px-4 text-base font-semibold transition-colors duration-500 ${
-                      reached ? 'text-ink' : 'text-ink/35'
-                    }`}
-                  >
-                    {step.title}
-                  </p>
-                  <p
-                    className={`mt-1 px-4 text-sm transition-colors duration-500 ${
-                      reached ? 'text-muted' : 'text-ink/30'
-                    }`}
-                  >
-                    {step.detail}
-                  </p>
-                </li>
-              );
-            })}
+          <ol className="mt-10 flex flex-col gap-8 border-l-2 border-dashed border-accent/40 pl-8">
+            {STEPS.map((step, index) => (
+              <li key={step.id} className="relative">
+                <span className="absolute -left-[2.65rem] top-1 size-5 rounded-full bg-accent ring-4 ring-paper" aria-hidden="true" />
+                <FadeUp delay={index * 0.12} y={14}>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-sm font-semibold text-accent">
+                    <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+                    {step.time}
+                  </span>
+                  <p className="mt-2 font-display text-xl font-semibold text-primary">{step.title}</p>
+                  <p className="text-base">{step.detail}</p>
+                </FadeUp>
+              </li>
+            ))}
           </ol>
 
-          {/* Mobile: vertical. Same idea: the connector runs from this dot's centre to the next one. */}
-          <ol className="mx-auto max-w-sm md:hidden">
-            {STEPS.map((step, i) => {
-              const reached = active >= i;
-              return (
-                <li key={step.id} className="relative flex gap-5 pb-10 last:pb-0">
-                  {i < LAST && (
-                    <div
-                      className="absolute left-2 -ml-px w-0.5 bg-ink/10"
-                      style={{ top: 18, bottom: -18 }}
-                      aria-hidden="true"
-                    >
-                      <motion.div
-                        className="h-full w-full origin-top bg-accent"
-                        initial={{ scaleY: 0 }}
-                        animate={{ scaleY: active >= i ? 1 : 0 }}
-                        transition={lineTransition(active >= i)}
-                      />
-                    </div>
-                  )}
-                  <div className="flex h-9 w-4 shrink-0 items-center justify-center">
-                    <Dot reached={reached} />
-                  </div>
-                  <div className="text-left">
-                    <TimePill time={step.time} reached={reached} size="sm" />
-                    <p className={`mt-2 font-semibold transition-colors duration-500 ${reached ? 'text-ink' : 'text-ink/35'}`}>
-                      {step.title}
-                    </p>
-                    <p className={`text-sm transition-colors duration-500 ${reached ? 'text-muted' : 'text-ink/30'}`}>
-                      {step.detail}
-                    </p>
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
+          <FadeUp delay={0.2} y={14}>
+            <p className="mt-10 font-display text-xl font-semibold text-primary sm:text-2xl">
+              You stay focused. <span className="font-normal text-body">The opportunity keeps moving.</span>
+            </p>
+          </FadeUp>
         </div>
 
-        <FadeUp delay={0.2} y={14} className="mt-16 flex flex-col items-center gap-6 text-center">
-          <p className="text-xl sm:text-2xl font-semibold tracking-tight text-ink">
-            You stay focused. <span className="text-muted font-normal">The opportunity keeps moving.</span>
-          </p>
-          {/* <button
-            type="button"
-            onClick={() => setRun((r) => r + 1)}
-            disabled={!inView || playing}
-            className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2 text-xs font-medium text-muted transition-colors hover:border-ink/30 hover:text-ink disabled:opacity-40 cursor-pointer disabled:cursor-default"
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-            Replay
-          </button> */}
-        </FadeUp>
+        <Reveal variant="zoom" delay={0.1}>
+          <StayFocusedVisual />
+        </Reveal>
       </div>
     </section>
   );
 }
-
-// Previous version (restore: comment out the component above, uncomment this block, merge the imports)
-// import { motion, useInView, useReducedMotion } from 'motion/react';
-// import { useEffect, useRef, useState } from 'react';
-// import { FadeUp } from './FadeUp';
-// import { SectionHeading } from './SectionHeading';
-// import { MissedCallScene } from './illustrations/leakScenes';
-//
-// const STEPS = [
-//   { id: 'call', time: '2:14', title: 'Your phone rings.', detail: 'You keep working.' },
-//   { id: 'text', time: '2:14', title: 'Our system texts the customer back', detail: 'in seconds.' },
-//   { id: 'handled', time: '2:20', title: 'The lead is handled', detail: 'without interrupting the clean.' },
-// ] as const;
-//
-// const LAST = STEPS.length - 1;
-// const START_DELAY_MS = 300;
-// const STEP_MS = 1000;
-// const LINE_LEAD_MS = 150;
-//
-// // The line between two dots starts drawing just after the first dot lights up
-// // and finishes exactly when the next dot lights up.
-// function lineTransition(drawing: boolean) {
-//   return drawing
-//     ? { duration: (STEP_MS - LINE_LEAD_MS) / 1000, delay: LINE_LEAD_MS / 1000, ease: [0.65, 0, 0.35, 1] as const }
-//     : { duration: 0.2 };
-// }
-//
-// function Dot({ reached }: { reached: boolean }) {
-//   return (
-//     <span className="relative z-10 flex h-4 w-4 items-center justify-center">
-//       {reached && (
-//         <motion.span
-//           className="absolute inset-0 rounded-full bg-accent"
-//           initial={{ scale: 1, opacity: 0.4 }}
-//           animate={{ scale: 2.8, opacity: 0 }}
-//           transition={{ duration: 0.9, ease: 'easeOut' }}
-//           aria-hidden="true"
-//         />
-//       )}
-//       <motion.span
-//         className={`h-4 w-4 rounded-full border-2 transition-colors duration-300 ${
-//           reached ? 'border-accent bg-accent' : 'border-ink/20 bg-white'
-//         }`}
-//         initial={false}
-//         animate={{ scale: reached ? 1 : 0.75 }}
-//         transition={{ type: 'spring', bounce: 0.45, visualDuration: 0.35 }}
-//       />
-//     </span>
-//   );
-// }
-//
-// export function TimelineSection() {
-//   const timelineRef = useRef<HTMLDivElement>(null);
-//   const inView = useInView(timelineRef, { amount: 0.5 });
-//   const reduceMotion = useReducedMotion();
-//   const [active, setActive] = useState(-1);
-//   const [run, setRun] = useState(0);
-//
-//   // Plays every time the timeline scrolls into view, and resets while it's off screen.
-//   useEffect(() => {
-//     if (!inView) {
-//       if (!reduceMotion) setActive(-1);
-//       return;
-//     }
-//     if (reduceMotion) {
-//       setActive(LAST);
-//       return;
-//     }
-//     setActive(-1);
-//     const timers = STEPS.map((_, i) => window.setTimeout(() => setActive(i), START_DELAY_MS + i * STEP_MS));
-//     return () => timers.forEach((t) => window.clearTimeout(t));
-//   }, [inView, run, reduceMotion]);
-//
-//   const playing = inView && active < LAST;
-//
-//   return (
-//     <section id="stay-focused" className="relative z-10 w-full bg-fade-paper section-y section-deco px-6 sm:px-12">
-//       <div className="mx-auto max-w-5xl">
-//         <SectionHeading scene={MissedCallScene} eyebrow="Stay focused" title="It's 2:14 pm. You're on a job." />
-//
-//         <div ref={timelineRef} className="mt-16 sm:mt-20">
-//           {/* Desktop: horizontal */}
-//           <ol className="hidden md:grid grid-cols-3">
-//             {STEPS.map((step, i) => {
-//               const reached = active >= i;
-//               return (
-//                 <li key={step.id} className="flex flex-col items-center text-center">
-//                   <span
-//                     className={`text-4xl font-bold tracking-tight tabular-nums transition-colors duration-500 ${
-//                       reached ? 'text-ink' : 'text-ink/25'
-//                     }`}
-//                   >
-//                     {step.time}
-//                   </span>
-//
-//                   {/* Dot row. The connector lives in the same row, centred with top-1/2 and a
-//                       negative margin of half its height, so it runs through the dot centres. */}
-//                   <div className="relative mt-6 flex h-6 w-full items-center justify-center">
-//                     {i < LAST && (
-//                       <div className="absolute left-1/2 top-1/2 -mt-px h-0.5 w-full bg-ink/10" aria-hidden="true">
-//                         <motion.div
-//                           className="h-full w-full origin-left bg-accent"
-//                           initial={{ scaleX: 0 }}
-//                           animate={{ scaleX: active >= i ? 1 : 0 }}
-//                           transition={lineTransition(active >= i)}
-//                         />
-//                       </div>
-//                     )}
-//                     <Dot reached={reached} />
-//                   </div>
-//
-//                   <p
-//                     className={`mt-6 px-4 text-base font-semibold transition-colors duration-500 ${
-//                       reached ? 'text-ink' : 'text-ink/35'
-//                     }`}
-//                   >
-//                     {step.title}
-//                   </p>
-//                   <p
-//                     className={`mt-1 px-4 text-sm transition-colors duration-500 ${
-//                       reached ? 'text-muted' : 'text-ink/30'
-//                     }`}
-//                   >
-//                     {step.detail}
-//                   </p>
-//                 </li>
-//               );
-//             })}
-//           </ol>
-//
-//           {/* Mobile: vertical. Same idea: the connector runs from this dot's centre to the next one. */}
-//           <ol className="mx-auto max-w-sm md:hidden">
-//             {STEPS.map((step, i) => {
-//               const reached = active >= i;
-//               return (
-//                 <li key={step.id} className="relative flex gap-5 pb-10 last:pb-0">
-//                   {i < LAST && (
-//                     <div
-//                       className="absolute left-2 -ml-px w-0.5 bg-ink/10"
-//                       style={{ top: 16, bottom: -16 }}
-//                       aria-hidden="true"
-//                     >
-//                       <motion.div
-//                         className="h-full w-full origin-top bg-accent"
-//                         initial={{ scaleY: 0 }}
-//                         animate={{ scaleY: active >= i ? 1 : 0 }}
-//                         transition={lineTransition(active >= i)}
-//                       />
-//                     </div>
-//                   )}
-//                   <div className="flex h-8 w-4 shrink-0 items-center justify-center">
-//                     <Dot reached={reached} />
-//                   </div>
-//                   <div className="text-left">
-//                     <span
-//                       className={`block text-2xl font-bold leading-8 tabular-nums transition-colors duration-500 ${
-//                         reached ? 'text-ink' : 'text-ink/25'
-//                       }`}
-//                     >
-//                       {step.time}
-//                     </span>
-//                     <p className={`mt-1 font-semibold transition-colors duration-500 ${reached ? 'text-ink' : 'text-ink/35'}`}>
-//                       {step.title}
-//                     </p>
-//                     <p className={`text-sm transition-colors duration-500 ${reached ? 'text-muted' : 'text-ink/30'}`}>
-//                       {step.detail}
-//                     </p>
-//                   </div>
-//                 </li>
-//               );
-//             })}
-//           </ol>
-//         </div>
-//
-//         <FadeUp delay={0.2} y={14} className="mt-16 flex flex-col items-center gap-6 text-center">
-//           <p className="text-xl sm:text-2xl font-semibold tracking-tight text-ink">
-//             You stay focused. <span className="text-muted font-normal">The opportunity keeps moving.</span>
-//           </p>
-//           {/* <button
-//             type="button"
-//             onClick={() => setRun((r) => r + 1)}
-//             disabled={!inView || playing}
-//             className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2 text-xs font-medium text-muted transition-colors hover:border-ink/30 hover:text-ink disabled:opacity-40 cursor-pointer disabled:cursor-default"
-//           >
-//             <RotateCcw className="h-3.5 w-3.5" />
-//             Replay
-//           </button> */}
-//         </FadeUp>
-//       </div>
-//     </section>
-//   );
-// }

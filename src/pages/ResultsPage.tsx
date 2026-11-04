@@ -4,6 +4,7 @@ import { Section } from '../components/Section';
 import { SectionHeading } from '../components/SectionHeading';
 import { AuditScene } from '../components/illustrations/processScenes';
 import { FadeUp } from '../components/FadeUp';
+import { SiteImage } from '../components/SiteImage';
 import { CtaButton } from '../components/CtaButton';
 import { DefaultClosingCta } from '../components/FinalCtaSection';
 import { usePageMeta } from '../hooks/usePageMeta';
@@ -27,7 +28,7 @@ export function ResultsPage() {
         title="See what comes off your list"
         description="Start with how your business runs today. Then measure what changes once your system is in place."
       >
-        <CtaButton size="lg" to={AUDIT_PATH}>
+        <CtaButton size="lg" variant="accent" to={AUDIT_PATH}>
           Run My Audit
         </CtaButton>
         <CtaButton size="lg" variant="outline-light" to={BOOKING_PATH}>
@@ -37,7 +38,10 @@ export function ResultsPage() {
 
       <Section bg="paper" width="max-w-5xl">
         <SectionHeading scene={AuditScene} title="What to keep track of" />
-        <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-6">
+        <FadeUp delay={0.1} y={18} className="mt-12">
+          <SiteImage alt="Tracking results on a screen" label="Results image" width={1024} height={380} className="rounded-3xl" />
+        </FadeUp>
+        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-6">
           {MEASURES.map((item, i) => {
             const Icon = item.icon;
             return (
@@ -45,21 +49,21 @@ export function ResultsPage() {
                 key={item.title}
                 delay={0.08 + i * 0.06}
                 y={18}
-                className={`spotlight rounded-2xl border border-ink/[0.08] bg-white p-7 transition-colors duration-300 hover:border-ink/25 lg:col-span-2 ${
+        className={`rounded-2xl border border-border bg-paper p-7 transition-colors duration-300 hover:border-accent lg:col-span-2 ${
                   i === 3 ? 'lg:col-start-2' : ''
                 }`}
               >
-                <span className="flex h-11 w-11 items-center justify-center rounded-drop bg-accent-soft text-accent">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xs bg-accent-soft text-accent">
                   <Icon className="h-5 w-5" />
                 </span>
-                <h3 className="mt-5 text-lg font-semibold text-ink">{item.title}</h3>
-                <p className="mt-2 text-[0.9375rem] leading-relaxed text-muted">{item.text}</p>
+                <h3 className="mt-5 text-lg font-semibold text-primary">{item.title}</h3>
+                <p className="mt-2 text-base text-body">{item.text}</p>
               </FadeUp>
             );
           })}
         </div>
         <FadeUp delay={0.15} y={12} className="mt-12 text-center">
-          <p className="text-base text-muted">
+          <p className="text-base text-body">
             Agree on what to measure before launch, using the information available in your tools.
           </p>
         </FadeUp>

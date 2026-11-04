@@ -1,11 +1,11 @@
-import { Home, Building2, KeyRound, Sparkles } from 'lucide-react';
-import { useMediaQuery } from '../hooks/useMediaQuery';
-import { getFanOutStart } from '../utils/fanOut';
+import { Building2, Home, KeyRound, Sparkles } from 'lucide-react';
 import { FadeUp } from './FadeUp';
-import { HoverCard } from './HoverCard';
 import { Section } from './Section';
 import { SectionHeading } from './SectionHeading';
-import { CleanScene } from './illustrations/processScenes';
+import { Stagger } from './Stagger';
+import { StaggerItem } from './StaggerItem';
+import { ServiceTypeCard } from './ServiceTypeCard';
+import { WaveLines } from './WaveLines';
 
 const TYPES = [
   {
@@ -34,43 +34,26 @@ const TYPES = [
   },
 ];
 
-// Divider lines between the cells of the 2-column grid (1 column on phones), with none on the outer edges.
-function getDividerClasses(index: number, count: number): string {
-  const isLastRow = index >= count - 2;
-  return [
-    index < count - 1 ? 'border-b' : '',
-    isLastRow ? 'md:border-b-0' : 'md:border-b',
-    index % 2 === 0 ? 'md:border-r' : '',
-    'border-ink/[0.08]',
-  ].join(' ');
-}
-
 export function ServiceTypesSection() {
-  const columns = useMediaQuery('(min-width: 48rem)') ? 2 : 1;
-
   return (
-    <Section bg="paper" id="service-types" width="max-w-5xl">
+    <Section bg="stone" id="service-types" width="max-w-7xl" className="overflow-hidden">
+      <WaveLines className="-right-24 top-0 -z-10 h-96 w-[44rem] opacity-70" />
       <SectionHeading
-        scene={CleanScene}
-        title="Built around the services you offer"
+        eyebrow="Who it's for"
+        title="Built around"
+        titleMuted="the services you offer"
         subtitle="The jobs may be different. The need for clear, consistent follow-through is the same."
       />
-      <div className="mt-14 grid grid-cols-1 md:grid-cols-2">
-        {TYPES.map((type, i) => (
-          <HoverCard
-            key={type.title}
-            className={getDividerClasses(i, TYPES.length)}
-            icon={type.icon}
-            title={type.title}
-            text={type.text}
-            tags={type.tags}
-            start={getFanOutStart(i, TYPES.length, columns)}
-          />
+      <Stagger as="ul" gap={0.1} className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        {TYPES.map((type) => (
+          <StaggerItem as="li" key={type.title}>
+            <ServiceTypeCard {...type} />
+          </StaggerItem>
         ))}
-      </div>
+      </Stagger>
       <FadeUp delay={0.15} y={12} className="mt-12 text-center">
-        <p className="text-lg font-semibold tracking-tight text-ink">
-          Your business has its own way of working. <span className="text-muted font-normal">Your system should support it.</span>
+        <p className="font-display text-lg font-semibold text-primary">
+          Your business has its own way of working. <span className="font-normal text-body">Your system should support it.</span>
         </p>
       </FadeUp>
     </Section>
