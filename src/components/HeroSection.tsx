@@ -2,9 +2,6 @@ import { Award, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { m } from 'motion/react';
 import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
 import { CtaButton } from './CtaButton';
-import { GraphicShape } from './GraphicShape';
-import { Parallax } from './Parallax';
-import { SiteImage } from './SiteImage';
 
 const ease: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
@@ -14,14 +11,29 @@ const TRUST_POINTS = [
   { Icon: Award, label: '90-day guarantee' },
 ];
 
-// The home page opening: copy on the left, a cut-out photo inside a circle on the right, and a curved edge into the next section.
+// The home page opening: copy over a full-width cleaning scene, with a curved edge into the next section.
 export function HeroSection() {
   return (
-    <section id="home" className="relative z-10 flex w-full flex-col justify-center overflow-hidden bg-hero-soft px-6 [--curve-h:clamp(3rem,6vw,7rem)] sm:px-12 lg:min-h-[calc(100svh-8.125rem)]">
-      <GraphicShape name="dots-grid" className="left-[53%] top-[9%] hidden h-14 w-14 opacity-70 xl:block" />
+    <section id="home" className="relative z-10 flex w-full flex-col justify-center overflow-hidden bg-stone px-6 [--curve-h:clamp(3rem,6vw,7rem)] sm:px-12 lg:min-h-[calc(100svh-8.125rem)]">
+      <img
+        src="/images/hero-cleaning-automation.jpg"
+        alt=""
+        aria-hidden="true"
+        width={2752}
+        height={1536}
+        loading="eager"
+        fetchPriority="high"
+        decoding="async"
+        draggable={false}
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover object-[60%_center] lg:object-center"
+      />
+      <div
+        className="pointer-events-none absolute inset-0 bg-linear-to-r from-stone/98 via-stone/90 to-stone/75 lg:via-stone/85 lg:via-40% lg:to-transparent lg:to-80%"
+        aria-hidden="true"
+      />
 
-      <div className="mx-auto grid w-full max-w-7xl items-center gap-12 pb-[calc(var(--curve-h)+2rem)] pt-10 sm:pt-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8 lg:pt-16 lg:[@media(max-height:820px)]:pt-8">
-        <div className="flex flex-col items-start">
+      <div className="relative z-10 mx-auto w-full max-w-7xl pb-[calc(var(--curve-h)+2rem)] pt-10 sm:pt-12 lg:pt-16 lg:[@media(max-height:820px)]:pt-8">
+        <div className="flex max-w-xl flex-col items-start">
           <m.p
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
@@ -39,14 +51,14 @@ export function HeroSection() {
             className="mt-5 max-w-2xl text-balance font-display text-4xl font-bold leading-[1.12] tracking-display text-primary select-text sm:text-5xl xl:text-6xl xl:[@media(max-height:820px)]:text-5xl"
           >
             Focus on your jobs.{' '}
-            <span className="block text-primary/45">Our system handles the rest.</span>
+            <span className="block text-primary/70">Our system handles the rest.</span>
           </m.h1>
 
           <m.p
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.22, ease }}
-            className="mt-6 max-w-lg text-balance"
+            className="mt-6 max-w-lg text-balance text-ink"
           >
             Spend less time following up and more time getting jobs done.
           </m.p>
@@ -80,26 +92,6 @@ export function HeroSection() {
           </m.ul>
         </div>
 
-        <m.div
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.2, ease }}
-          className="relative mx-auto w-full max-w-[22rem] sm:max-w-sm lg:max-w-[26rem]"
-        >
-          <span className="absolute inset-x-[6%] top-[8%] aspect-square rounded-full bg-accent-soft" aria-hidden="true" />
-          <span className="absolute inset-x-[-2%] top-[4%] aspect-square rounded-full border border-accent/50" aria-hidden="true" />
-          <span className="absolute right-[14%] top-[6%] h-3.5 w-3.5 rounded-full bg-accent" aria-hidden="true" />
-          <Parallax distance={22}>
-            <SiteImage
-              alt="A cleaner holding a mop and a bucket of supplies"
-              label="Hero image"
-              width={560}
-              height={640}
-              isEager
-              className="relative mx-auto max-w-[80%]"
-            />
-          </Parallax>
-        </m.div>
       </div>
 
       <div

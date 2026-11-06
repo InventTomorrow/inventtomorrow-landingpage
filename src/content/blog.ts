@@ -12,6 +12,7 @@ export interface Post {
   description: string;
   category: string;
   date: string; // ISO date
+  image: { src: string; alt: string; width: number; height: number };
   body: Block[];
 }
 
@@ -22,6 +23,12 @@ export const POSTS: Post[] = [
     description:
       "You can't answer the phone with gloves on. Here's a simple way to make sure a missed call still turns into a booked job.",
     category: 'Missed calls',
+    image: {
+      src: '/images/blog/missed-calls.webp',
+      alt: 'Blue-gloved hands wiping a desk beside a laptop and cleaning spray.',
+      width: 640,
+      height: 400,
+    },
     date: '2026-10-27',
     body: [
       {
@@ -78,6 +85,12 @@ export const POSTS: Post[] = [
     description:
       "Most quotes don't get a no. They get forgotten. Here's a simple, friendly follow-up plan you can start using today.",
     category: 'Quotes',
+    image: {
+      src: '/images/blog/quote-follow-ups.webp',
+      alt: 'Two cleaning professionals checking a mobile device together.',
+      width: 640,
+      height: 400,
+    },
     date: '2026-10-27',
     body: [
       {
@@ -136,6 +149,12 @@ export const POSTS: Post[] = [
     description:
       'Happy clients rarely leave a review on their own. Here is when to ask, what to say, and what to avoid.',
     category: 'Reviews',
+    image: {
+      src: '/images/blog/google-reviews.webp',
+      alt: 'Hands holding a card inviting customers to leave a Google review.',
+      width: 640,
+      height: 400,
+    },
     date: '2026-10-27',
     body: [
       {

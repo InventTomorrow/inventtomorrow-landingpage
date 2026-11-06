@@ -28,7 +28,7 @@ export function StatsSection({ isDark = false }: StatsSectionProps) {
               className={`whitespace-nowrap font-display text-4xl font-semibold leading-none sm:text-5xl xl:text-6xl ${isDark ? 'text-white' : 'text-primary'}`}
             >
               <CountUp value={stat.value} />
-              {stat.suffix && <span className="text-accent">{stat.suffix}</span>}
+              {stat.suffix && <span className="text-xl text-accent sm:text-2xl xl:text-3xl">{stat.suffix}</span>}
             </dd>
           </StaggerItem>
         ))}

@@ -10,7 +10,14 @@ export function StayFocusedVisual() {
   return (
     <div className="relative mx-auto w-full max-w-lg px-4 pb-10 pt-6 sm:px-0">
       <span className="absolute -right-2 top-0 size-44 rounded-full bg-accent-soft" aria-hidden="true" />
-      <SiteImage alt="A cleaner at work while the phone rings" label="Stay focused image" width={520} height={600} className="relative rounded-[2rem]" />
+      <SiteImage
+        src="/images/stay-focused.webp"
+        alt="A cleaner staying on the job while the system handles calls, messages and customer details."
+        label="Stay focused image"
+        width={960}
+        height={1104}
+        className="relative rounded-[2rem] object-contain!"
+      />
 
       <div className="illu-float absolute left-0 top-14 flex items-center gap-3 rounded-2xl bg-paper p-4 shadow-float sm:-left-6">
         <span className="flex size-11 shrink-0 items-center justify-center rounded-xs bg-accent-soft text-accent">

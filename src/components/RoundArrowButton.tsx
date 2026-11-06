@@ -7,7 +7,7 @@ interface RoundArrowButtonProps {
   label: string;
 }
 
-// Round blue arrow. On hover the navy fill drops in from the top.
+// Compact outlined arrow with a blue fill on hover.
 export function RoundArrowButton({ direction, onClick, isDisabled = false, label }: RoundArrowButtonProps) {
   const Icon = direction === 'previous' ? ArrowLeft : ArrowRight;
 
@@ -17,9 +17,9 @@ export function RoundArrowButton({ direction, onClick, isDisabled = false, label
       onClick={onClick}
       disabled={isDisabled}
       aria-label={label}
-      className="relative isolate flex size-14 items-center justify-center overflow-hidden rounded-full bg-accent text-on-primary transition-opacity duration-300 before:absolute before:inset-0 before:-z-10 before:origin-top before:scale-y-0 before:bg-primary before:transition-transform before:duration-300 before:ease-out enabled:hover:before:scale-y-100 motion-reduce:before:transition-none disabled:opacity-40 cursor-pointer disabled:cursor-default focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+      className="flex size-10 shrink-0 items-center justify-center rounded-full border border-accent/25 bg-paper text-accent shadow-sm transition-colors duration-200 enabled:hover:border-accent enabled:hover:bg-accent enabled:hover:text-on-primary motion-reduce:transition-none disabled:opacity-40 cursor-pointer disabled:cursor-default focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
     >
-      <Icon className="h-6 w-6" aria-hidden="true" />
+      <Icon className="size-4" strokeWidth={1.75} aria-hidden="true" />
     </button>
   );
 }

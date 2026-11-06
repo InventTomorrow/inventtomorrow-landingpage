@@ -24,7 +24,10 @@ export function FreeAuditPage() {
   );
 
   const [name, setName] = useState('');
+  const [businessName, setBusinessName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [description, setDescription] = useState('');
   const [sending, setSending] = useState(false);
 
   // Coming back from the calendar with the browser's back button: make the button usable again.
@@ -34,11 +37,11 @@ export function FreeAuditPage() {
     return () => window.removeEventListener('pageshow', reset);
   }, []);
 
-  // Opens the booking calendar with the visitor's name and email already filled in.
+  // Carry the visitor's contact details and brief into the booking calendar.
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     setSending(true);
-    window.location.assign(calendlyLink(name.trim(), email.trim()));
+    window.location.assign(calendlyLink(name, email, { businessName, phone, description }));
   };
 
   return (
@@ -74,7 +77,7 @@ export function FreeAuditPage() {
           <FadeUp
             delay={0.1}
             y={18}
-      className="rounded-3xl border border-border bg-paper p-7 sm:p-10"
+            className="rounded-3xl border border-border bg-paper p-7 sm:p-10"
           >
             <form onSubmit={onSubmit} className="space-y-5">
               <div>
@@ -83,26 +86,79 @@ export function FreeAuditPage() {
                 </label>
                 <input
                   id="audit-name"
+                  name="name"
                   type="text"
                   required
                   autoComplete="name"
+                  maxLength={120}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className={inputClass}
                 />
               </div>
               <div>
+                <label htmlFor="audit-business" className="mb-2 block text-sm font-medium text-primary">
+                  Business name
+                </label>
+                <input
+                  id="audit-business"
+                  name="businessName"
+                  type="text"
+                  required
+                  autoComplete="organization"
+                  maxLength={160}
+                  value={businessName}
+                  onChange={(e) => setBusinessName(e.target.value)}
+                  className={inputClass}
+                />
+              </div>
+              <div>
                 <label htmlFor="audit-email" className="mb-2 block text-sm font-medium text-primary">
-                  Work email
+                  Email
                 </label>
                 <input
                   id="audit-email"
+                  name="email"
                   type="email"
                   required
                   autoComplete="email"
+                  maxLength={254}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={inputClass}
+                />
+              </div>
+              <div>
+                <label htmlFor="audit-phone" className="mb-2 block text-sm font-medium text-primary">
+                  Phone number
+                </label>
+                <input
+                  id="audit-phone"
+                  name="phone"
+                  type="tel"
+                  required
+                  autoComplete="tel"
+                  maxLength={40}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  aria-describedby="audit-phone-hint"
+                  className={inputClass}
+                />
+                <p id="audit-phone-hint" className="mt-2 text-sm text-body">Include your country code.</p>
+              </div>
+              <div>
+                <label htmlFor="audit-description" className="mb-2 block text-sm font-medium text-primary">
+                  Description <span className="font-normal text-body">(optional)</span>
+                </label>
+                <textarea
+                  id="audit-description"
+                  name="description"
+                  rows={4}
+                  maxLength={1000}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Tell us about your business and what you'd like help with."
+                  className={`${inputClass} min-h-32 resize-y`}
                 />
               </div>
               <p className="text-sm leading-relaxed text-body">

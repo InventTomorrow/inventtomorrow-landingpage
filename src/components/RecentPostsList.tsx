@@ -14,8 +14,16 @@ export function RecentPostsList({ count = 2, onNavigate }: RecentPostsListProps)
       {POSTS.slice(0, count).map((post) => (
         <li key={post.slug}>
           <Link to={`/blog/${post.slug}`} onClick={onNavigate} className="group flex items-center gap-4">
-            <div className="w-20 shrink-0">
-              <SiteImage alt={`Image for ${post.title}`} label="Blog image" width={160} height={140} isCaptionHidden />
+            <div className="aspect-[8/7] w-20 shrink-0 overflow-hidden rounded-lg">
+              <SiteImage
+                src={post.image.src}
+                alt={post.image.alt}
+                label="Blog image"
+                width={post.image.width}
+                height={post.image.height}
+                className="h-full!"
+                isCaptionHidden
+              />
             </div>
             <span className="flex flex-col gap-1">
               <span className="font-display text-base font-semibold leading-snug text-white transition-colors group-hover:text-accent">

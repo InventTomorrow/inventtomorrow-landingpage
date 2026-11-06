@@ -8,8 +8,8 @@ export interface Stat {
 }
 
 export const STATS: Stat[] = [
-  { value: FIXES.length, label: 'Fixes built and run for you' },
-  { value: 90, suffix: '-day', label: 'Guarantee' },
-  { value: 10, label: 'Founding client spots' },
-  { value: 15, suffix: ' min', label: 'Free audit call' },
+  { value: FIXES.length, suffix: ' Problems', label: 'We Fix' },
+  { value: 90, suffix: ' day', label: 'Growth Guarantee or Refund' },
+  { value: 10, suffix: ' Clients', label: 'Founding Spot' },
+  { value: 15, suffix: ' min', label: 'Free Audit Call' },
 ];

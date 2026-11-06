@@ -11,7 +11,11 @@ const STATEMENTS = [
 // Full-width statement band: a pinned background picture with three lines of text scrolling over it, ending on the main call to action.
 export function StickyStatementSection() {
   return (
-    <ParallaxBand id="statement" imageAlt="A cleaner at work, full-width background">
+    <ParallaxBand
+      id="statement"
+      imageSrc="/images/problem-background.webp"
+      imageAlt="An overwhelmed cleaning business owner surrounded by calls, messages and unfinished tasks."
+    >
       <div className="mx-auto max-w-4xl text-center text-white">
         {STATEMENTS.map(({ eyebrow, text }) => (
           <div key={eyebrow} className="flex min-h-[80svh] flex-col items-center justify-center">

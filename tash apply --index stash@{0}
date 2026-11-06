@@ -1,0 +1,96 @@
+ .vscode/settings.json                              |   3 [32m+[m
+ docs/about-image-prompts.md                        |  49 [32m++++++++[m
+ docs/booking-setup.md                              |  52 [32m++++++++[m
+ docs/hero-image-prompt.md                          |  31 [32m+++++[m
+ output/about-booking-story-v1/README.md            |  36 [32m++++++[m
+ output/about-us-options-v1/README.md               |  54 [32m+++++++++[m
+ .../about-us-options-v1/a-human-collaboration.png  | Bin [31m0[m -> [32m2245284[m bytes
+ output/about-us-options-v1/b-without-humans.png    | Bin [31m0[m -> [32m1952274[m bytes
+ output/about-us-options-v1/c-ai-inspired.png       | Bin [31m0[m -> [32m1969587[m bytes
+ output/about-us-technology-options-v1/README.md    |  56 [32m+++++++++[m
+ .../a-people-building-systems.png                  | Bin [31m0[m -> [32m2183734[m bytes
+ .../b-connected-software.png                       | Bin [31m0[m -> [32m1672063[m bytes
+ .../c-ai-coordination.png                          | Bin [31m0[m -> [32m1579664[m bytes
+ public/images/5-Star Engine.jfif.jpeg              | Bin [31m0[m -> [32m1833728[m bytes
+ public/images/60-Second Response.jfif.jpeg         | Bin [31m0[m -> [32m1748656[m bytes
+ .../Automated Cleaning Workflow Illustration.png   | Bin [31m0[m -> [32m1232059[m bytes
+ public/images/Busy Season Ready.jfif.jpeg          | Bin [31m0[m -> [32m1791407[m bytes
+ public/images/Commercial Cleaning.jfif.jpeg        | Bin [31m0[m -> [32m1977215[m bytes
+ .../images/Human Decisions, Automated Workflow.png | Bin [31m0[m -> [32m1201178[m bytes
+ public/images/Missed Call Rescue.jfif.jpeg         | Bin [31m0[m -> [32m1687077[m bytes
+ public/images/Move-Out & Deep Cleaning.jfif.jpeg   | Bin [31m0[m -> [32m1847091[m bytes
+ .../images/Not sure which fix you need first.jpeg  | Bin [31m0[m -> [32m1905200[m bytes
+ .../Overwhelmed Cleaner Amid Swirling Tasks.png    | Bin [31m0[m -> [32m1774613[m bytes
+ public/images/Quote Chaser.jfif.jpeg               | Bin [31m0[m -> [32m1686768[m bytes
+ public/images/Quote Revival.jfif.jpeg              | Bin [31m0[m -> [32m1559745[m bytes
+ public/images/Recurring Booker.jfif.jpeg           | Bin [31m0[m -> [32m1849633[m bytes
+ public/images/Residential Cleaning.jfif.jpeg       | Bin [31m0[m -> [32m1945792[m bytes
+ public/images/Specialist Cleaning.jfif.jpeg        | Bin [31m0[m -> [32m2026287[m bytes
+ ... 2 PM and you\342\200\231re on a job.jfif.jpeg" | Bin [31m0[m -> [32m1966343[m bytes
+ ...hatsApp Image 2026-11-07 at 1.21.28 AM (1).jpeg | Bin [31m0[m -> [32m63412[m bytes
+ .../WhatsApp Image 2026-11-07 at 1.21.28 AM.jpeg   | Bin [31m0[m -> [32m58772[m bytes
+ .../WhatsApp Image 2026-11-07 at 1.21.29 AM.jpeg   | Bin [31m0[m -> [32m30008[m bytes
+ public/images/about-business-owner-v2.jpg          | Bin [31m0[m -> [32m268400[m bytes
+ public/images/about-cleaner-v1.png                 | Bin [31m0[m -> [32m2170035[m bytes
+ public/images/about-cleaner-v1.webp                | Bin [31m0[m -> [32m201314[m bytes
+ public/images/about-couple-booking-v1.png          | Bin [31m0[m -> [32m2485549[m bytes
+ public/images/about-provider-schedule-v1.png       | Bin [31m0[m -> [32m1910938[m bytes
+ public/images/about-systems-team-v2.jpg            | Bin [31m0[m -> [32m254699[m bytes
+ public/images/about-systems-team-v3.webp           | Bin [31m0[m -> [32m214292[m bytes
+ public/images/about-team-v1.png                    | Bin [31m0[m -> [32m2132182[m bytes
+ public/images/about-team-v1.webp                   | Bin [31m0[m -> [32m183822[m bytes
+ public/images/audit-first-fix.webp                 | Bin [31m0[m -> [32m65692[m bytes
+ public/images/blog/google-reviews.webp             | Bin [31m0[m -> [32m12744[m bytes
+ public/images/blog/missed-calls.webp               | Bin [31m0[m -> [32m36004[m bytes
+ public/images/blog/quote-follow-ups.webp           | Bin [31m0[m -> [32m31942[m bytes
+ public/images/clear-roles.webp                     | Bin [31m0[m -> [32m70870[m bytes
+ public/images/done-for-you.webp                    | Bin [31m0[m -> [32m41322[m bytes
+ public/images/hero-cleaning-automation-v1.png      | Bin [31m0[m -> [32m1927396[m bytes
+ public/images/hero-cleaning-automation-v1.webp     | Bin [31m0[m -> [32m230704[m bytes
+ public/images/hero-cleaning-automation.jpg         | Bin [31m0[m -> [32m2476230[m bytes
+ public/images/problem-background.webp              | Bin [31m0[m -> [32m68758[m bytes
+ .../images/service-types/commercial-cleaning.webp  | Bin [31m0[m -> [32m47152[m bytes
+ .../service-types/move-out-deep-cleaning.webp      | Bin [31m0[m -> [32m36918[m bytes
+ .../images/service-types/residential-cleaning.webp | Bin [31m0[m -> [32m47974[m bytes
+ .../images/service-types/specialist-cleaning.webp  | Bin [31m0[m -> [32m55380[m bytes
+ public/images/services/fast-response.webp          | Bin [31m0[m -> [32m24056[m bytes
+ public/images/services/missed-call-rescue.webp     | Bin [31m0[m -> [32m29802[m bytes
+ public/images/services/quote-follow-up.webp        | Bin [31m0[m -> [32m28356[m bytes
+ public/images/services/quote-revival.webp          | Bin [31m0[m -> [32m16718[m bytes
+ public/images/services/recurring-bookings.webp     | Bin [31m0[m -> [32m40172[m bytes
+ public/images/services/review-requests.webp        | Bin [31m0[m -> [32m43202[m bytes
+ public/images/services/seasonal-bookings.webp      | Bin [31m0[m -> [32m37360[m bytes
+ public/images/stay-focused.webp                    | Bin [31m0[m -> [32m59374[m bytes
+ src/components/AboutCollage.tsx                    |  24 [32m+++[m[31m-[m
+ src/components/AboutIntroSection.tsx               |  30 [32m+++[m[31m--[m
+ src/components/BeforeAfterSection.tsx              |  35 [32m+[m[31m-----[m
+ src/components/DoneForYouSection.tsx               |  11 [32m+[m[31m-[m
+ src/components/FinalCtaSection.tsx                 |  17 [32m+[m[31m--[m
+ src/components/HeroSection.tsx                     |  52 [32m++++[m[31m----[m
+ src/components/Navbar.tsx                          |   2 [32m+[m[31m-[m
+ src/components/ParallaxBand.tsx                    |   2 [32m+[m[31m-[m
+ src/components/PostCard.tsx                        |   7 [32m+[m[31m-[m
+ src/components/RecentPostsList.tsx                 |  12 [32m+[m[31m-[m
+ src/components/RoundArrowButton.tsx                |   6 [32m+[m[31m-[m
+ src/components/ServiceCard.tsx                     |  22 [32m+++[m[31m-[m
+ src/components/ServiceDetailCard.tsx               |   9 [32m+[m[31m-[m
+ src/components/ServiceTypeCard.tsx                 |  12 [32m+[m[31m-[m
+ src/components/ServiceTypesSection.tsx             |  16 [32m+++[m
+ src/components/ServicesBanner.tsx                  |  11 [32m+[m[31m-[m
+ src/components/ServicesSection.tsx                 |  25 [32m++[m[31m--[m
+ src/components/StatsSection.tsx                    |   2 [32m+[m[31m-[m
+ src/components/StayFocusedVisual.tsx               |   9 [32m+[m[31m-[m
+ src/components/StickyStatementSection.tsx          |   6 [32m+[m[31m-[m
+ src/components/TopBar.tsx                          |   2 [32m+[m[31m-[m
+ src/content/blog.ts                                |  19 [32m+++[m
+ src/content/fixes.ts                               |  16 [32m+++[m
+ src/content/social.ts                              |   8 [32m+[m[31m-[m
+ src/content/stats.ts                               |   8 [32m+[m[31m-[m
+ src/hooks/useScrollStrip.ts                        | 131 [32m+++++++++++++++++[m[31m----[m
+ src/index.css                                      |   2 [32m+[m
+ src/pages/AboutPage.tsx                            |   9 [32m+[m[31m-[m
+ src/pages/BlogPostPage.tsx                         |  10 [32m+[m[31m-[m
+ src/pages/FreeAuditPage.tsx                        |  64 [32m+++++++++[m[31m-[m
+ src/pages/HowItWorksPage.tsx                       |   9 [32m+[m[31m-[m
+ src/utils/navigation.test.ts                       |  23 [32m++++[m
+ src/utils/navigation.ts                    

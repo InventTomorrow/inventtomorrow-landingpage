@@ -3,6 +3,7 @@ import { SiteImage } from './SiteImage';
 
 interface ServiceTypeCardProps {
   title: string;
+  image: { src: string; alt: string };
   text: string;
   tags: string[];
   icon: LucideIcon;
@@ -10,14 +11,21 @@ interface ServiceTypeCardProps {
 
 // One kind of cleaning business. The card shows a short summary; hovering or focusing it slides up the full text and
 // everything it covers over the card, so the card never changes size.
-export function ServiceTypeCard({ title, text, tags, icon: Icon }: ServiceTypeCardProps) {
+export function ServiceTypeCard({ title, image, text, tags, icon: Icon }: ServiceTypeCardProps) {
   return (
     <article
       tabIndex={0}
       className="group relative h-full overflow-hidden rounded-2xl border border-border bg-paper transition-colors duration-300 hover:border-accent focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
     >
       <div className="relative">
-        <SiteImage alt={title} label={title} width={480} height={300} className="rounded-none" />
+        <SiteImage
+          src={image.src}
+          alt={image.alt}
+          label={title}
+          width={960}
+          height={597}
+          className="rounded-none bg-white object-contain!"
+        />
         <span className="absolute -bottom-7 left-6 flex size-14 items-center justify-center rounded-xs border-4 border-paper bg-accent text-on-primary">
           <Icon className="h-6 w-6" strokeWidth={1.75} aria-hidden="true" />
         </span>

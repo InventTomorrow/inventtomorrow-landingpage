@@ -66,7 +66,15 @@ function Article({ post }: { post: Post }) {
 
       <section className="relative z-10 w-full bg-paper section-y px-6 sm:px-12">
         <article className="mx-auto max-w-2xl select-text">
-          <SiteImage alt={`Cover image for ${post.title}`} label="Article cover" width={768} height={400} isEager className="mb-10 rounded-2xl" />
+          <SiteImage
+            src={post.image.src}
+            alt={post.image.alt}
+            label="Article cover"
+            width={post.image.width}
+            height={post.image.height}
+            isEager
+            className="mb-10 rounded-2xl"
+          />
           {post.body.map((block, i) => (
             <BlockView key={i} block={block} />
           ))}
