@@ -7,9 +7,9 @@ export interface SocialLink {
   icon: LucideIcon;
 }
 
-// Replace each url with the real profile link.
+// Brand profiles shared by the top bar, footer and side panel.
 export const SOCIAL_LINKS: SocialLink[] = [
-  { id: 'linkedin', label: 'LinkedIn', url: 'https://www.linkedin.com/', icon: Linkedin },
-  { id: 'facebook', label: 'Facebook', url: 'https://www.facebook.com/', icon: Facebook },
-  { id: 'instagram', label: 'Instagram', url: 'https://www.instagram.com/', icon: Instagram },
+  { id: 'linkedin', label: 'LinkedIn', url: 'https://www.linkedin.com/company/inventtomorrow', icon: Linkedin },
+  { id: 'facebook', label: 'Facebook', url: 'https://www.facebook.com/profile.php?id=61595906557583', icon: Facebook },
+  { id: 'instagram', label: 'Instagram', url: 'https://www.instagram.com/invent.tomorrow.marketing/', icon: Instagram },
 ];

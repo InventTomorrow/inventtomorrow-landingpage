@@ -26,7 +26,7 @@ export function ParallaxBand({ children, imageSrc, imageAlt, id }: ParallaxBandP
       <div className="sticky top-0 h-svh w-full overflow-hidden bg-navy-glow" aria-hidden="true">
         <m.div className="absolute inset-0" style={prefersReducedMotion ? undefined : { scale }}>
           {imageSrc ? (
-            <img src={imageSrc} alt="" width={IMAGE_WIDTH} height={IMAGE_HEIGHT} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+            <img src={imageSrc} alt="" width={IMAGE_WIDTH} height={IMAGE_HEIGHT} loading="lazy" decoding="async" className="h-full w-full object-cover object-[75%_center] md:object-center" />
           ) : (
             <div role="img" aria-label={`${imageAlt} (image to be added)`} className="h-full w-full bg-accent-soft" />
           )}

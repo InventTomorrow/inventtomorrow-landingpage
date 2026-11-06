@@ -21,7 +21,7 @@ const OUR_PART: FocusItem[] = [
   { title: 'Rebook past clients', icon: Repeat },
 ];
 
-// Your focus on the left, our system on the right, an arch-shaped photo and a "VS" badge between them. No cards: each side is a list on a dotted line.
+// Your focus on the left, our system on the right, with the cleaning workflow illustration and a "VS" badge between them.
 export function DoneForYouSection() {
   return (
     <section id="done-for-you" className="relative z-10 w-full overflow-hidden bg-paper section-y px-6 sm:px-12">
@@ -51,7 +51,14 @@ export function DoneForYouSection() {
           </Reveal>
 
           <Reveal variant="zoom" className="relative mx-auto w-full max-w-xs pb-8 lg:self-center">
-            <SiteImage alt="A cleaner on the job" label="Done-for-you image" width={360} height={480} className="rounded-t-full rounded-b-3xl" />
+            <SiteImage
+              src="/images/done-for-you.webp"
+              alt="A cleaner focused on the job while automated workflows handle customer messages."
+              label="Done-for-you image"
+              width={800}
+              height={1021}
+              className="rounded-2xl object-contain!"
+            />
             <span
               className="absolute bottom-0 left-1/2 flex size-16 -translate-x-1/2 items-center justify-center rounded-full bg-accent font-display text-xl font-bold text-on-primary ring-8 ring-paper"
               aria-hidden="true"

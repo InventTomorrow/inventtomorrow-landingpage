@@ -11,7 +11,7 @@ const LINKS = [
 // Sits above the navbar in normal flow, so it scrolls away while the navbar stays.
 export function TopBar() {
   return (
-    <div className="relative z-50 -mb-px w-full bg-primary px-6 text-xs text-white/80 sm:px-12">
+    <div className="relative z-50 -mb-px w-full bg-top-bar px-6 text-xs font-bold text-white/80 sm:px-12">
       <div className="mx-auto flex h-10 max-w-7xl items-center justify-between gap-4">
         <p className="truncate">Win back the jobs you already earned.</p>
         <div className="flex items-center gap-5">

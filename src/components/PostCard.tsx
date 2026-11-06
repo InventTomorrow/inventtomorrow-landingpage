@@ -13,10 +13,11 @@ export function PostCard({ post, delay = 0 }: { post: Post; delay?: number }) {
       >
         <div className="overflow-hidden">
           <SiteImage
-            alt={`Illustration for ${post.title}`}
+            src={post.image.src}
+            alt={post.image.alt}
             label="Blog image"
-            width={640}
-            height={400}
+            width={post.image.width}
+            height={post.image.height}
             className="transition-transform duration-500 motion-safe:group-hover:scale-105"
           />
         </div>

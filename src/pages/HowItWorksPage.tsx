@@ -83,7 +83,14 @@ export function HowItWorksPage() {
           subtitle="You make the decisions that need your expertise while the system keeps the agreed process moving."
         />
         <FadeUp delay={0.1} y={18} className="mt-12">
-          <SiteImage alt="You and your team reviewing the plan" label="Roles image" width={1024} height={380} className="rounded-3xl" />
+          <SiteImage
+            src="/images/clear-roles.webp"
+            alt="A business owner making decisions while automated workflows carry out the agreed tasks."
+            label="Roles image"
+            width={2059}
+            height={764}
+            className="rounded-3xl object-contain!"
+          />
         </FadeUp>
         <div className="mt-10 grid grid-cols-1 divide-y divide-primary/[0.08] md:-mx-10 md:mt-6 md:grid-cols-2 md:divide-x md:divide-y-0">
           {ROLES.map(({ label, items }, i) => (

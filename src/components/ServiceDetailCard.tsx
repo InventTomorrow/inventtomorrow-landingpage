@@ -19,7 +19,14 @@ export function ServiceDetailCard({ fix }: { fix: Fix }) {
       className="group relative flex h-full min-h-[22.5rem] flex-col gap-6 overflow-hidden rounded-2xl border border-border bg-paper p-5 transition-colors duration-300 hover:border-accent focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:flex-row sm:p-7"
     >
       <div className="w-full shrink-0 sm:w-[15.5rem]">
-        <SiteImage alt={`${fix.title} in action`} label={fix.title} width={250} height={270} className="rounded-xl sm:h-full" />
+        <SiteImage
+          src={fix.image.src}
+          alt={fix.image.alt}
+          label={fix.title}
+          width={800}
+          height={865}
+          className="rounded-xl bg-white object-contain! sm:h-full!"
+        />
       </div>
       <div className="flex flex-1 flex-col">
         <Icon className="h-12 w-12 text-accent" strokeWidth={1.25} aria-hidden="true" />

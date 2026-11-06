@@ -10,24 +10,40 @@ import { WaveLines } from './WaveLines';
 const TYPES = [
   {
     title: 'Residential cleaning',
+    image: {
+      src: '/images/service-types/residential-cleaning.webp',
+      alt: 'A cleaner vacuuming a living room beside a sofa, plants and cleaning tools.',
+    },
     text: 'Keep regular customers and new inquiries organized.',
     tags: ['Recurring bookings', 'Appointment reminders', 'Customer preferences'],
     icon: Home,
   },
   {
     title: 'Commercial cleaning',
+    image: {
+      src: '/images/service-types/commercial-cleaning.webp',
+      alt: 'A cleaning team vacuuming, wiping desks and cleaning windows in an office.',
+    },
     text: 'Keep client communication and team handoffs consistent.',
     tags: ['Site visit reminders', 'Quote follow-ups', 'Job and client updates'],
     icon: Building2,
   },
   {
     title: 'Move-out and deep cleaning',
+    image: {
+      src: '/images/service-types/move-out-deep-cleaning.webp',
+      alt: 'Cleaners scrubbing floors and wiping surfaces in a room with moving boxes.',
+    },
     text: 'Keep time-sensitive inquiries and one-off jobs moving.',
     tags: ['Quote details', 'Booking confirmations', 'Access instructions'],
     icon: KeyRound,
   },
   {
     title: 'Specialist cleaning',
+    image: {
+      src: '/images/service-types/specialist-cleaning.webp',
+      alt: 'A cleaner using specialist equipment to clean a carpet and glass surfaces.',
+    },
     text: 'Support the details around carpet, window, upholstery and other specialist jobs.',
     tags: ['Service inquiries', 'Preparation instructions', 'Repeat booking reminders'],
     icon: Sparkles,

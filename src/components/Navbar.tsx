@@ -33,7 +33,7 @@ export function Navbar() {
         className="pointer-events-none sticky top-0 z-50 h-[4.5rem] w-full select-none sm:h-[5.625rem]"
       >
         <div
-          className={`pointer-events-auto bg-accent transition-[height] duration-300 ease-out motion-reduce:transition-none ${
+          className={`pointer-events-auto bg-header transition-[height] duration-300 ease-out motion-reduce:transition-none ${
             isScrolled ? 'h-[3.75rem] sm:h-[4.5rem]' : 'h-[4.5rem] sm:h-[5.625rem]'
           }`}
         >

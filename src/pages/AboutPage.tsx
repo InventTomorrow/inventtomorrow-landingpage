@@ -75,9 +75,9 @@ export function AboutPage() {
           <div>
             <SectionHeading
               align="left"
-              eyebrow="Our mission"
-              title="We build simple systems that cut paperwork, save time,"
-              titleMuted="reduce costs, and help cleaning businesses grow."
+              eyebrow="Our Mission"
+              title="Less paperwork. More bookings."
+              titleMuted="Faster growth for your cleaning business."
             />
             <ul className="mt-8 flex flex-col gap-6 border-l-4 border-accent pl-6">
               {OUTCOMES.map((item, index) => {
@@ -107,8 +107,7 @@ export function AboutPage() {
         <SectionHeading
           scene={BuildScene}
           eyebrow="What we believe"
-          title="Three principles guide every system we design"
-          titleMuted="and every decision we make."
+          title="Our Three Standards"
         />
         <div className="mt-14">
           <ProcessSteps steps={BELIEFS} perRow={3} />

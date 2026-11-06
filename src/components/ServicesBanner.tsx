@@ -4,7 +4,7 @@ import { CtaButton } from './CtaButton';
 import { Reveal } from './Reveal';
 import { SiteImage } from './SiteImage';
 
-// Blue call-to-action banner with a slanted photo on the right.
+// Blue call-to-action banner with a slanted audit illustration on the right.
 export function ServicesBanner() {
   return (
     <Reveal variant="zoom" delay={0.1} className="relative mt-16 grid overflow-hidden rounded-3xl bg-accent-glow lg:grid-cols-[1.25fr_0.75fr]">
@@ -25,11 +25,12 @@ export function ServicesBanner() {
 
       <div className="relative min-h-56 lg:[clip-path:polygon(18%_0,100%_0,100%_100%,0_100%)]">
         <SiteImage
-          alt="A cleaner at work"
+          src="/images/audit-first-fix.webp"
+          alt="A magnifying glass reviewing calls, quotes and messages to identify the best first improvement."
           label="Banner image"
-          width={640}
-          height={420}
-          className="absolute inset-0 h-full w-full"
+          width={1280}
+          height={832}
+          className="absolute inset-0 h-full! w-full bg-white object-contain! p-6 lg:pl-16"
         />
       </div>
     </Reveal>
