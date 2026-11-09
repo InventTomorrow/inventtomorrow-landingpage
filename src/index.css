@@ -18,8 +18,8 @@
 
   --color-primary: #010f34;
   --color-on-primary: #ffffff;
-  --color-accent: #0181f5;
-  --color-header: #2077bc;
+  --color-accent: #2077bc;
+  --color-header: var(--color-accent);
   --color-top-bar: #141461;
   --color-accent-hover: color-mix(in srgb, var(--color-accent) 85%, var(--color-primary));
   --color-accent-active: color-mix(in srgb, var(--color-accent) 70%, var(--color-primary));

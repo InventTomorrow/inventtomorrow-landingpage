@@ -18,8 +18,8 @@
       html, body { margin: 0; background: #010f34; }
       .boot-loader { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; background: #010f34; color: #fff; font-family: Outfit, system-ui, sans-serif; }
       .boot-loader__ring { position: relative; width: 6rem; height: 6rem; }
-      .boot-loader__ring::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 4px solid rgba(255, 255, 255, 0.15); border-top-color: #0181f5; animation: boot-spin 1s linear infinite; }
-      .boot-loader__mark { position: absolute; inset: 0.75rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #0181f5; font-size: 1.5rem; font-weight: 700; }
+      .boot-loader__ring::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 4px solid rgba(255, 255, 255, 0.15); border-top-color: #2077bc; animation: boot-spin 1s linear infinite; }
+      .boot-loader__mark { position: absolute; inset: 0.75rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #2077bc; font-size: 1.5rem; font-weight: 700; }
       .boot-loader__name { margin: 0; font-size: 1.25rem; font-weight: 600; }
       @keyframes boot-spin { to { transform: rotate(360deg); } }
       @media (prefers-reduced-motion: reduce) { .boot-loader__ring::before { animation: none; } }
