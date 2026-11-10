@@ -6,12 +6,13 @@ import { PageHero } from '../components/PageHero';
 import { Section } from '../components/Section';
 import { SectionHeading } from '../components/SectionHeading';
 import { textLinkClass } from '../components/TextLink';
+import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { CALENDLY_URL } from '../utils/navigation';
 
 export function ContactPage() {
   const [isCalendarLoaded, setIsCalendarLoaded] = useState(false);
-  usePageMeta('Schedule a Call | Invent Tomorrow', 'Talk through the calls, quotes and follow-ups taking up your day.');
+  usePageMeta(PAGE_META.contact);
 
   return (
     <>

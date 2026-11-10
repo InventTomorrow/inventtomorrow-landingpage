@@ -14,13 +14,11 @@ import { StickyStatementSection } from '../components/StickyStatementSection';
 import { TimelineSection } from '../components/TimelineSection';
 import { ToolsSection } from '../components/ToolsSection';
 import { HOME_FAQS } from '../content/faq';
+import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
 
 export function HomePage() {
-  usePageMeta(
-    'Invent Tomorrow | Systems for Cleaning Service Businesses',
-    'Win back missed inquiries, follow up quotes and build recurring bookings for your cleaning service business.',
-  );
+  usePageMeta(PAGE_META.home);
 
   return (
     <>

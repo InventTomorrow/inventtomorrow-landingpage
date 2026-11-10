@@ -1,11 +1,12 @@
 import { House } from 'lucide-react';
 import { PageHero } from '../components/PageHero';
 import { CtaButton } from '../components/CtaButton';
+import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { AUDIT_PATH } from '../utils/navigation';
 
 export function NotFoundPage() {
-  usePageMeta('Page not found | Invent Tomorrow', "This page doesn't exist.");
+  usePageMeta(PAGE_META.notFound);
 
   return (
     <PageHero

@@ -5,6 +5,7 @@ import { FadeUp } from '../components/FadeUp';
 import { FinalCtaSection } from '../components/FinalCtaSection';
 import { PageHero } from '../components/PageHero';
 import { Section } from '../components/Section';
+import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { calendlyLink } from '../utils/navigation';
 
@@ -18,10 +19,7 @@ const inputClass =
   'w-full rounded-xs border border-border bg-paper px-4 py-3 text-base font-normal text-ink placeholder-primary/35 transition-colors select-text focus:border-accent focus:outline-2 focus:outline-offset-2 focus:outline-accent';
 
 export function FreeAuditPage() {
-  usePageMeta(
-    'Your Business Audit | Invent Tomorrow',
-    'Find where time is being lost in your calls, quotes and bookings, and what our system could take off your hands.',
-  );
+  usePageMeta(PAGE_META.freeAudit);
 
   const [name, setName] = useState('');
   const [businessName, setBusinessName] = useState('');

@@ -1,0 +1,104 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { POSTS } from '../content/blog';
+import { PAGE_META } from '../content/pages';
+import {
+  SITE_URL,
+  absoluteUrl,
+  buildHeadTags,
+  buildLlmsTxt,
+  buildSitemapXml,
+  buildStructuredData,
+  getOutputFile,
+  getPageName,
+  getSitePages,
+  injectPage,
+  serializeJsonLd,
+} from './seo';
+
+const TEMPLATE = '<head><!--app-head--></head><body><div id="root"><!--app-html--><p>Loading</p><!--/app-html--></div></body>';
+
+test('every public page has a unique path, title and description', () => {
+  const pages = getSitePages();
+  for (const key of ['path', 'title', 'description'] as const) {
+    assert.equal(new Set(pages.map((page) => page.meta[key])).size, pages.length, `duplicate ${key}`);
+  }
+});
+
+test('the sitemap lists every public page but not the 404 page', () => {
+  const pages = getSitePages();
+  const xml = buildSitemapXml(pages, '2026-11-10');
+  assert.equal(xml.match(/<url>/g)?.length, pages.length);
+  assert.ok(xml.includes(`<loc>${SITE_URL}/</loc>`));
+  assert.ok(!xml.includes(PAGE_META.notFound.path));
+});
+
+test('blog posts use their own date in the sitemap', () => {
+  const xml = buildSitemapXml(getSitePages(), '2026-11-10');
+  const post = POSTS[0];
+  assert.match(xml, new RegExp(`/blog/${post.slug}</loc>\\s*<lastmod>${post.date}</lastmod>`));
+});
+
+test('llms.txt starts with the site name and a summary, then lists pages', () => {
+  const lines = buildLlmsTxt(getSitePages()).split('\n');
+  assert.equal(lines[0], '# Invent Tomorrow');
+  assert.ok(lines[2].startsWith('> '));
+  assert.ok(lines.includes('## Pages'));
+  assert.ok(lines.some((line) => line.startsWith(`- [About Us](${SITE_URL}/about): `)));
+});
+
+test('getPageName drops the brand suffix', () => {
+  assert.equal(getPageName(PAGE_META.about), 'About Us');
+  assert.equal(getPageName(PAGE_META.home), PAGE_META.home.title);
+});
+
+test('head tags escape text and add a canonical link', () => {
+  const head = buildHeadTags({ path: '/x', title: 'A "quote" & <b>', description: 'd' }, { ogType: 'website' });
+  assert.ok(head.includes('<title>A &quot;quote&quot; &amp; &lt;b&gt;</title>'));
+  assert.ok(head.includes(`<link rel="canonical" href="${SITE_URL}/x" />`));
+  assert.ok(!head.includes('og:image'));
+});
+
+test('pages that are not indexable get noindex instead of a canonical link', () => {
+  const head = buildHeadTags(PAGE_META.notFound, { ogType: 'website' });
+  assert.ok(head.includes('<meta name="robots" content="noindex" />'));
+  assert.ok(!head.includes('rel="canonical"'));
+});
+
+test('the og:image tags appear only when an image is given', () => {
+  const head = buildHeadTags(PAGE_META.home, { ogType: 'website', ogImageUrl: absoluteUrl('/og/default.jpg') });
+  assert.ok(head.includes(`<meta property="og:image" content="${SITE_URL}/og/default.jpg" />`));
+});
+
+test('structured data: home has WebSite, inner pages have breadcrumbs, posts have an article', () => {
+  const types = (data: ReturnType<typeof buildStructuredData>) =>
+    (data['@graph'] as { '@type': string }[]).map((node) => node['@type']);
+
+  assert.deepEqual(types(buildStructuredData(PAGE_META.home)), ['Organization', 'WebSite']);
+  assert.deepEqual(types(buildStructuredData(PAGE_META.about)), ['Organization', 'BreadcrumbList']);
+  assert.deepEqual(types(buildStructuredData(PAGE_META.faq)), ['Organization', 'BreadcrumbList', 'FAQPage']);
+  assert.deepEqual(types(buildStructuredData(PAGE_META.notFound)), ['Organization']);
+
+  const post = getSitePages().find((page) => page.post);
+  assert.ok(post?.post);
+  assert.deepEqual(types(buildStructuredData(post.meta, post.post)), ['Organization', 'BreadcrumbList', 'BlogPosting']);
+});
+
+test('JSON-LD cannot close its script tag early', () => {
+  const script = serializeJsonLd({ text: '</script><script>alert(1)</script>' });
+  assert.equal(script.match(/<\/script>/g)?.length, 1);
+});
+
+test('injectPage fills the head and replaces the loader, keeping "$" in page text', () => {
+  const html = injectPage(TEMPLATE, '<title>T</title>', '<p>From $99 $&</p>');
+  assert.equal(html, '<head><title>T</title></head><body><div id="root" data-prerendered><p>From $99 $&</p></div></body>');
+});
+
+test('injectPage refuses a template without markers', () => {
+  assert.throws(() => injectPage('<head></head>', '', ''));
+});
+
+test('getOutputFile maps paths to folder index files', () => {
+  assert.equal(getOutputFile('/'), 'index.html');
+  assert.equal(getOutputFile('/blog/a-post'), 'blog/a-post/index.html');
+});
