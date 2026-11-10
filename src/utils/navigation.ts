@@ -14,6 +14,13 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'blog', label: 'Blog', to: '/blog' },
 ];
 
+// Live domain. The bare domain redirects here, so canonical links, the sitemap and structured data all use it.
+export const SITE_URL = 'https://www.inventtomorrow.pro';
+
+export function absoluteUrl(path: string) {
+  return path === '/' ? `${SITE_URL}/` : `${SITE_URL}${path}`;
+}
+
 export const AUDIT_PATH = '/free-audit';
 export const BOOKING_PATH = '/contact#book-or-message';
 

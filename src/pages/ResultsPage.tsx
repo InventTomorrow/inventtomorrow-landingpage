@@ -7,6 +7,7 @@ import { FadeUp } from '../components/FadeUp';
 import { SiteImage } from '../components/SiteImage';
 import { CtaButton } from '../components/CtaButton';
 import { DefaultClosingCta } from '../components/FinalCtaSection';
+import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
 
@@ -19,7 +20,7 @@ const MEASURES = [
 ];
 
 export function ResultsPage() {
-  usePageMeta('Results | Invent Tomorrow', 'Measure response times, follow-ups and the time saved behind each job.');
+  usePageMeta(PAGE_META.results);
 
   return (
     <>

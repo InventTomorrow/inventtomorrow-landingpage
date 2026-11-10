@@ -8,6 +8,7 @@ import { ProcessSteps } from '../components/ProcessSteps';
 import { SiteImage } from '../components/SiteImage';
 import { CtaButton } from '../components/CtaButton';
 import { DefaultClosingCta } from '../components/FinalCtaSection';
+import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { AUDIT_PATH } from '../utils/navigation';
 
@@ -46,10 +47,7 @@ const ROLES = [
 ];
 
 export function HowItWorksPage() {
-  usePageMeta(
-    'How It Works | Invent Tomorrow',
-    'Review your process, approve your messages and put a follow-up system in place for your cleaning business.',
-  );
+  usePageMeta(PAGE_META.howItWorks);
 
   return (
     <>

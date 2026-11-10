@@ -7,6 +7,7 @@ import { TextLink } from '../components/TextLink';
 import { DefaultClosingCta } from '../components/FinalCtaSection';
 import { POSTS, formatDate, readMinutes, type Block, type Post } from '../content/blog';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { getPostMeta } from '../utils/seo';
 import { NotFoundPage } from './NotFoundPage';
 
 function BlockView({ block }: { block: Block }) {
@@ -51,7 +52,7 @@ function BlockView({ block }: { block: Block }) {
 }
 
 function Article({ post }: { post: Post }) {
-  usePageMeta(`${post.title} | Invent Tomorrow`, post.description);
+  usePageMeta(getPostMeta(post));
   const others = POSTS.filter((p) => p.slug !== post.slug);
 
   return (

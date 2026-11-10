@@ -10,14 +10,12 @@ import { JourneyPathway } from '../components/JourneyPathway';
 import { ServiceGridSection } from '../components/ServiceGridSection';
 import { ServiceTypesSection } from '../components/ServiceTypesSection';
 import { FinalCtaSection } from '../components/FinalCtaSection';
+import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
 
 export function ServicesPage() {
-  usePageMeta(
-    'Services | Invent Tomorrow',
-    'Follow-up and booking systems for cleaning businesses. Inquiries answered, teams informed and less for you to chase.',
-  );
+  usePageMeta(PAGE_META.services);
 
   return (
     <>

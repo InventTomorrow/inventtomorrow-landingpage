@@ -1,6 +1,7 @@
 import { PageHero } from '../components/PageHero';
 import { CtaButton } from '../components/CtaButton';
 import { FinalCtaSection } from '../components/FinalCtaSection';
+import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
 
@@ -40,10 +41,7 @@ import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
 // ];
 
 export function WhoWeHelpPage() {
-  usePageMeta(
-    'Who We Help | Invent Tomorrow',
-    'Systems built around residential, commercial and specialist cleaning service businesses.',
-  );
+  usePageMeta(PAGE_META.whoWeHelp);
 
   return (
     <>
