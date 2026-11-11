@@ -9,6 +9,7 @@ import { SiteImage } from '../components/SiteImage';
 import { TextLink } from '../components/TextLink';
 import { CASE_STUDIES, type CaseStudy, type CaseStudyBlurb, type CaseStudyDetails } from '../content/caseStudies';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { getCaseStudyMeta } from '../utils/seo';
 import { NotFoundPage } from './NotFoundPage';
 
 function StoryHeading({ children }: { children: string }) {
@@ -16,7 +17,7 @@ function StoryHeading({ children }: { children: string }) {
 }
 
 function Story({ study }: { study: CaseStudy }) {
-  usePageMeta(`${study.title} | Invent Tomorrow`, study.summary);
+  usePageMeta(getCaseStudyMeta(study));
   const others = CASE_STUDIES.filter((s) => s.slug !== study.slug);
 
   return (
@@ -163,7 +164,7 @@ function FlowSteps({ steps }: { steps: string[] }) {
 }
 
 function DetailedStory({ study, details }: { study: CaseStudy; details: CaseStudyDetails }) {
-  usePageMeta(details.seoTitle, details.seoDescription);
+  usePageMeta(getCaseStudyMeta(study));
   const others = CASE_STUDIES.filter((other) => other.slug !== study.slug && other.isPublished && other.isReal);
   const breadcrumbLinkClass = 'inline-flex min-h-11 items-center rounded-xs text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent';
 

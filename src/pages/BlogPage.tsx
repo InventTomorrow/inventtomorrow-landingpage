@@ -3,13 +3,11 @@ import { PageHero } from '../components/PageHero';
 import { PostCard } from '../components/PostCard';
 import { Section } from '../components/Section';
 import { POSTS } from '../content/blog';
+import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
 
 export function BlogPage() {
-  usePageMeta(
-    'Blog | Invent Tomorrow',
-    'Practical guides for cleaning business owners on missed calls, quote follow up, reviews and repeat bookings.',
-  );
+  usePageMeta(PAGE_META.blog);
 
   return (
     <>

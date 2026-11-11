@@ -3,14 +3,12 @@ import { CtaButton } from '../components/CtaButton';
 import { FaqSplitSection } from '../components/FaqSection';
 import { FinalCtaSection } from '../components/FinalCtaSection';
 import { ALL_FAQS } from '../content/faq';
+import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { AUDIT_PATH } from '../utils/navigation';
 
 export function FaqPage() {
-  usePageMeta(
-    'FAQ | Invent Tomorrow',
-    'Straight answers about follow up systems, your current tools, messages, pricing and setup.',
-  );
+  usePageMeta(PAGE_META.faq);
 
   return (
     <>

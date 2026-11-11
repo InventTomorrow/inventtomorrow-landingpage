@@ -2,11 +2,12 @@ import { PageHero } from '../components/PageHero';
 import { TextLink } from '../components/TextLink';
 import { DefaultClosingCta } from '../components/FinalCtaSection';
 import { usePageMeta } from '../hooks/usePageMeta';
+import { getLegalMeta } from '../utils/seo';
 import { LAST_UPDATED, type LegalDoc } from '../content/legal';
 
 // Privacy Policy, Terms and SMS Consent all use this layout.
 export function LegalPage({ doc }: { doc: LegalDoc }) {
-  usePageMeta(doc.metaTitle, doc.description);
+  usePageMeta(getLegalMeta(doc));
 
   return (
     <>

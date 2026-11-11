@@ -4,14 +4,12 @@ import { FinalCtaSection } from '../components/FinalCtaSection';
 import { PageHero } from '../components/PageHero';
 import { Section } from '../components/Section';
 import { CASE_STUDIES } from '../content/caseStudies';
+import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
 
 export function OurWorkPage() {
-  usePageMeta(
-    'Our Work | Invent Tomorrow',
-    'Explore our cleaning business CRM and automation work, including lead capture, quote follow up, and clearer sales pipelines.',
-  );
+  usePageMeta(PAGE_META.ourWork);
 
   return (
     <>

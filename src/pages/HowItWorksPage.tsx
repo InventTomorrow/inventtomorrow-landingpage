@@ -3,14 +3,12 @@ import { PageHero } from '../components/PageHero';
 import { CtaButton } from '../components/CtaButton';
 import { DefaultClosingCta } from '../components/FinalCtaSection';
 import { HowItWorksSection } from '../components/HowItWorksSection';
+import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { AUDIT_PATH } from '../utils/navigation';
 
 export function HowItWorksPage() {
-  usePageMeta(
-    'How It Works | Invent Tomorrow',
-    'Review your process, approve your messages and put a follow up system in place for your cleaning business.',
-  );
+  usePageMeta(PAGE_META.howItWorks);
 
   return (
     <>

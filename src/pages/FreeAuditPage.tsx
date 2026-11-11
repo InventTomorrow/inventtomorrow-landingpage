@@ -3,6 +3,7 @@ import { AuditChat } from '../components/AuditChat';
 import { FadeUp } from '../components/FadeUp';
 import { FinalCtaSection } from '../components/FinalCtaSection';
 import { Section } from '../components/Section';
+import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
 
 const BULLETS = [
@@ -12,10 +13,7 @@ const BULLETS = [
 ];
 
 export function FreeAuditPage() {
-  usePageMeta(
-    'Your Business Audit | Invent Tomorrow',
-    'Find where time is being lost in your calls, quotes and bookings, and what our system could take off your hands.',
-  );
+  usePageMeta(PAGE_META.freeAudit);
 
   return (
     <div className="screen-sections">

@@ -11,6 +11,7 @@ import { Section } from '../components/Section';
 import { SectionHeading } from '../components/SectionHeading';
 import { StandardsSection } from '../components/StandardsSection';
 import { TeamSection } from '../components/TeamSection';
+import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
 
@@ -21,10 +22,7 @@ const OUTCOMES = [
 ];
 
 export function AboutPage() {
-  usePageMeta(
-    'About Us | Invent Tomorrow',
-    'Invent Tomorrow builds simple, reliable automation systems that make everyday work easier for cleaning businesses.',
-  );
+  usePageMeta(PAGE_META.about);
 
   return (
     <>
