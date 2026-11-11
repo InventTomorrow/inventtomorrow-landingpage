@@ -2,13 +2,12 @@ import { m } from 'motion/react';
 import { FadeUp } from './FadeUp';
 import { SectionHeading } from './SectionHeading';
 import { CtaButton } from './CtaButton';
-import { TextLink } from './TextLink';
 import { AUDIT_PATH } from '../utils/navigation';
 import { Award, Check } from 'lucide-react';
 import { PromiseScene } from './illustrations/processScenes';
 
-const FILLED_SPOTS = 6;
-const TOTAL_SPOTS = 10;
+const FILLED_SPOTS = 3;
+const TOTAL_SPOTS = 5;
 
 const PERKS = [
   'Founding price, locked in for life',
@@ -18,11 +17,11 @@ const PERKS = [
 
 export function FoundingOfferSection() {
   return (
-    <section id="founding-offer" className="relative z-10 w-full border-t border-border bg-paper section-y section-deco px-6 sm:px-12">
+    <section id="founding-offer" className="relative z-10 w-full bg-paper section-y section-deco px-6 sm:px-12">
       <div className="mx-auto max-w-4xl">
         <SectionHeading
           eyebrow="Founding clients"
-          title="Become one of our" titleMuted="10 founding clients"
+          title="Become one of our" titleMuted="5 founding clients"
           subtitle="Founding pricing and a direct line to the founders. In return, your results become our first case study."
         />
 
@@ -73,36 +72,18 @@ export function FoundingOfferSection() {
           </div>
         </FadeUp>
 
-        <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-[minmax(0,7fr)_minmax(0,6fr)]">
-     <FadeUp delay={0.18} y={18} className="flex items-center gap-2 overflow-hidden rounded-2xl bg-primary p-8 text-white">
-            <div>
+        <div className="mt-5 grid grid-cols-1">
+          <FadeUp delay={0.18} y={18} className="flex items-center gap-2 overflow-hidden rounded-2xl bg-primary p-8 text-white">
+            <div className="max-w-2xl">
               <Award className="h-6 w-6 text-accent" />
               <p className="mt-5 text-xs font-semibold text-accent">Our promise</p>
               <p className="font-display mt-2 text-xl font-semibold leading-snug">
-                If we don't book jobs that cover our fee within 90 days, we work free until we do.
+                No Results in 90 Days? You Get Our Profits.
               </p>
             </div>
             <div className="-mr-4 hidden h-40 w-44 shrink-0 sm:block">
               <PromiseScene />
             </div>
-          </FadeUp>
-
-          <FadeUp
-            delay={0.24}
-            y={18}
-      className="flex flex-col justify-between rounded-2xl border border-border bg-paper p-8 transition-colors duration-300 hover:border-accent"
-          >
-            <div>
-              <p className="text-xs font-semibold text-body">An easy start</p>
-              <p className="font-display mt-3 text-lg font-semibold text-primary">Not ready for the full system? Start small.</p>
-              <p className="mt-2 text-sm leading-relaxed text-body">
-                <strong className="font-semibold text-primary">Quote Revival: $497, one time.</strong> We revive your old
-                quotes in 14 days. Upgrade later and it's credited to your setup.
-              </p>
-            </div>
-            <TextLink to={AUDIT_PATH} className="mt-6 self-start text-sm">
-              Start with Quote Revival
-            </TextLink>
           </FadeUp>
         </div>
       </div>
@@ -185,7 +166,7 @@ export function FoundingOfferSection() {
 //               <Award className="h-6 w-6 text-white" />
 //               <p className="mt-5 text-xs font-semibold text-white">Our promise</p>
 //               <p className="mt-2 text-xl font-semibold leading-snug">
-//                 If we don't book jobs that cover our fee within 90 days, we work free until we do.
+//                 No Results in 90 Days? We Work Free.
 //               </p>
 //             </div>
 //             <div className="-mr-4 hidden h-40 w-44 shrink-0 sm:block">

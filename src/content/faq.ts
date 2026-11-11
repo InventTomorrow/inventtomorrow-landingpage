@@ -7,7 +7,7 @@ export interface Faq {
 export const ALL_FAQS: Faq[] = [
   {
     q: 'What can your system handle?',
-    a: 'Inquiry replies, quote follow-ups, appointment reminders, team updates, payment reminders and messages after a job. Your audit helps identify the right starting point.',
+    a: 'Inquiry replies, quote follow ups, appointment reminders, team updates, payment reminders and messages after a job. Your audit helps identify the right starting point.',
   },
   {
     q: 'Will it work with my current tools?',
@@ -23,7 +23,7 @@ export const ALL_FAQS: Faq[] = [
   },
   {
     q: 'Can I start with just one process?',
-    a: 'Yes. Start with the task taking up the most time or the follow-up most likely to be missed.',
+    a: 'Yes. Start with the task taking up the most time or the follow up most likely to be missed.',
   },
   {
     q: 'Will my team know what to do?',
@@ -51,7 +51,7 @@ export const ALL_FAQS: Faq[] = [
   },
   {
     q: "What if it doesn't work?",
-    a: "That's what the 90-day guarantee is for. If we don't book jobs that cover our fee within 90 days, we keep working for free until we do.",
+    a: "That's what the 90 day guarantee is for. If we don't book jobs that cover our fee within 90 days, we keep working for free until we do.",
   },
   {
     q: 'Am I locked into a contract?',

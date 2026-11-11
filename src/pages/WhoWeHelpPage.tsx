@@ -51,7 +51,7 @@ export function WhoWeHelpPage() {
         eyebrow="Who we help"
         title="Your workflow."
         titleMuted="Our flexibility."
-        description="We adapt to your cleaning business with flexible automation that simplifies tasks, streamlines follow-ups, and keeps operations running smoothly."
+        description="We adapt to your cleaning business with flexible automation that simplifies tasks, streamlines follow ups, and keeps operations running smoothly."
       >
         <CtaButton size="lg" variant="accent" to={AUDIT_PATH}>
           Run My Audit
@@ -66,7 +66,7 @@ export function WhoWeHelpPage() {
         <SectionHeading
           scene={FocusScene}
           title="Built around" titleMuted="the services you offer"
-          subtitle="The jobs may be different. The need for clear, consistent follow-through is the same."
+          subtitle="The jobs may be different. The need for clear, consistent follow through is the same."
         />
         <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2">
           {TYPES.map((type, i) => {

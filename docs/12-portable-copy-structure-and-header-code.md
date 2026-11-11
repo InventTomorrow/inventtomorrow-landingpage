@@ -88,7 +88,7 @@ Aliases (same page re-exported, not redirects): `/case-studies` shows `/results`
 
 | Route | Heading | Body | Small line |
 | --- | --- | --- | --- |
-| default (how-it-works, results, legal, any other) | Discover the hours you could reclaim | Walk us through how you handle calls, quotes, and bookings. Your audit shows where time is being lost and what our system could take off your hands. | Know what to improve. Know where to start. |
+| default (how-it-works, results, legal, any other) | Discover the revenue you could reclaim | Walk us through how you handle calls, quotes, and bookings. Your audit shows where time is being lost and what our system could take off your hands. | Know what to improve. Know where to start. |
 | `/services` | Simplify what happens behind every job | See which enquiries, follow-ups, and reminders your system could handle first. | Start with one process. Build from there. |
 | `/who-we-help` | See how it could fit your business | Show us how your cleaning service works. We'll find the best place to start. | Built around your tools and workflow. |
 | `/faq` | Still have a question? | Tell us what you need clarity on. We'll help you find the right next step. | No pressure. Just clear answers. |
@@ -950,7 +950,7 @@ Structure and behaviour: a sticky, full-viewport "scroll story". It starts on Be
 
 ### 6.8 Free audit `/free-leak-audit`
 
-- Hero (no button): eyebrow `Your business audit`; heading `Discover the hours you could reclaim`; body `Walk us through how you handle calls, quotes, and bookings. Your audit shows where time is being lost and what our system could take off your hands.`
+- Hero (no button): eyebrow `Your business audit`; heading `Discover the revenue you could reclaim`; body `Walk us through how you handle calls, quotes, and bookings. Your audit shows where time is being lost and what our system could take off your hands.`
 - **Form section:** eyebrow `A clear starting point`; heading `What’s taking up your day?`; body `Choose a time to walk through your business. Bring the tasks you keep putting off and the follow-ups you keep chasing.`
   - Bullets: Review your calls, quotes and bookings · Identify what could come off your list · Leave with a clear next step
   - Form: `Full name` (required, autocomplete name) · `Work email` (required, email, autocomplete email)

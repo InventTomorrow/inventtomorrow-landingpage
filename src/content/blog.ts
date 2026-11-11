@@ -25,7 +25,7 @@ export const POSTS: Post[] = [
     category: 'Missed calls',
     image: {
       src: '/images/blog/missed-calls.webp',
-      alt: 'Blue-gloved hands wiping a desk beside a laptop and cleaning spray.',
+      alt: 'Blue gloved hands wiping a desk beside a laptop and cleaning spray.',
       width: 640,
       height: 400,
     },
@@ -42,14 +42,14 @@ export const POSTS: Post[] = [
       { type: 'h2', text: 'A missed call is a customer who was ready' },
       {
         type: 'p',
-        text: 'Someone who picks up the phone usually wants to book. They have a date in mind, a move-out deadline or guests arriving this weekend. A web form can sit for an hour. A caller is comparing options right now, and if nobody answers, the easiest thing for them to do is call the next number.',
+        text: 'Someone who picks up the phone usually wants to book. They have a date in mind, a move out deadline or guests arriving this weekend. A web form can sit for an hour. A caller is comparing options right now, and if nobody answers, the easiest thing for them to do is call the next number.',
       },
       { type: 'h2', text: 'Reply in minutes, not hours' },
       {
         type: 'p',
         text: "A short text sent right after the missed call does most of the work. It tells the caller they've reached a real business, and it gives them an easy way to keep going without waiting for you to finish the job.",
       },
-      { type: 'h2', text: 'What a good missed-call text looks like' },
+      { type: 'h2', text: 'What a good missed call text looks like' },
       {
         type: 'ul',
         items: [
@@ -83,7 +83,7 @@ export const POSTS: Post[] = [
     slug: 'follow-up-on-cleaning-quotes',
     title: 'How to follow up on a cleaning quote without being pushy',
     description:
-      "Most quotes don't get a no. They get forgotten. Here's a simple, friendly follow-up plan you can start using today.",
+      "Most quotes don't get a no. They get forgotten. Here's a simple, friendly follow up plan you can start using today.",
     category: 'Quotes',
     image: {
       src: '/images/blog/quote-follow-ups.webp',
@@ -99,14 +99,14 @@ export const POSTS: Post[] = [
       },
       {
         type: 'p',
-        text: 'A polite follow-up is not pushy. It is good service. It reminds the customer you are ready when they are.',
+        text: 'A polite follow up is not pushy. It is good service. It reminds the customer you are ready when they are.',
       },
-      { type: 'h2', text: 'A simple follow-up plan' },
+      { type: 'h2', text: 'A simple follow up plan' },
       {
         type: 'ol',
         items: [
           'Same day: send the quote by text as well as email, with one line on what is included.',
-          'Two days later: a short check-in asking if they have any questions.',
+          'Two days later: a short check in asking if they have any questions.',
           'About a week later: offer a specific date you have open.',
           'Two weeks later: a friendly last note that leaves the door open.',
         ],
@@ -126,7 +126,7 @@ export const POSTS: Post[] = [
       {
         type: 'ul',
         items: [
-          "Don't cut your price in the first follow-up. Answer questions first.",
+          "Don't cut your price in the first follow up. Answer questions first.",
           "Don't send the same message twice. Each one should add something: an answer, a date, a reminder of what's included.",
           "Don't make people feel guilty for not replying.",
           'Stop as soon as they say no, and thank them.',

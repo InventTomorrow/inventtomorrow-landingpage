@@ -1,0 +1,170 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "5fc07193-8d6b-4873-9a87-ddcb0772e7c0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4a7b6dfc-96f7-4956-8c95-e60565b17565",
+      "name": "Webhook",
+      "webhookId": "5fc07193-8d6b-4873-9a87-ddcb0772e7c0"
+    },
+    {
+      "parameters": {
+        "jsCode": "// One sheet row per chat visit. Every message carries everything known so far, so each update\n// can safely overwrite the row. Details show up as soon as the visitor types them.\nconst out = [];\n\nfor (const item of $input.all()) {\n  const p = item.json.body ?? item.json;\n  const transcript = Array.isArray(p.transcript) ? p.transcript : [];\n  const lead = p.lead || {};\n\n  const contact = [\n    lead.name && `Name: ${lead.name}`,\n    lead.businessName && `Business: ${lead.businessName}`,\n    lead.email && `Email: ${lead.email}`,\n    lead.phone && `Phone: ${lead.phone}`,\n  ].filter(Boolean);\n\n  out.push({\n    json: {\n      'Session ID': p.sessionId || `no-session-${Date.now()}`,\n      'Last Updated': p.timestamp || new Date().toISOString(),\n      'Contact Detials': contact.join('\\n'),\n      'Main Concern': lead.description || '',\n      'Lead Captured': p.leadCaptured === true ? 'Yes' : 'No',\n      'Asked To Book Directly': p.askedToBookDirectly === true ? 'Yes' : 'No',\n      'Chat': transcript\n        .map((m) => `${m.role === 'user' ? 'Visitor' : 'Invo'}: ${m.content}`)\n        .join('\\n'),\n    },\n  });\n}\n\nreturn out;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "f076710f-f63f-4b26-90f8-b72f03606ef7",
+      "name": "Structure Output"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1E98eYWwEOoICQUb7N8uUdwZ7Ao-_mKXey3jmP2muk5Y",
+          "mode": "list",
+          "cachedResultName": "InventTomorrow-n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E98eYWwEOoICQUb7N8uUdwZ7Ao-_mKXey3jmP2muk5Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "chat-history",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E98eYWwEOoICQUb7N8uUdwZ7Ao-_mKXey3jmP2muk5Y/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "Session ID"
+          ],
+          "schema": [
+            {
+              "id": "Session ID",
+              "displayName": "Session ID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Updated",
+              "displayName": "Last Updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Contact Detials",
+              "displayName": "Contact Detials",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Main Concern",
+              "displayName": "Main Concern",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Lead Captured",
+              "displayName": "Lead Captured",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Asked To Book Directly",
+              "displayName": "Asked To Book Directly",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Chat",
+              "displayName": "Chat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        0
+      ],
+      "id": "267551ef-2d14-4a74-b06d-777f46b3312d",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tegdmMbb1YcU94lg",
+          "name": "Google Sheets account 3"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Structure Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structure Output": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "802250d1da697469204df941b76e9401bf46be4c57074c25d08a0acbfd9934cc"
+  }
+}

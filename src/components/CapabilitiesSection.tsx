@@ -12,11 +12,11 @@ const CAPABILITIES = [
     icon: MessageSquareCode,
     title: 'Autonomous Lead Qualification',
     description:
-      'Gathers square footage, service scope, urgency, and property address through natural dialogue so you receive ready-to-book opportunities.',
+      'Gathers square footage, service scope, urgency, and property address through natural dialogue so you receive ready to book opportunities.',
   },
   {
     icon: CalendarClock,
-    title: 'Real-Time Schedule Sync',
+    title: 'Real Time Schedule Sync',
     description:
       'Integrates directly with your calendar and dispatch software. Customers select confirmed time slots that automatically fit your crew routing.',
   },
@@ -48,7 +48,7 @@ export function CapabilitiesSection() {
 
       <FadeUp delay={0.3} y={20}>
         <p className="mt-4 text-sm sm:text-base text-white/70 max-w-xl mx-auto leading-relaxed">
-          Stop losing thousands in missed opportunities every month. Our end-to-end automation handles the busywork so you stay in the flow.
+          Stop losing thousands in missed opportunities every month. Our complete automation handles the busywork so you stay in the flow.
         </p>
       </FadeUp>
 

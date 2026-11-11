@@ -12,14 +12,14 @@ import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
 
 const MEASURES = [
   { title: 'Quicker replies', text: 'How quickly new inquiries hear back.', icon: Timer },
-  { title: 'Consistent follow-ups', text: 'Which quotes receive a reminder and move towards a booking.', icon: Send },
+  { title: 'Consistent follow ups', text: 'Which quotes receive a reminder and move towards a booking.', icon: Send },
   { title: 'Time back', text: 'Which repeated tasks your team no longer handles by hand.', icon: Clock3 },
   { title: 'Booking progress', text: 'Where inquiries move forward and where they stop.', icon: TrendingUp },
   { title: 'Repeat business', text: 'How customers respond to reminders to book again.', icon: Repeat },
 ];
 
 export function ResultsPage() {
-  usePageMeta('Results | Invent Tomorrow', 'Measure response times, follow-ups and the time saved behind each job.');
+  usePageMeta('Results | Invent Tomorrow', 'Measure response times, follow ups and the time saved behind each job.');
 
   return (
     <>

@@ -7,7 +7,7 @@ import { ServiceDetailCard } from './ServiceDetailCard';
 // The seven fixes as a two-column grid of wide cards. A lone last card sits in the middle.
 export function ServiceGridSection() {
   return (
-    <Section bg="paper" id="service-list" width="max-w-7xl">
+    <Section bg="paper" id="service-list" width="max-w-7xl" hasDivider={false}>
       <SectionHeading
         eyebrow="What we set up"
         title="Seven fixes," titleMuted="each doing one job well"

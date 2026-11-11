@@ -11,7 +11,7 @@ import { CALENDLY_URL } from '../utils/navigation';
 
 export function ContactPage() {
   const [isCalendarLoaded, setIsCalendarLoaded] = useState(false);
-  usePageMeta('Schedule a Call | Invent Tomorrow', 'Talk through the calls, quotes and follow-ups taking up your day.');
+  usePageMeta('Schedule a Call | Invent Tomorrow', 'Talk through the calls, quotes and follow ups taking up your day.');
 
   return (
     <>
@@ -37,7 +37,7 @@ export function ContactPage() {
             title="Schedule a call with Invent Tomorrow"
             loading="lazy"
             onLoad={() => setIsCalendarLoaded(true)}
-            className="-my-12 block h-[53.5rem] w-full p-0 md:-mx-[8%] md:mb-0 md:-mt-[56px] md:h-[720px] md:w-[116%]"
+            className="block h-[62rem] w-full border-0 p-0 lg:h-[48rem]"
           />
           <BookingSkeleton isVisible={!isCalendarLoaded} />
         </FadeUp>

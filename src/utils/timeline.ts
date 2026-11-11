@@ -17,10 +17,10 @@ export const TIMELINE_MILESTONES: TimelineMilestone[] = [
   },
   {
     id: 'instant-reply',
-    time: '2:14',
+    time: '2:15',
     accent: 'blue',
     description: 'Our system texts the customer back in seconds.',
-    durationOffsetMinutes: 0,
+    durationOffsetMinutes: 1,
   },
   {
     id: 'lead-handled',

@@ -20,7 +20,12 @@ const ease = [0.16, 1, 0.3, 1] as const;
 // The navy hero at the top of every inner page: a soft blue glow, a grid and brand drops.
 export function PageHero({ eyebrow, title, titleMuted, description, children, meta, size = 'default', backgroundSrc }: PageHeroProps) {
   return (
-    <section className="relative z-10 w-full overflow-hidden bg-navy-glow px-6 sm:px-12">
+    <section
+      className={`relative z-10 flex w-full flex-col justify-center overflow-hidden bg-navy-glow px-6 sm:px-12 ${
+        // Every main page's hero is the same height, whatever its copy or buttons. Compact heroes (articles, legal) size to their content.
+        size === 'compact' ? '' : 'min-h-[36rem] sm:min-h-[28.5rem] lg:min-h-[32rem]'
+      }`}
+    >
       {backgroundSrc && (
         <img src={backgroundSrc} alt="" width={1920} height={600} decoding="async" className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25" />
       )}
@@ -38,7 +43,7 @@ export function PageHero({ eyebrow, title, titleMuted, description, children, me
       </div>
 
       <div
-        className={`relative mx-auto flex max-w-4xl flex-col items-center text-center ${
+        className={`relative mx-auto flex w-full max-w-4xl flex-col items-center text-center ${
           size === 'compact' ? 'py-14 sm:py-16' : 'py-16 sm:py-20 lg:py-24'
         }`}
       >

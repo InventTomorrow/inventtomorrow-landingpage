@@ -4,7 +4,7 @@ const OPERATOR_VERTICALS = [
   {
     title: 'Turnover & Maid Services',
     description:
-      'While your crews are vacuuming and scrubbing, our system responds in seconds. It confirms home size, service package, and locks in next-day turnovers without you touching your phone.',
+      'While your crews are vacuuming and scrubbing, our system responds in seconds. It confirms home size, service package, and locks in next day turnovers without you touching your phone.',
     highlight: 'Recovers 40+ turnover cleans monthly with zero phone tag',
   },
   {
@@ -17,13 +17,13 @@ const OPERATOR_VERTICALS = [
     title: 'Mobile Detailing & Restyling',
     description:
       'Vehicle intake, package selection, and driveway location reservations happen entirely in natural SMS conversation while you stay focused on polishing and coating.',
-    highlight: 'Automated package booking with zero mid-job interruptions',
+    highlight: 'Automated package booking without interrupting your work',
   },
   {
     title: 'Roofing & General Contractors',
     description:
-      'Storm damage calls and remodel inquiries are routed into structured intake questionnaires with photo uploads and scheduled on-site inspections.',
-    highlight: 'Captures 100% of high-ticket inquiries directly to your calendar',
+      'Storm damage calls and remodel inquiries are routed into structured intake questionnaires with photo uploads and scheduled on site inspections.',
+    highlight: 'Captures 100% of high value inquiries directly to your calendar',
   },
 ];
 
@@ -41,13 +41,13 @@ export function OperatorsSection() {
 
       <FadeUp delay={0.2} y={24}>
         <h2 className="mt-4 text-3xl sm:text-5xl font-bold text-white max-w-3xl leading-tight">
-          Never Drop A High-Value Job While You’re In The Flow.
+          Never Drop A High Value Job While You’re In The Flow.
         </h2>
       </FadeUp>
 
       <FadeUp delay={0.3} y={20}>
         <p className="mt-4 text-sm sm:text-base text-white/70 max-w-xl mx-auto leading-relaxed">
-          Built for hands-on businesses where stopping to answer price-shoppers pulls you away from billable work.
+          Built for hands on businesses where stopping to answer pricing questions pulls you away from billable work.
         </p>
       </FadeUp>
 

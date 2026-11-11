@@ -12,13 +12,15 @@ interface FinalCtaSectionProps {
   smallLine?: ReactNode;
   // 'both': Run My Audit + Schedule a Call. 'audit' or 'call': just that one.
   buttons?: 'both' | 'audit' | 'call';
+  overlapFooter?: boolean;
+  auditLabel?: string;
 }
 
 // The closing strip: the message on blue, the buttons on navy. It overlaps the top of the footer (see Footer's pt).
-export function FinalCtaSection({ title, titleAccent, body, smallLine, buttons = 'both' }: FinalCtaSectionProps) {
+export function FinalCtaSection({ title, titleAccent, body, smallLine, buttons = 'both', overlapFooter = true, auditLabel = 'Run My Audit' }: FinalCtaSectionProps) {
   return (
-    <section className="final-cta relative z-20 w-full px-4 pt-8 [--cta-overlap:4rem] [background:linear-gradient(to_bottom,var(--color-paper)_calc(100%-var(--cta-overlap)),transparent_0)] sm:px-8 sm:pt-12 sm:[--cta-overlap:5rem]">
-      <FadeUp y={20} className="relative mx-auto -mb-[var(--cta-overlap)] grid max-w-7xl overflow-hidden rounded-2xl lg:min-h-80 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+    <section className={`relative z-20 w-full px-4 sm:px-8 ${overlapFooter ? 'final-cta pt-8 [--cta-overlap:4rem] [background:linear-gradient(to_bottom,var(--color-stone)_calc(100%-var(--cta-overlap)),transparent_0)] sm:pt-12 sm:[--cta-overlap:5rem]' : 'bg-paper py-14 sm:py-16'}`}>
+      <FadeUp y={20} className={`relative mx-auto grid max-w-7xl overflow-hidden rounded-2xl min-h-[28.5rem] sm:min-h-[23.5rem] lg:min-h-80 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] ${overlapFooter ? '-mb-[var(--cta-overlap)]' : ''}`}>
         <div className="flex items-center gap-5 bg-accent-glow p-8 text-on-primary sm:p-10 lg:p-12">
           <ClipboardCheck className="hidden h-14 w-14 shrink-0 sm:block" strokeWidth={1.25} aria-hidden="true" />
           <div className="min-w-0">
@@ -35,7 +37,7 @@ export function FinalCtaSection({ title, titleAccent, body, smallLine, buttons =
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
               {buttons !== 'call' && (
                 <CtaButton variant="accent" to={AUDIT_PATH}>
-                  Run My Audit
+                  {auditLabel}
                 </CtaButton>
               )}
               {buttons !== 'audit' && (
@@ -56,7 +58,7 @@ export function FinalCtaSection({ title, titleAccent, body, smallLine, buttons =
 export function DefaultClosingCta() {
   return (
     <FinalCtaSection
-      title="Discover the hours you could reclaim"
+      title="Discover the revenue you could reclaim"
       body="Walk us through how you handle calls, quotes, and bookings. Your audit shows where time is being lost and what our system could take off your hands."
       smallLine="Know what to improve. Know where to start."
     />

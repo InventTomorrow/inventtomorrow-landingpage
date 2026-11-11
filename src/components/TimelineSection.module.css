@@ -1,0 +1,208 @@
+.section {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  overflow: hidden;
+  background: var(--color-paper);
+  color: var(--color-primary);
+  text-align: center;
+}
+
+.container {
+  max-width: 80rem;
+  margin-inline: auto;
+}
+
+.timeline {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 3.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The connector between two bullets: a faint line that fills in once the next step starts typing. */
+.segment {
+  position: absolute;
+  top: 5.7875rem; /* the centre of the bullets: time line + gap + half a bullet */
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  pointer-events: none;
+}
+
+.segment::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.segment[data-filled='true']::after {
+  transform: scaleX(1);
+}
+
+/* Typing: what is typed is visible, the rest is invisible but keeps its space. */
+.pending {
+  opacity: 0;
+}
+
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 0.9em;
+  margin-right: -2px;
+  vertical-align: -0.1em;
+  background: var(--color-accent);
+  animation: caret-blink 0.7s ease-in-out infinite;
+}
+
+@keyframes caret-blink {
+  50% { opacity: 0.2; }
+}
+
+/* Bullets ease in when their step starts. */
+.marker {
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease-out;
+}
+
+.step[data-active='false'] .marker {
+  opacity: 0;
+  transform: scale(0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segment::after,
+  .marker {
+    transition: none;
+  }
+
+  .caret {
+    display: none;
+  }
+}
+
+.step {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+}
+
+.time {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  font-weight: 600;
+  letter-spacing: var(--tracking-display);
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.marker {
+  position: relative;
+  display: grid;
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+  z-index: 1;
+  place-items: center;
+  margin-top: 1.75rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent);
+  border-radius: 50%;
+  background: var(--color-paper);
+}
+
+.marker::after {
+  content: '';
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.description {
+  max-width: 16rem;
+  margin: 1.625rem 1rem 0;
+  color: var(--color-body);
+  font-size: 1rem;
+  line-height: 1.75;
+  text-wrap: balance;
+}
+
+.closing {
+  margin-top: 3rem;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+@media (min-width: 40rem) {
+  .closing {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 47.999rem) {
+  .timeline {
+    max-width: 24rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+    margin: 3rem auto 0;
+    text-align: left;
+  }
+
+  .step {
+    display: grid;
+    grid-template-columns: 0.875rem minmax(0, 1fr);
+    column-gap: 1.5rem;
+  }
+
+  .segment {
+    top: 1.5rem;
+    bottom: -4rem;
+    left: 0.4375rem;
+    width: 2px;
+    height: auto;
+    transform: translateX(-1px);
+  }
+
+  .segment::after {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+
+  .segment[data-filled='true']::after {
+    transform: scaleY(1);
+  }
+
+  .time {
+    grid-column: 2;
+    font-size: 2.5rem;
+  }
+
+  .marker {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+  }
+
+  .description {
+    max-width: none;
+    grid-column: 2;
+    margin: 0.75rem 0 0;
+    font-size: 1rem;
+    text-wrap: pretty;
+  }
+
+  .closing {
+    margin-top: 3rem;
+  }
+}

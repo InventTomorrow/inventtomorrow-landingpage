@@ -4,10 +4,9 @@ import { FocusColumn, type FocusItem } from './FocusColumn';
 import { Reveal } from './Reveal';
 import { SectionHeading } from './SectionHeading';
 import { SiteImage } from './SiteImage';
-import { WaveLines } from './WaveLines';
 
 const YOUR_PART: FocusItem[] = [
-  { title: 'Join one 45-minute kickoff call', text: 'We learn your prices, services and service area.', time: '45 min', icon: CalendarClock },
+  { title: 'Join one 45 minute kickoff call', text: 'We learn your prices, services and service area.', time: '45 min', icon: CalendarClock },
   { title: 'Approve your messages once', text: "Nothing goes out until you've read it.", time: 'Once', icon: BadgeCheck },
   { title: 'Deliver great cleaning work', text: "That's it. We take it from here.", time: 'Every day', icon: SprayCan },
 ];
@@ -24,13 +23,12 @@ const OUR_PART: FocusItem[] = [
 // Your focus on the left, our system on the right, with the cleaning workflow illustration and a "VS" badge between them.
 export function DoneForYouSection() {
   return (
-    <section id="done-for-you" className="relative z-10 w-full overflow-hidden bg-paper section-y px-6 sm:px-12">
-      <WaveLines className="-right-24 bottom-0 h-96 w-[44rem] opacity-70" />
+    <section id="done-for-you" className="relative z-10 w-full overflow-hidden bg-white bg-none section-y px-6 sm:px-12">
       <div className="relative mx-auto max-w-7xl">
         <SectionHeading
           eyebrow="Done for you"
           title="You focus on the clean."
-          titleMuted="We handle the follow-up."
+          titleMuted="We handle the follow up."
           subtitle="A clear split of responsibilities so nothing gets missed and nothing pulls you away from the job."
         />
 
@@ -54,7 +52,7 @@ export function DoneForYouSection() {
             <SiteImage
               src="/images/done-for-you.webp"
               alt="A cleaner focused on the job while automated workflows handle customer messages."
-              label="Done-for-you image"
+              label="Done for you image"
               width={800}
               height={1021}
               className="rounded-2xl object-contain!"

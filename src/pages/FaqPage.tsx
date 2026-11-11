@@ -9,7 +9,7 @@ import { AUDIT_PATH } from '../utils/navigation';
 export function FaqPage() {
   usePageMeta(
     'FAQ | Invent Tomorrow',
-    'Straight answers about follow-up systems, your current tools, messages, pricing and setup.',
+    'Straight answers about follow up systems, your current tools, messages, pricing and setup.',
   );
 
   return (

@@ -5,24 +5,22 @@ import { CtaButton } from './CtaButton';
 import { Reveal } from './Reveal';
 import { SectionHeading } from './SectionHeading';
 import { SiteImage } from './SiteImage';
-import { WaveLines } from './WaveLines';
 
 const POINTS = [
-  'Done for you',
-  'You approve every message',
-  'Runs every day',
-  'Free 15-minute audit call',
-  'Works with your current tools',
-  'No contract',
+  'We handle the setup',
+  'Works even when you’re busy',
+  'Keep using your current tools',
+  'You stay in control',
+  'Free 15 minute audit call',
+  'No long term contracts',
 ];
 
 // Who we are: two illustrations with a guarantee badge on the left, the short story and a checklist on the right.
 export function AboutIntroSection() {
   return (
-    <section id="about" className="relative z-10 w-full bg-paper px-6 pb-16 pt-16 sm:px-12 sm:pb-20 sm:pt-20">
+    <section id="about" className="relative z-10 w-full bg-paper section-y px-6 sm:px-12">
       <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-2 lg:gap-16">
         <Reveal variant="left" distance={48} className="relative mx-auto w-full max-w-xl pb-16 sm:pb-24">
-          <WaveLines className="-left-24 -top-10 -z-10 h-[120%] w-[140%]" />
           <div className="absolute -left-5 top-6 hidden flex-col gap-3 sm:flex" aria-hidden="true">
             {Array.from({ length: 7 }, (_, i) => (
               <span key={i} className="size-2 rounded-full bg-accent" />
@@ -54,35 +52,37 @@ export function AboutIntroSection() {
           </div>
         </Reveal>
 
-        <div>
+        <div className="min-w-0">
           <SectionHeading
             align="left"
             eyebrow="About us"
-            title="We build simple systems" titleMuted="that help cleaning businesses grow"
-            subtitle="We’re Invent Tomorrow, a team that works with cleaning businesses to solve everyday challenges and build simpler ways to work."
+            title="You know cleaning." titleMuted="We know how to help you grow."
+            subtitle="We’re Invent Tomorrow. We look at how you run your cleaning business, find what’s holding you back, and make things easier so you can save time, book more jobs, and grow."
           />
 
           <Reveal variant="right" distance={32} delay={0.15}>
-            <ul className="mt-8 grid gap-x-8 gap-y-3 rounded-2xl border-l-4 border-accent bg-stone p-6 sm:grid-cols-2 sm:p-8">
+            <h3 className="mt-8 font-display text-xl font-semibold text-primary">Why work with us?</h3>
+            <ul className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,13rem),1fr))] gap-x-6 gap-y-3 rounded-2xl bg-stone p-5 sm:border-l-4 sm:border-accent sm:p-6 xl:p-8">
               {POINTS.map((point) => (
-                <li key={point} className="flex items-center gap-3 font-display text-base font-medium text-primary">
-                  <span className="size-2.5 shrink-0 rounded-full bg-accent" aria-hidden="true" />
-                  {point}
+                <li key={point} className="flex min-w-0 items-start gap-3 font-display text-base font-medium text-primary">
+                  <span className="mt-[0.5625rem] size-2.5 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+                  <span className="min-w-0 text-pretty">{point}</span>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-8 flex flex-col gap-6 sm:flex-row sm:items-center">
-              <CtaButton size="lg" to="/about">
-                More about us
+            {/* Compact on phones so the button and the call link sit side by side; they wrap only if the column is truly narrow. */}
+            <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-4 sm:gap-x-6">
+              <CtaButton size="md" to="/services" className="max-sm:min-h-11 max-sm:px-3 max-sm:text-xs">
+                See how we can help
               </CtaButton>
-              <Link to={BOOKING_PATH} className="group flex items-center gap-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">
-                <span className="flex size-14 items-center justify-center rounded-full bg-accent text-on-primary transition-colors duration-300 group-hover:bg-primary">
-                  <Phone className="h-6 w-6" aria-hidden="true" />
+              <Link to={BOOKING_PATH} className="group flex min-w-0 items-center gap-2.5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent text-on-primary transition-colors duration-300 group-hover:bg-primary sm:size-14">
+                  <Phone className="h-4 w-4 sm:h-6 sm:w-6" aria-hidden="true" />
                 </span>
-                <span className="flex flex-col text-sm">
+                <span className="flex min-w-0 flex-col gap-0.5 whitespace-nowrap text-[0.6875rem] leading-snug sm:text-sm">
                   Have a question?
-                  <span className="font-display text-lg font-semibold text-primary">Schedule a call</span>
+                  <span className="font-display text-sm font-semibold leading-snug text-primary sm:text-lg">Schedule a call</span>
                 </span>
               </Link>
             </div>

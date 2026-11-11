@@ -1,6 +1,6 @@
 # Booking calendar and notifications
 
-The audit form on `/free-audit` collects full name, business name, email, phone number, and an optional description. Submitting it opens the existing Calendly event with these details pre-filled. A meeting is booked only after the visitor chooses a time and completes Calendly's confirmation.
+The audit chatbot on `/free-audit` collects full name, business name, email, phone number, and an optional description in conversation. Once the visitor confirms, a button opens the existing Calendly event with these details pre-filled. The chat is served by `api/chat.ts` (Vercel) and needs the `KOBOILLM_API_KEY` environment variable set in the Vercel project (and in `.env.local` for `npm run dev`). A meeting is booked only after the visitor chooses a time and completes Calendly's confirmation.
 
 The contact page embeds the same event. Both use `CALENDLY_URL` in `src/utils/navigation.ts`.
 
@@ -43,7 +43,7 @@ References: [Multiple calendars and email addresses](https://calendly.com/help/h
 
 After the account settings are saved, make an authorized test booking using a test email inbox:
 
-1. Submit the website form with a business name, an international phone number, and a multi-line description.
+1. Complete the chatbot conversation with a business name, an international phone number, and a multi-line description.
 2. Choose a time in Calendly and verify every field is pre-filled in the correct question before confirming.
 3. Verify the meeting appears in Calendly and the intended host calendar, with all submitted details.
 4. Verify the host and any configured notification recipients receive the booking email.

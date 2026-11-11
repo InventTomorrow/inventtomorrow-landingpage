@@ -17,14 +17,36 @@ interface SiteSheetProps {
   onClose: () => void;
 }
 
-// The side panel opened by the header's menu button: who we are, recent posts and the ways to get in touch.
-// On small screens it also holds the page links, because the header hides them.
+// Mobile and tablet menus show page links. The desktop drawer keeps the additional site information.
 export function SiteSheet({ isOpen, onClose }: SiteSheetProps) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
   useEscapeKey(isOpen, onClose);
 
   useEffect(() => {
-    if (isOpen) closeButtonRef.current?.focus();
+    if (!isOpen) return;
+    const panel = panelRef.current;
+    if (!panel) return;
+    closeButtonRef.current?.focus({ preventScroll: true });
+
+    const keepFocusInside = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return;
+      const controls = [...panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]')]
+        .filter((element) => element.getClientRects().length > 0);
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (!first || !last) return;
+      if (event.shiftKey && (document.activeElement === first || !panel.contains(document.activeElement))) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !panel.contains(document.activeElement))) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', keepFocusInside);
+    return () => document.removeEventListener('keydown', keepFocusInside);
   }, [isOpen]);
 
   return (
@@ -33,6 +55,7 @@ export function SiteSheet({ isOpen, onClose }: SiteSheetProps) {
         <div className="fixed inset-0 z-[60]">
           <m.button
             type="button"
+            tabIndex={-1}
             aria-label="Close menu"
             onClick={onClose}
             initial={{ opacity: 0 }}
@@ -41,6 +64,7 @@ export function SiteSheet({ isOpen, onClose }: SiteSheetProps) {
             className="absolute inset-0 cursor-default bg-primary/60"
           />
           <m.aside
+            ref={panelRef}
             id={SITE_SHEET_ID}
             role="dialog"
             aria-modal="true"
@@ -50,7 +74,7 @@ export function SiteSheet({ isOpen, onClose }: SiteSheetProps) {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col overflow-y-auto bg-navy-glow px-6 pb-10 pt-6 text-white sm:px-10"
+            className="absolute right-0 top-0 flex h-dvh w-full max-w-md flex-col overflow-y-auto overscroll-contain bg-navy-glow px-6 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] text-white sm:px-10"
           >
             <div className="flex items-center justify-between gap-4">
               <BrandLogo isOnDark onClick={onClose} />
@@ -65,14 +89,15 @@ export function SiteSheet({ isOpen, onClose }: SiteSheetProps) {
               </button>
             </div>
 
-            <p className="mt-8 text-base text-white/70">
+            <p className="mt-8 hidden text-base text-white/70 xl:block">
               Win back the jobs you already earned. Spend less time following up and more time getting jobs done.
             </p>
-            <SocialLinks isSquare className="mt-6" />
+            <div className="hidden xl:block">
+              <SocialLinks isSquare className="mt-6" />
+            </div>
 
-            <nav aria-label="Pages" className="mt-10 xl:hidden">
-              <AccentHeading>Pages</AccentHeading>
-              <ul className="mt-3 flex flex-col">
+            <nav aria-label="Pages" className="mt-8 xl:hidden">
+              <ul className="flex flex-col">
                 {NAV_ITEMS.map((item) => (
                   <li key={item.id}>
                     <NavLink
@@ -80,7 +105,7 @@ export function SiteSheet({ isOpen, onClose }: SiteSheetProps) {
                       end={item.to === '/'}
                       onClick={onClose}
                       className={({ isActive }) =>
-                        `block border-b border-white/10 py-3 text-sm font-medium uppercase transition-colors hover:text-white ${isActive ? 'text-white' : 'text-white/70'}`
+                        `block border-b border-white/10 py-4 text-lg font-medium transition-colors hover:text-white ${isActive ? 'text-white' : 'text-white/70'}`
                       }
                     >
                       {item.label}
@@ -90,14 +115,24 @@ export function SiteSheet({ isOpen, onClose }: SiteSheetProps) {
               </ul>
             </nav>
 
-            <section className="mt-10" aria-label="Recent posts">
+            {/* Phones and tablets: the same two actions the wide menu shows under "Get in touch". */}
+            <div className="mt-8 flex flex-col gap-3 xl:hidden">
+              <CtaButton size="lg" variant="accent" to={AUDIT_PATH} onClick={onClose}>
+                Run My Audit
+              </CtaButton>
+              <CtaButton size="lg" variant="outline-light" to={BOOKING_PATH} onClick={onClose}>
+                Schedule a Call
+              </CtaButton>
+            </div>
+
+            <section className="mt-10 hidden xl:block" aria-label="Recent posts">
               <AccentHeading>Recent posts</AccentHeading>
               <div className="mt-4">
                 <RecentPostsList onNavigate={onClose} />
               </div>
             </section>
 
-            <section className="mt-10" aria-label="Get in touch">
+            <section className="mt-10 hidden xl:block" aria-label="Get in touch">
               <AccentHeading>Get in touch</AccentHeading>
               <p className="mt-3 text-base text-white/70">Find out what's costing you jobs, or talk it through on a call.</p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">

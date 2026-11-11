@@ -8,7 +8,7 @@ import { usePageMeta } from '../hooks/usePageMeta';
 export function BlogPage() {
   usePageMeta(
     'Blog | Invent Tomorrow',
-    'Practical guides for cleaning business owners on missed calls, quote follow-up, reviews and repeat bookings.',
+    'Practical guides for cleaning business owners on missed calls, quote follow up, reviews and repeat bookings.',
   );
 
   return (

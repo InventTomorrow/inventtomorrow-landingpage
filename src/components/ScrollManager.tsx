@@ -13,12 +13,28 @@ export function ScrollManager() {
     if (newPage) jumpTo(0);
     if (!hash) return;
 
-    // Wait a frame so the new page is on screen before looking for the target.
-    const frame = requestAnimationFrame(() => {
-      const target = document.getElementById(decodeURIComponent(hash.slice(1)));
-      if (target) smoothScrollTo(target);
+    // A page loaded on demand may mount after the first frame.
+    const targetId = decodeURIComponent(hash.slice(1));
+    let frame: number;
+    const observer = new MutationObserver(() => {
+      if (!document.getElementById(targetId)) return;
+      observer.disconnect();
+      frame = requestAnimationFrame(scrollToTarget);
     });
-    return () => cancelAnimationFrame(frame);
+    const scrollToTarget = () => {
+      const target = document.getElementById(targetId);
+      if (target) {
+        observer.disconnect();
+        smoothScrollTo(target);
+      } else {
+        observer.observe(document.querySelector('main') ?? document.body, { childList: true, subtree: true });
+      }
+    };
+    frame = requestAnimationFrame(scrollToTarget);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
     // `key` changes on every click, so the same #hash link works more than once.
   }, [pathname, hash, key]);
 

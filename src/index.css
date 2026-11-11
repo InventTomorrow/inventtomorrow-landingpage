@@ -85,6 +85,14 @@ html {
   background-color: var(--color-primary);
 }
 
+main [id] {
+  scroll-margin-top: 5.5rem;
+}
+
+@media (min-width: 40rem) {
+  main [id] { scroll-margin-top: 6.625rem; }
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -100,6 +108,26 @@ body {
 
 @layer base {
   h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); }
+}
+
+/* Home and About: every section below the hero is at least one screen tall (under the sticky header), content centred.
+   Longer sections simply grow. The closing call to action, the tools strip (which sits under the hero's curve) and the stats band stay compact. */
+@layer components {
+  .screen-sections > section:not(.final-cta):not(#tools):not(#stats) {
+    --site-header-h: 4rem;
+    min-height: calc(100svh - var(--site-header-h));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .screen-sections > section:not(.final-cta):not(#tools):not(#stats) > :not([class*='absolute']) {
+    width: 100%;
+  }
+  @media (min-width: 40rem) {
+    .screen-sections > section:not(.final-cta):not(#tools):not(#stats) {
+      --site-header-h: 5.625rem;
+    }
+  }
 }
 
 ::-webkit-scrollbar { width: 8px; }
@@ -151,12 +179,13 @@ body {
   to { transform: translateX(100%); }
 }
 
-/* Tool slider: the track holds two identical copies, so sliding half its width loops seamlessly */
+/* Tool slider: advance exactly one measured copy from the centered starting tool. */
 @utility animate-marquee {
-  animation: marquee 32s linear infinite;
+  animation: marquee var(--tools-duration, 60s) linear infinite;
 }
 @keyframes marquee {
-  to { transform: translateX(-50%); }
+  from { transform: translateX(var(--tools-start, 0px)); }
+  to { transform: translateX(calc(var(--tools-start, 0px) - var(--tools-loop-width, 0px))); }
 }
 
 /* Brand shape: a teardrop is a circle with one sharp corner. Used for decoration. */

@@ -1,0 +1,70 @@
+.panel {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  height: min(40rem, calc(100svh - 6rem));
+  height: min(40rem, calc(100dvh - 6rem));
+  min-height: 22rem;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  padding: 1rem;
+  background:
+    radial-gradient(26rem 14rem at 100% 0%, rgb(8 127 240 / 0.22), transparent 70%),
+    linear-gradient(160deg, #0b2259, #06163f);
+}
+
+/* Keep every starting option visible; the page handles scrolling on phones. */
+.panel[data-welcome='true'] {
+  height: auto;
+  min-height: 0;
+}
+
+.messages {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 0.25) transparent;
+}
+
+.messages::-webkit-scrollbar {
+  width: 4px;
+}
+
+.messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messages::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.25);
+}
+
+.panel[data-welcome='true'] .messages {
+  flex: none;
+  overflow: visible;
+}
+
+@media (min-width: 40rem) {
+  .panel {
+    padding: 1.75rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .panel,
+  .panel[data-welcome='true'] {
+    height: 600px;
+  }
+
+  .panel[data-welcome='true'] .messages {
+    min-height: 0;
+    flex: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
