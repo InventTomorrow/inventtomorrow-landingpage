@@ -24,16 +24,16 @@ function FaqList({ faqs }: { faqs: Faq[] }) {
               onClick={() => setOpenIndex(isOpen ? null : idx)}
               aria-expanded={isOpen}
               aria-controls={panelId}
-              className="group flex w-full items-center justify-between gap-6 py-6 text-left cursor-pointer"
+              className="group flex w-full items-center justify-between gap-4 py-6 text-left cursor-pointer sm:gap-6"
             >
-              <span className="font-display text-base sm:text-lg font-semibold text-primary">{faq.q}</span>
-              <m.span
-                animate={{ rotate: isOpen ? 45 : 0 }}
-                transition={{ duration: 0.2 }}
+              <span className="min-w-0 flex-1 font-display text-base sm:text-lg font-semibold text-primary">{faq.q}</span>
+              <span
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border text-primary/60 transition-colors group-hover:border-accent group-hover:bg-stone group-hover:text-primary"
               >
-                <Plus className="h-4 w-4" />
-              </m.span>
+                <m.span animate={{ rotate: isOpen ? 45 : 0 }} transition={{ duration: 0.2 }} className="inline-flex">
+                  <Plus className="h-4 w-4" aria-hidden="true" />
+                </m.span>
+              </span>
             </button>
 
             <AnimatePresence initial={false}>
@@ -67,7 +67,7 @@ interface FaqSectionProps {
 // Short FAQ on the home page.
 export function FaqSection({ faqs, showAllLink = false }: FaqSectionProps) {
   return (
-    <section id="faq" className="relative z-10 w-full border-t border-border bg-paper section-y section-deco px-6 sm:px-12">
+    <section id="faq" className="relative z-10 w-full bg-paper section-y section-deco px-6 sm:px-12">
       <div className="mx-auto max-w-3xl">
         <SectionHeading scene={HelpScene} eyebrow="FAQ" title="FAQ questions" />
         <FadeUp delay={0.1} y={16} className="mt-12">

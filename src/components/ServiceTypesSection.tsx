@@ -5,7 +5,6 @@ import { SectionHeading } from './SectionHeading';
 import { Stagger } from './Stagger';
 import { StaggerItem } from './StaggerItem';
 import { ServiceTypeCard } from './ServiceTypeCard';
-import { WaveLines } from './WaveLines';
 
 const TYPES = [
   {
@@ -25,16 +24,16 @@ const TYPES = [
       alt: 'A cleaning team vacuuming, wiping desks and cleaning windows in an office.',
     },
     text: 'Keep client communication and team handoffs consistent.',
-    tags: ['Site visit reminders', 'Quote follow-ups', 'Job and client updates'],
+    tags: ['Site visit reminders', 'Quote follow ups', 'Job and client updates'],
     icon: Building2,
   },
   {
-    title: 'Move-out and deep cleaning',
+    title: 'Move out and deep cleaning',
     image: {
       src: '/images/service-types/move-out-deep-cleaning.webp',
       alt: 'Cleaners scrubbing floors and wiping surfaces in a room with moving boxes.',
     },
-    text: 'Keep time-sensitive inquiries and one-off jobs moving.',
+    text: 'Keep urgent inquiries and single jobs moving.',
     tags: ['Quote details', 'Booking confirmations', 'Access instructions'],
     icon: KeyRound,
   },
@@ -52,13 +51,12 @@ const TYPES = [
 
 export function ServiceTypesSection() {
   return (
-    <Section bg="stone" id="service-types" width="max-w-7xl" className="overflow-hidden">
-      <WaveLines className="-right-24 top-0 -z-10 h-96 w-[44rem] opacity-70" />
+    <Section bg="solid-stone" id="service-types" width="max-w-7xl" className="overflow-hidden" hasDivider={false}>
       <SectionHeading
         eyebrow="Who it's for"
         title="Built around"
         titleMuted="the services you offer"
-        subtitle="The jobs may be different. The need for clear, consistent follow-through is the same."
+        subtitle="The jobs may be different. The need for clear, consistent follow through is the same."
       />
       <Stagger as="ul" gap={0.1} className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
         {TYPES.map((type) => (

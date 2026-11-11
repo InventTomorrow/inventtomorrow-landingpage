@@ -6,12 +6,14 @@ import {
   AboutPage,
   BlogPage,
   BlogPostPage,
+  CaseStudyPage,
   ContactPage,
   FaqPage,
   FreeAuditPage,
   HowItWorksPage,
   LegalPage,
   NotFoundPage,
+  OurWorkPage,
   ResultsPage,
   ServicesPage,
 } from '../pages/lazyPages';
@@ -43,6 +45,8 @@ export function SiteLayout() {
                 <Route path="/how-it-works" element={<HowItWorksPage />} />
                 <Route path="/services" element={<ServicesPage />} />
                 {/* <Route path="/who-we-help" element={<WhoWeHelpPage />} /> */}
+                <Route path="/our-work" element={<OurWorkPage />} />
+                <Route path="/our-work/:slug" element={<CaseStudyPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/faq" element={<FaqPage />} />
                 <Route path="/results" element={<ResultsPage />} />
@@ -55,7 +59,7 @@ export function SiteLayout() {
                 ))}
                 {/* Old links from the previous site. vercel.json also 301s these for direct visits. */}
                 <Route path="/free-leak-audit" element={<Navigate to="/free-audit" replace />} />
-                <Route path="/case-studies" element={<Navigate to="/results" replace />} />
+                <Route path="/case-studies" element={<Navigate to="/our-work" replace />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </PageTransition>

@@ -59,13 +59,13 @@ export const FIXES: Fix[] = [
       triggerIcon: PhoneMissed,
       messages: [
         { from: 'us', text: 'Sorry we missed you! This is Bright Home Cleaning. What can we help with?' },
-        { from: 'them', text: 'Looking for a move-out clean on the 28th.' },
+        { from: 'them', text: 'Looking for a move out clean on the 28th.' },
       ],
       result: 'Replied in 5 seconds',
     },
   },
   {
-    title: '60-Second Response',
+    title: '60 Second Response',
     problemTitle: 'Late Replies',
     image: { src: '/images/services/fast-response.webp', alt: 'A stopwatch and message showing a reply in under a minute.' },
     text: 'Every lead hears back in under a minute.',
@@ -82,7 +82,7 @@ export const FIXES: Fix[] = [
   },
   {
     title: 'Quote Chaser',
-    problemTitle: 'Missed Follow-Ups',
+    problemTitle: 'Missed Follow Ups',
     image: { src: '/images/services/quote-follow-up.webp', alt: 'Automatic messages following up on a cleaning estimate.' },
     text: 'Every estimate gets followed up, automatically.',
     icon: Send,
@@ -97,7 +97,7 @@ export const FIXES: Fix[] = [
     },
   },
   {
-    title: '5-Star Engine',
+    title: '5 Star Engine',
     problemTitle: 'Too Few Reviews',
     image: { src: '/images/services/review-requests.webp', alt: 'Review requests collecting customer feedback after cleaning.' },
     text: 'A review request after every clean.',
@@ -109,14 +109,14 @@ export const FIXES: Fix[] = [
         { from: 'us', text: 'Thanks for having us today, Priya! If you’re happy with the clean, would you leave us a quick review?' },
         { from: 'them', text: '★★★★★ “Spotless as always!”' },
       ],
-      result: 'New 5-star review',
+      result: 'New 5 star review',
     },
   },
   {
     title: 'Busy Season Ready',
     problemTitle: 'Seasonal Booking Gaps',
     image: { src: '/images/services/seasonal-bookings.webp', alt: 'Seasonal cleaning inquiries flowing into an organized schedule.' },
-    text: 'First to every customer during spring-clean and move-out rushes.',
+    text: 'First to every customer during spring cleaning and move out rushes.',
     icon: CalendarRange,
     scene: {
       trigger: 'Spring rush · 3 weeks out',
@@ -132,10 +132,10 @@ export const FIXES: Fix[] = [
     title: 'Recurring Booker',
     problemTitle: 'No Repeat Bookings',
     image: { src: '/images/services/recurring-bookings.webp', alt: 'A cleaning calendar with repeat bookings and reminder loops.' },
-    text: 'One-time clients become weekly and monthly regulars.',
+    text: 'One time clients become weekly and monthly regulars.',
     icon: Repeat,
     scene: {
-      trigger: 'One-time clean · 1 week ago',
+      trigger: 'One time clean · 1 week ago',
       triggerIcon: Sparkles,
       messages: [
         { from: 'us', text: 'Hope the house still feels fresh, Tom! Want us to come back every two weeks so it stays that way?' },

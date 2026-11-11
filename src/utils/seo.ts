@@ -1,4 +1,5 @@
 import { POSTS, type Post } from '../content/blog';
+import { CASE_STUDIES, type CaseStudy } from '../content/caseStudies';
 import { ALL_FAQS } from '../content/faq';
 import { LEGAL_DOCS, type LegalDoc } from '../content/legal';
 import { PAGE_META, type PageMeta } from '../content/pages';
@@ -23,6 +24,14 @@ export function getPostMeta(post: Post): PageMeta {
   return { path: `/blog/${post.slug}`, title: `${post.title}${TITLE_SUFFIX}`, description: post.description };
 }
 
+export function getCaseStudyMeta(study: CaseStudy): PageMeta {
+  return {
+    path: `/our-work/${study.slug}`,
+    title: study.details?.seoTitle ?? `${study.title}${TITLE_SUFFIX}`,
+    description: study.details?.seoDescription ?? study.summary,
+  };
+}
+
 export function getLegalMeta(doc: LegalDoc): PageMeta {
   return { path: doc.path, title: doc.metaTitle, description: doc.description };
 }
@@ -34,9 +43,10 @@ export function getPageName(meta: PageMeta) {
 
 // Every public URL, in the order they appear in the sitemap. Keep in step with the routes in SiteLayout.
 export function getSitePages(): SitePage[] {
-  const { home, howItWorks, services, about, faq, results, freeAudit, contact, blog } = PAGE_META;
+  const { home, howItWorks, services, about, faq, results, ourWork, freeAudit, contact, blog } = PAGE_META;
   return [
-    ...[home, howItWorks, services, about, faq, results, freeAudit, contact, blog].map((meta) => ({ meta })),
+    ...[home, howItWorks, services, about, faq, results, ourWork, freeAudit, contact, blog].map((meta) => ({ meta })),
+    ...CASE_STUDIES.map((study) => ({ meta: getCaseStudyMeta(study) })),
     ...POSTS.map((post) => ({ meta: getPostMeta(post), post })),
     ...LEGAL_DOCS.map((doc) => ({ meta: getLegalMeta(doc) })),
   ];

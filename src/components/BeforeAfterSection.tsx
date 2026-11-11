@@ -4,23 +4,23 @@ import { SectionHeading } from './SectionHeading';
 import { Stagger } from './Stagger';
 
 const CHANGES: { icon: LucideIcon; before: string; after: string }[] = [
-  { icon: PhoneCall, before: 'Stop during a job to answer calls', after: 'Keep cleaning while every caller gets a reply' },
-  { icon: FileText, before: 'Chase quotes between jobs', after: 'Every quote gets followed up automatically' },
-  { icon: Moon, before: 'You text customers at 10pm', after: 'Your evenings are yours again' },
-  { icon: Star, before: 'Ask for reviews manually', after: 'Review requests go out after every clean' },
-  { icon: Repeat, before: 'Remember who needs rebooking', after: 'Regulars are prompted to book again' },
+  { icon: PhoneCall, before: 'Stop work for calls', after: 'Every caller gets a reply' },
+  { icon: FileText, before: 'Chase quotes', after: 'Quotes get followed up' },
+  { icon: Moon, before: 'Late night texts', after: 'Your evenings are free' },
+  { icon: Star, before: 'Ask for reviews', after: 'Reviews requested after jobs' },
+  { icon: Repeat, before: 'Remember rebookings', after: 'Repeat cleans encouraged' },
 ];
 
 // A before/after table: the old way struck through, the new way beside it.
 export function BeforeAfterSection() {
   return (
-    <section id="before-after" className="relative z-10 w-full overflow-hidden border-t border-border bg-fade-stone section-y px-6 sm:px-12">
+    <section id="before-after" className="relative z-10 w-full overflow-hidden bg-stone section-y px-6 sm:px-12">
       <div className="mx-auto max-w-5xl">
         <SectionHeading
           eyebrow="Before and after"
-          title="What changes"
-          titleMuted="in your week"
-          subtitle="Calls, quotes and follow-ups keep pulling you away from the work. The system keeps every opportunity moving while you stay focused on the clean."
+          title="More time cleaning."
+          titleMuted="Less time managing."
+          subtitle="Keep cleaning while calls, quotes, and follow ups get handled. More booked jobs, less stress, and more time for yourself."
         />
 
         <div className="mt-14">

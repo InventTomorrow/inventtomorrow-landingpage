@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { POSTS } from '../content/blog';
+import { CASE_STUDIES } from '../content/caseStudies';
 import { PAGE_META } from '../content/pages';
 import {
   SITE_URL,
@@ -37,6 +38,12 @@ test('blog posts use their own date in the sitemap', () => {
   const xml = buildSitemapXml(getSitePages(), '2026-11-10');
   const post = POSTS[0];
   assert.match(xml, new RegExp(`/blog/${post.slug}</loc>\\s*<lastmod>${post.date}</lastmod>`));
+});
+
+test('work and case study routes are included in the prerender page list', () => {
+  const paths = getSitePages().map((page) => page.meta.path);
+  assert.ok(paths.includes(PAGE_META.ourWork.path));
+  for (const study of CASE_STUDIES) assert.ok(paths.includes(`/our-work/${study.slug}`));
 });
 
 test('llms.txt starts with the site name and a summary, then lists pages', () => {

@@ -72,7 +72,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
       },
       {
         heading: 'Third party services',
-        text: 'The site may link to or embed third-party services. Their availability and practices are governed by their own terms and policies.',
+        text: 'The site may link to or embed third party services. Their availability and practices are governed by their own terms and policies.',
       },
       {
         heading: 'Disclaimer and limitation',
@@ -88,12 +88,12 @@ export const LEGAL_DOCS: LegalDoc[] = [
     path: '/sms-consent',
     title: 'SMS Consent Policy',
     metaTitle: 'SMS Consent Policy | Invent Tomorrow',
-    description: 'Consent, frequency, opt-out and privacy terms for Invent Tomorrow text messages.',
+    description: 'Consent, frequency, opt out and privacy terms for Invent Tomorrow text messages.',
     intro: 'This policy explains how consent works when you ask Invent Tomorrow to contact you by text message.',
     sections: [
       {
         heading: 'Consent',
-        text: 'When you enter your mobile number and affirmatively select the SMS consent checkbox, you agree to receive text messages from Invent Tomorrow about your audit request, appointments, service questions and related follow-up. Consent is not a condition of purchasing any service.',
+        text: 'When you enter your mobile number and affirmatively select the SMS consent checkbox, you agree to receive text messages from Invent Tomorrow about your audit request, appointments, service questions and related follow up. Consent is not a condition of purchasing any service.',
       },
       {
         heading: 'Message frequency and charges',
@@ -101,7 +101,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
       },
       {
         heading: 'Opting out',
-        text: 'You can opt out at any time by replying STOP, QUIT, END, REVOKE, OPT OUT, CANCEL or UNSUBSCRIBE, or by contacting us through the website. We will honor reasonable opt-out requests. You may receive one non-promotional confirmation that your opt-out was processed.',
+        text: 'You can opt out at any time by replying STOP, QUIT, END, REVOKE, OPT OUT, CANCEL or UNSUBSCRIBE, or by contacting us through the website. We will honor reasonable opt out requests. You may receive one nonpromotional confirmation that your opt out was processed.',
       },
       {
         heading: 'Help',

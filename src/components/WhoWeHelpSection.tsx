@@ -6,7 +6,7 @@ const SECTORS = [
     title: 'Cleaning & Maid Services',
     pain: 'Hands in gloves, vacuum running, loud equipment.',
     solution:
-      'Instantly replies to frantic Airbnb and residential homeowners looking for next-day turnovers.',
+      'Instantly replies to frantic Airbnb and residential homeowners looking for next day turnovers.',
     metrics: '+42% more booked jobs',
   },
   {
@@ -55,7 +55,7 @@ export function WhoWeHelpSection() {
 
         <FadeUp delay={0.3} y={20}>
           <p className="mt-4 text-sm sm:text-base text-white/70 max-w-xl mx-auto">
-            When you're doing high-craft work in the field, every second spent answering price-shoppers pulls you out of revenue-generating work.
+            When you're doing skilled work in the field, every second spent answering pricing questions pulls you out of paid work.
           </p>
         </FadeUp>
 

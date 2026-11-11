@@ -7,7 +7,7 @@
   "trailingSlash": false,
   "redirects": [
     { "source": "/free-leak-audit", "destination": "/free-audit", "permanent": true },
-    { "source": "/case-studies", "destination": "/results", "permanent": true }
+    { "source": "/case-studies", "destination": "/our-work", "permanent": true }
   ],
   "headers": [
     {

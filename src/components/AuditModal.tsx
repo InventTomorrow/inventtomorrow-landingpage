@@ -39,7 +39,7 @@ export function AuditModal({ isOpen, onClose }: AuditModalProps) {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Free follow-up audit"
+          aria-label="Free follow up audit"
           data-lenis-prevent
           className="fixed inset-0 z-50 flex items-center justify-center bg-primary/50 p-4"
         >
@@ -52,7 +52,7 @@ export function AuditModal({ isOpen, onClose }: AuditModalProps) {
           >
             <div className="flex items-start justify-between gap-4 border-b border-border pb-5">
               <div>
-                <h3 className="text-lg font-bold">Free follow-up audit</h3>
+                <h3 className="text-lg font-bold">Free follow up audit</h3>
                 <p className="mt-1 text-sm text-body">We test your business like a customer would, then share the numbers.</p>
               </div>
               <button

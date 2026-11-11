@@ -42,7 +42,7 @@ export function SectionHeading({ eyebrow, title, titleMuted, subtitle, scene: Sc
           {titleMuted && (
             <>
               {' '}
-              <span className="block text-primary/45">{titleMuted}</span>
+              <span className="block text-accent">{titleMuted}</span>
             </>
           )}
         </h2>

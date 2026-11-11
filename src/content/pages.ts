@@ -44,6 +44,12 @@ export const PAGE_META = {
     title: 'Results | Invent Tomorrow',
     description: 'Measure response times, follow-ups and the time saved behind each job.',
   },
+  ourWork: {
+    path: '/our-work',
+    title: 'Our Work | Invent Tomorrow',
+    description:
+      'Explore our cleaning business CRM and automation work, including lead capture, quote follow up, and clearer sales pipelines.',
+  },
   freeAudit: {
     path: '/free-audit',
     title: 'Your Business Audit | Invent Tomorrow',

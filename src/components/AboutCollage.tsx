@@ -1,5 +1,4 @@
 import { SiteImage } from './SiteImage';
-import { WaveLines } from './WaveLines';
 
 interface AboutCollageProps {
   badgeValue: string;
@@ -10,7 +9,6 @@ interface AboutCollageProps {
 export function AboutCollage({ badgeValue, badgeLabel }: AboutCollageProps) {
   return (
     <div className="relative mx-auto w-full max-w-xl pb-14 pl-8 sm:pl-12">
-      <WaveLines className="-left-24 -top-10 -z-10 h-[120%] w-[140%]" />
       <div className="ml-auto aspect-[12/13] w-[80%] overflow-hidden rounded-[2rem]">
         <SiteImage
           src="/images/about-systems-team-v3.webp"

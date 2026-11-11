@@ -8,26 +8,26 @@ const LEAKS = [
   {
     icon: PhoneMissed,
     scene: MissedCallScene,
-    title: 'The missed call',
-    text: 'About half of calls to home service businesses never reach a real person.',
+    title: 'The Missed Call',
+    text: "You're busy cleaning. Your next customer books someone else.",
   },
   {
     icon: Clock,
     scene: SlowReplyScene,
-    title: 'The slow reply',
-    text: "71% of companies take over an hour to answer a web lead. Customers won't wait.",
+    title: 'The Slow Reply',
+    text: "You reply too late. They've already booked.",
   },
   {
     icon: FileText,
     scene: ForgottenQuoteScene,
-    title: 'The forgotten quote',
-    text: 'You send the estimate, follow up once, then get busy.',
+    title: 'The Forgotten Quote',
+    text: 'You send a quote but never follow up.',
   },
 ];
 
 export function LeaksAndMythSection() {
   return (
-    <section id="the-leaks" className="relative z-10 w-full border-t border-border bg-fade-stone section-y section-deco px-6 sm:px-12">
+    <section id="the-leaks" className="relative z-10 w-full border-t border-border bg-paper section-y section-deco px-6 sm:px-12">
       <div className="mx-auto max-w-5xl">
         <SectionHeading eyebrow="The leaks" title="Jobs slip through the same" titleMuted="three cracks every week" />
 
@@ -48,7 +48,7 @@ export function LeaksAndMythSection() {
                   <span className="flex h-10 w-10 items-center justify-center rounded-xs bg-accent-soft text-accent">
                     <Icon className="h-[1.125rem] w-[1.125rem]" />
                   </span>
-                  <span className="font-display text-4xl font-bold leading-none text-primary/[0.12] tabular-nums">
+                  <span className="font-display text-4xl font-bold leading-none text-primary/55 tabular-nums">
                     0{i + 1}
                   </span>
                 </div>
@@ -61,19 +61,18 @@ export function LeaksAndMythSection() {
 
         <FadeUp delay={0.15} y={14} className="mt-10 text-center">
           <p className="font-display text-xl sm:text-2xl font-semibold text-primary">
-            That's not a sales problem. <span className="text-accent">It's a follow-up problem.</span>
+            You're not short on leads. <span className="text-accent">You're losing bookings.</span>
           </p>
         </FadeUp>
 
         <FadeUp delay={0.15} y={16} className="mx-auto mt-16 max-w-2xl border-t border-border pt-12 text-center">
-          <p className="text-xs font-semibold text-body">The myth</p>
-          <h3 className="mt-3 text-2xl sm:text-3xl font-bold text-primary">“You just need more leads.”</h3>
+          <p className="text-xs font-semibold text-body">The Myth</p>
+          <h3 className="mt-3 text-2xl sm:text-3xl font-bold text-primary">&ldquo;You Just Need More Leads.&rdquo;</h3>
           <p className="mt-4 text-base text-body">
-            That's what every agency says. More ads, more SEO, more Thumbtack. But more leads into a leaky bucket just
-            means paying more to lose more.
+            Missed calls. Unanswered quotes. Lost cleaning jobs. While you're paying for more leads, your competitors are booking your customers.
           </p>
           <p className="mt-4 text-base font-semibold text-primary">
-            Fix the leaks first, and every lead you already pay for starts paying you back.
+            Stop losing jobs. Start booking more.
           </p>
         </FadeUp>
       </div>

@@ -4,7 +4,7 @@ import { ParallaxBand } from './ParallaxBand';
 import { Reveal } from './Reveal';
 
 const STATEMENTS = [
-  { eyebrow: 'The problem', text: 'Calls, quotes and follow-ups keep pulling you away from the work.' },
+  { eyebrow: 'The problem', text: 'Calls, quotes and follow ups keep pulling you away from the work.' },
   { eyebrow: 'The fix', text: 'The system keeps every opportunity moving while you stay focused on the clean.' },
 ] as const;
 

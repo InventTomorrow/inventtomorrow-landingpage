@@ -10,8 +10,9 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'how-it-works', label: 'How It Works', to: '/how-it-works' },
   { id: 'services', label: 'Services', to: '/services' },
   // { id: 'who-we-help', label: 'Who We Help', to: '/who-we-help' },
+  { id: 'our-work', label: 'Our Work', to: '/our-work' },
   { id: 'about', label: 'About Us', to: '/about' },
-  { id: 'blog', label: 'Blog', to: '/blog' },
+  // { id: 'blog', label: 'Blog', to: '/blog' },
 ];
 
 // Live domain. The bare domain redirects here, so canonical links, the sitemap and structured data all use it.

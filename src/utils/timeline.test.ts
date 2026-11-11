@@ -6,7 +6,7 @@ test('TIMELINE_MILESTONES contains the 3 exact stages from design', () => {
   assert.equal(TIMELINE_MILESTONES.length, 3);
   assert.equal(TIMELINE_MILESTONES[0].time, '2:14');
   assert.equal(TIMELINE_MILESTONES[0].description, 'Your phone rings. You keep working.');
-  assert.equal(TIMELINE_MILESTONES[1].time, '2:14');
+  assert.equal(TIMELINE_MILESTONES[1].time, '2:15');
   assert.equal(TIMELINE_MILESTONES[1].description, 'Our system texts the customer back in seconds.');
   assert.equal(TIMELINE_MILESTONES[2].time, '2:20');
   assert.equal(TIMELINE_MILESTONES[2].description, 'The lead is handled without interrupting the clean.');

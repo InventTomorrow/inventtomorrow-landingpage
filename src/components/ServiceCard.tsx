@@ -11,7 +11,7 @@ interface ServiceCardProps {
 
 export function ServiceCard({ fix, number, isCopy = false }: ServiceCardProps) {
   return (
-    <article className="group flex h-full flex-col rounded-2xl border border-border bg-paper p-7 transition-colors duration-300 hover:border-accent">
+    <article className="flex h-full flex-col rounded-2xl border border-border bg-paper p-7">
       <div className="-mx-3 -mt-3 aspect-[4/3] overflow-hidden rounded-xl bg-white">
         <SiteImage
           src={fix.image.src}
@@ -25,9 +25,9 @@ export function ServiceCard({ fix, number, isCopy = false }: ServiceCardProps) {
       <h3 className="mt-5 text-xl font-semibold text-primary">{fix.problemTitle}</h3>
       <hr className="my-5 border-border" />
       <p className="text-base">{fix.text}</p>
-      <div className="mt-auto flex items-center justify-between pt-8">
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-x-4 gap-y-3 pt-8">
         <span
-          className="font-display text-5xl font-semibold text-transparent [-webkit-text-stroke:1px_var(--color-border)]"
+          className="shrink-0 font-display text-5xl font-semibold text-primary/55"
           aria-hidden="true"
         >
           {String(number).padStart(2, '0')}
@@ -35,9 +35,9 @@ export function ServiceCard({ fix, number, isCopy = false }: ServiceCardProps) {
         <Link
           to="/services"
           tabIndex={isCopy ? -1 : undefined}
-          className="inline-flex items-center gap-2 text-sm font-medium uppercase text-primary transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+          className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap text-sm font-medium uppercase text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
         >
-          <span className="flex size-6 items-center justify-center rounded-full bg-accent-soft text-accent">
+          <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent">
             <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
           </span>
           Read more

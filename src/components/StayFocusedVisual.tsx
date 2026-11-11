@@ -9,7 +9,6 @@ const AUTO_REPLY = MISSED_CALL_FIX.scene.messages[0].text;
 export function StayFocusedVisual() {
   return (
     <div className="relative mx-auto w-full max-w-lg px-4 pb-10 pt-6 sm:px-0">
-      <span className="absolute -right-2 top-0 size-44 rounded-full bg-accent-soft" aria-hidden="true" />
       <SiteImage
         src="/images/stay-focused.webp"
         alt="A cleaner staying on the job while the system handles calls, messages and customer details."

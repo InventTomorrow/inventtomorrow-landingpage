@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, type RefObject } from 'react';
 
-const SCROLL_SPEED = 32; // Pixels per second, independent of the screen's refresh rate.
-const INTERACTION_PAUSE_MS = 1800;
+// Pixels per second, independent of the screen's refresh rate.
+const DESKTOP_SCROLL_SPEED = 128;
+const MOBILE_SCROLL_SPEED = 32;
 
 // Render three copies of the cards. Staying in the middle copy lets either direction wrap invisibly.
 function getLoopWidth(strip: HTMLElement, count: number) {
@@ -15,18 +16,23 @@ function wrapPosition(position: number, width: number) {
 }
 
 export function useScrollStrip(stripRef: RefObject<HTMLElement | null>, count: number) {
-  const pauseUntil = useRef(0);
+  const navigationRemaining = useRef(0);
 
   useEffect(() => {
     const strip = stripRef.current;
     if (!strip || !count) return;
 
     const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mobileViewport = window.matchMedia('(max-width: 39.999rem)');
     let loopWidth = 0;
     let position = strip.scrollLeft;
-    let isHovered = strip.matches(':hover');
-    let isFocused = strip.contains(document.activeElement);
     let isDragging = false;
+    let activePointerId: number | null = null;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let dragStartPosition = 0;
+    let didDrag = false;
+    let suppressNextClick = false;
     let isVisible = false;
     let frame = 0;
     let settleTimer = 0;
@@ -44,8 +50,12 @@ export function useScrollStrip(stripRef: RefObject<HTMLElement | null>, count: n
     const tick = (now: number) => {
       const elapsed = Math.min(now - lastTime, 64);
       lastTime = now;
-      if (loopWidth && isVisible && !document.hidden && !motionPreference.matches && !isHovered && !isFocused && !isDragging && now >= pauseUntil.current) {
-        position = wrapPosition(position + elapsed * SCROLL_SPEED / 1000, loopWidth);
+      if (loopWidth && isVisible && !document.hidden && !motionPreference.matches && !isDragging) {
+        const scrollSpeed = mobileViewport.matches ? MOBILE_SCROLL_SPEED : DESKTOP_SCROLL_SPEED;
+        const remaining = navigationRemaining.current;
+        const navigationStep = Math.abs(remaining) < 0.1 ? remaining : remaining * (1 - Math.exp(-elapsed / 110));
+        navigationRemaining.current -= navigationStep;
+        position = wrapPosition(position + elapsed * scrollSpeed / 1000 + navigationStep, loopWidth);
         strip.scrollLeft = position;
       } else {
         position = strip.scrollLeft;
@@ -53,23 +63,55 @@ export function useScrollStrip(stripRef: RefObject<HTMLElement | null>, count: n
       frame = requestAnimationFrame(tick);
     };
 
-    const onPointerEnter = (event: PointerEvent) => { if (event.pointerType !== 'touch') isHovered = true; };
-    const onPointerLeave = () => { isHovered = false; };
-    const onFocusIn = () => { isFocused = true; };
-    const onFocusOut = (event: FocusEvent) => { isFocused = event.relatedTarget instanceof Node && strip.contains(event.relatedTarget); };
-    const onPointerDown = () => { isDragging = true; };
-    const onPointerUp = () => {
-      if (!isDragging) return;
-      isDragging = false;
-      pauseUntil.current = performance.now() + INTERACTION_PAUSE_MS;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!event.isPrimary || event.button !== 0 || activePointerId !== null) return;
+      activePointerId = event.pointerId;
+      dragStartX = event.clientX;
+      dragStartY = event.clientY;
+      dragStartPosition = strip.scrollLeft;
+      didDrag = false;
+      suppressNextClick = false;
+      isDragging = true;
+      navigationRemaining.current = 0;
     };
-    const onWheel = () => { pauseUntil.current = performance.now() + INTERACTION_PAUSE_MS; };
+    const onPointerMove = (event: PointerEvent) => {
+      if (event.pointerId !== activePointerId || !loopWidth) return;
+      const distance = event.clientX - dragStartX;
+      if (!didDrag) {
+        if (Math.abs(distance) < 6 || Math.abs(distance) <= Math.abs(event.clientY - dragStartY)) return;
+        didDrag = true;
+        strip.setPointerCapture(event.pointerId);
+      }
+      event.preventDefault();
+      position = wrapPosition(dragStartPosition - distance, loopWidth);
+      strip.scrollLeft = position;
+    };
+    const onPointerUp = (event: PointerEvent) => {
+      if (event.pointerId !== activePointerId) return;
+      if (strip.hasPointerCapture(event.pointerId)) strip.releasePointerCapture(event.pointerId);
+      activePointerId = null;
+      suppressNextClick = didDrag;
+      isDragging = false;
+      position = strip.scrollLeft;
+    };
+    const onClick = (event: MouseEvent) => {
+      if (!suppressNextClick) return;
+      event.preventDefault();
+      event.stopPropagation();
+      suppressNextClick = false;
+    };
+    const onDragStart = (event: DragEvent) => { event.preventDefault(); };
+    const onWheel = (event: WheelEvent) => {
+      if (motionPreference.matches) return;
+      const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? strip.clientWidth : 1;
+      position += event.deltaX * unit;
+    };
     const onScroll = () => {
-      // Allow native swipes and smooth arrow navigation to finish before recentering the loop.
-      if (!motionPreference.matches && performance.now() >= pauseUntil.current) return;
+      // Manual navigation still wraps when automatic motion is disabled.
+      if (!motionPreference.matches) return;
       window.clearTimeout(settleTimer);
       settleTimer = window.setTimeout(() => {
-        if (!loopWidth || isDragging || isFocused) return;
+        if (!loopWidth || isDragging) return;
         position = wrapPosition(strip.scrollLeft, loopWidth);
         if (Math.abs(strip.scrollLeft - position) > 1) strip.scrollLeft = position;
       }, 180);
@@ -81,11 +123,10 @@ export function useScrollStrip(stripRef: RefObject<HTMLElement | null>, count: n
     if (strip.firstElementChild) resizeObserver.observe(strip.firstElementChild);
     const visibilityObserver = new IntersectionObserver(([entry]) => { isVisible = entry.isIntersecting; });
     visibilityObserver.observe(strip);
-    strip.addEventListener('pointerenter', onPointerEnter);
-    strip.addEventListener('pointerleave', onPointerLeave);
-    strip.addEventListener('focusin', onFocusIn);
-    strip.addEventListener('focusout', onFocusOut);
+    strip.addEventListener('pointermove', onPointerMove);
     strip.addEventListener('pointerdown', onPointerDown);
+    strip.addEventListener('click', onClick, true);
+    strip.addEventListener('dragstart', onDragStart);
     strip.addEventListener('wheel', onWheel, { passive: true });
     strip.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('pointerup', onPointerUp);
@@ -97,11 +138,10 @@ export function useScrollStrip(stripRef: RefObject<HTMLElement | null>, count: n
       window.clearTimeout(settleTimer);
       resizeObserver.disconnect();
       visibilityObserver.disconnect();
-      strip.removeEventListener('pointerenter', onPointerEnter);
-      strip.removeEventListener('pointerleave', onPointerLeave);
-      strip.removeEventListener('focusin', onFocusIn);
-      strip.removeEventListener('focusout', onFocusOut);
+      strip.removeEventListener('pointermove', onPointerMove);
       strip.removeEventListener('pointerdown', onPointerDown);
+      strip.removeEventListener('click', onClick, true);
+      strip.removeEventListener('dragstart', onDragStart);
       strip.removeEventListener('wheel', onWheel);
       strip.removeEventListener('scroll', onScroll);
       window.removeEventListener('pointerup', onPointerUp);
@@ -114,12 +154,15 @@ export function useScrollStrip(stripRef: RefObject<HTMLElement | null>, count: n
       const strip = stripRef.current;
       const firstCard = strip?.firstElementChild as HTMLElement | null;
       if (!strip || !firstCard) return;
-      pauseUntil.current = performance.now() + INTERACTION_PAUSE_MS;
-      const loopWidth = getLoopWidth(strip, count);
-      if (loopWidth) strip.scrollLeft = wrapPosition(strip.scrollLeft, loopWidth);
       const gap = parseFloat(getComputedStyle(strip).columnGap || '0');
-      const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
-      strip.scrollBy({ left: direction * (firstCard.getBoundingClientRect().width + gap), behavior });
+      const distance = direction * (firstCard.getBoundingClientRect().width + gap);
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const loopWidth = getLoopWidth(strip, count);
+        if (loopWidth) strip.scrollLeft = wrapPosition(strip.scrollLeft, loopWidth);
+        strip.scrollBy({ left: distance, behavior: 'instant' });
+      } else {
+        navigationRemaining.current += distance;
+      }
     },
     [stripRef, count],
   );

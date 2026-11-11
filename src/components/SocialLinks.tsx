@@ -15,7 +15,7 @@ const SIZES = {
 export function SocialLinks({ size = 'md', isSquare = false, className = '' }: SocialLinksProps) {
   return (
     <ul className={`flex items-center gap-2 ${className}`}>
-      {SOCIAL_LINKS.map(({ id, label, url, icon: Icon }) => (
+      {SOCIAL_LINKS.map(({ id, label, url, icon }) => (
         <li key={id}>
           <a
             href={url}
@@ -24,7 +24,7 @@ export function SocialLinks({ size = 'md', isSquare = false, className = '' }: S
             aria-label={label}
             className={`flex items-center justify-center ${isSquare ? 'rounded-xs bg-white/10' : 'rounded-full'} border border-white/20 text-white/80 transition-colors hover:border-accent hover:bg-accent hover:text-on-primary ${SIZES[size].button}`}
           >
-            <Icon className={SIZES[size].icon} aria-hidden="true" />
+            <img src={icon} alt="" className={`${SIZES[size].icon} object-contain brightness-0 invert`} aria-hidden="true" />
           </a>
         </li>
       ))}
