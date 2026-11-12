@@ -1,27 +1,33 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import path from 'path';
 import {defineConfig, loadEnv, type Plugin} from 'vite';
-import {handleChat, webhookTarget} from './api/_chat';
+import {handleChat, webhookTarget} from './server/chat.ts';
+import {handleAudit} from './server/audit.ts';
 
-// Serves POST /api/chat during `npm run dev`/`preview`, mirroring the Vercel function in api/chat.ts.
+// Serves both APIs during dev/preview, mirroring the Vercel functions.
 // The key is read from .env.local (never exposed to the browser bundle: no VITE_ prefix).
 function chatApi(env: Record<string, string>): Plugin {
   const middleware = (req: any, res: any, next: () => void) => {
-    if (req.url?.split('?')[0] !== '/api/chat') return next();
+    const pathname = req.url?.split('?')[0];
+    if (pathname !== '/api/chat' && pathname !== '/api/audit') return next();
     if (req.method !== 'POST') {
       res.statusCode = 405;
+      res.setHeader('Allow', 'POST');
       return res.end();
     }
     let raw = '';
     req.on('data', (chunk: Buffer) => {
       raw += chunk;
-      if (raw.length > 100_000) req.destroy();
+      if (raw.length > 400_000) req.destroy();
     });
     req.on('end', async () => {
       let body: unknown = null;
       try { body = JSON.parse(raw); } catch { /* handled as an invalid request */ }
-      const result = await handleChat(body, req.socket?.remoteAddress ?? 'local', env);
+      // Vite stays running between requests, so logging can finish after replying.
+      const ip = req.socket?.remoteAddress ?? 'local';
+      const result = pathname === '/api/audit'
+        ? await handleAudit(body, ip, env)
+        : await handleChat(body, ip, env, (task) => { void task; });
       res.statusCode = result.status;
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('X-Chat-Webhook', webhookTarget(env)); // production | test | off (dev only; helps debugging)
@@ -42,9 +48,10 @@ export default defineConfig(({mode}) => {
   const env = loadEnv(mode, process.cwd(), '');
   return {
     plugins: [react(), tailwindcss(), chatApi(env)],
+    build: { manifest: true },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': import.meta.dirname,
       },
     },
     server: {

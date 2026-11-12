@@ -4,6 +4,7 @@ import { ALL_FAQS } from '../content/faq';
 import { LEGAL_DOCS, type LegalDoc } from '../content/legal';
 import { PAGE_META, type PageMeta } from '../content/pages';
 import { SOCIAL_LINKS } from '../content/social';
+import { SERVICE_CATALOG } from '../content/serviceCatalog';
 import { SITE_URL, absoluteUrl } from './navigation';
 
 export { SITE_URL, absoluteUrl };
@@ -41,12 +42,13 @@ export function getPageName(meta: PageMeta) {
   return meta.title.endsWith(TITLE_SUFFIX) ? meta.title.slice(0, -TITLE_SUFFIX.length) : meta.title;
 }
 
-// Every public URL, in the order they appear in the sitemap. Keep in step with the routes in SiteLayout.
+// Every prerendered URL. Discovery files exclude pages marked noindex.
 export function getSitePages(): SitePage[] {
-  const { home, howItWorks, services, about, faq, results, ourWork, freeAudit, contact, blog } = PAGE_META;
+  const { home, howItWorks, services, about, faq, results, ourWork, freeAudit, freeAuditAds, contact, blog } = PAGE_META;
   return [
-    ...[home, howItWorks, services, about, faq, results, ourWork, freeAudit, contact, blog].map((meta) => ({ meta })),
+    ...[home, howItWorks, services, about, faq, results, ourWork, freeAudit, freeAuditAds, contact, blog].map((meta) => ({ meta })),
     ...CASE_STUDIES.map((study) => ({ meta: getCaseStudyMeta(study) })),
+    ...SERVICE_CATALOG.map((service) => ({ meta: service.meta })),
     ...POSTS.map((post) => ({ meta: getPostMeta(post), post })),
     ...LEGAL_DOCS.map((doc) => ({ meta: getLegalMeta(doc) })),
   ];
@@ -71,7 +73,7 @@ function getPriority({ meta, post }: SitePage) {
 }
 
 export function buildSitemapXml(pages: SitePage[], buildDate: string) {
-  const urls = pages.map((page) =>
+  const urls = pages.filter((page) => page.meta.isIndexable !== false).map((page) =>
     [
       '  <url>',
       `    <loc>${escapeHtml(absoluteUrl(page.meta.path))}</loc>`,
@@ -86,6 +88,7 @@ export function buildSitemapXml(pages: SitePage[], buildDate: string) {
 
 // Format: https://llmstxt.org (H1, blockquote summary, then H2 lists of links).
 export function buildLlmsTxt(pages: SitePage[]) {
+  pages = pages.filter((page) => page.meta.isIndexable !== false);
   const toLine = ({ meta }: SitePage) => `- [${getPageName(meta)}](${absoluteUrl(meta.path)}): ${meta.description}`;
   const isLegal = ({ meta }: SitePage) => LEGAL_DOCS.some((doc) => doc.path === meta.path);
   const mainPages = pages.filter((page) => !page.post && !isLegal(page) && page.meta.path !== '/');
@@ -144,8 +147,10 @@ export function buildHeadTags(meta: PageMeta, options: { ogType: 'website' | 'ar
 
 function getBreadcrumbs(meta: PageMeta, post?: Post): JsonLdNode {
   const trail = [{ name: 'Home', path: '/' }];
+  const service = SERVICE_CATALOG.find((service) => service.path === meta.path);
   if (post) trail.push({ name: getPageName(PAGE_META.blog), path: PAGE_META.blog.path });
-  trail.push({ name: getPageName(meta), path: meta.path });
+  if (service) trail.push({ name: 'Services', path: '/services' });
+  trail.push({ name: service?.title ?? getPageName(meta), path: meta.path });
 
   return {
     '@type': 'BreadcrumbList',

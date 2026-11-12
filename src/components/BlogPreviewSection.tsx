@@ -26,7 +26,8 @@ export function BlogPreviewSection() {
       <div className="mx-auto max-w-7xl">
         <SectionHeading
           eyebrow="From the blog"
-          title="Practical ideas" titleMuted="for cleaning business owners"
+          size="compact"
+          title="Practical ways" titleMuted="to book more cleans"
           subtitle="Short guides on calls, quotes, reviews and repeat bookings. Things you can use this week."
         />
 

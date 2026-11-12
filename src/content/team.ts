@@ -37,7 +37,7 @@ export const TEAM_TIERS: TeamTier[] = [
     members: [
       {
         name: 'Abdul Waheed',
-        role: 'Web Development',
+        role: 'Full Stack Developer',
         image: '/images/team/abdul-waheed-portrait.png',
         linkedin: 'https://www.linkedin.com/in/abdulwaheed16/',
       },

@@ -19,9 +19,14 @@ export function AppLoader() {
         >
           <div className="relative size-24">
             <span className="absolute inset-0 rounded-full border-4 border-white/15 border-t-accent motion-safe:animate-spin" aria-hidden="true" />
-            <span className="absolute inset-3 flex items-center justify-center rounded-full bg-accent font-display text-2xl font-bold text-on-primary motion-safe:animate-pulse">
-              IT
-            </span>
+            <img
+              src="/images/logo-mark.png"
+              alt=""
+              width={72}
+              height={72}
+              fetchPriority="high"
+              className="absolute inset-3 size-18 rounded-full bg-white object-contain p-2"
+            />
           </div>
           <p className="font-display text-xl font-semibold">Invent Tomorrow</p>
           <span className="sr-only">Loading the site</span>

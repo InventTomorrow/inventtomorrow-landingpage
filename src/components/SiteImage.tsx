@@ -1,4 +1,5 @@
 import { ImageIcon } from 'lucide-react';
+import { getOptimizedImage } from '../utils/images';
 
 interface SiteImageProps {
   // Path under /public, e.g. "/images/hero.webp". Leave out to show a labelled placeholder.
@@ -18,9 +19,12 @@ interface SiteImageProps {
 // A photo, or a dimensioned placeholder until the real file is added.
 export function SiteImage({ src, alt, width, height, label, className = '', isEager = false, isCaptionHidden = false }: SiteImageProps) {
   if (src) {
+    const image = getOptimizedImage(src);
     return (
       <img
-        src={src}
+        src={image?.src ?? src}
+        srcSet={image?.srcSet}
+        sizes={image ? `(max-width: ${width}px) 100vw, ${width}px` : undefined}
         width={width}
         height={height}
         alt={alt}

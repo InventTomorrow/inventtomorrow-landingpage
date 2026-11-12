@@ -14,13 +14,14 @@ interface FinalCtaSectionProps {
   buttons?: 'both' | 'audit' | 'call';
   overlapFooter?: boolean;
   auditLabel?: string;
+  callLabel?: string;
 }
 
 // The closing strip: the message on blue, the buttons on navy. It overlaps the top of the footer (see Footer's pt).
-export function FinalCtaSection({ title, titleAccent, body, smallLine, buttons = 'both', overlapFooter = true, auditLabel = 'Run My Audit' }: FinalCtaSectionProps) {
+export function FinalCtaSection({ title, titleAccent, body, smallLine, buttons = 'both', overlapFooter = true, auditLabel = 'Run My Audit', callLabel = 'Schedule a Call' }: FinalCtaSectionProps) {
   return (
     <section className={`relative z-20 w-full px-4 sm:px-8 ${overlapFooter ? 'final-cta pt-8 [--cta-overlap:4rem] [background:linear-gradient(to_bottom,var(--color-stone)_calc(100%-var(--cta-overlap)),transparent_0)] sm:pt-12 sm:[--cta-overlap:5rem]' : 'bg-paper py-14 sm:py-16'}`}>
-      <FadeUp y={20} className={`relative mx-auto grid max-w-7xl overflow-hidden rounded-2xl min-h-[28.5rem] sm:min-h-[23.5rem] lg:min-h-80 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] ${overlapFooter ? '-mb-[var(--cta-overlap)]' : ''}`}>
+      <FadeUp y={20} className={`relative mx-auto grid max-w-7xl overflow-hidden rounded-2xl lg:grid-cols-[minmax(0,3fr)_minmax(19rem,2fr)] ${overlapFooter ? '-mb-[var(--cta-overlap)]' : ''}`}>
         <div className="flex items-center gap-5 bg-accent-glow p-8 text-on-primary sm:p-10 lg:p-12">
           <ClipboardCheck className="hidden h-14 w-14 shrink-0 sm:block" strokeWidth={1.25} aria-hidden="true" />
           <div className="min-w-0">
@@ -34,15 +35,15 @@ export function FinalCtaSection({ title, titleAccent, body, smallLine, buttons =
         <div className="flex items-center gap-5 bg-navy-glow p-8 sm:p-10 lg:p-12">
           <CalendarCheck className="hidden h-14 w-14 shrink-0 text-accent xl:block" strokeWidth={1.25} aria-hidden="true" />
           <div className="flex min-w-0 flex-1 flex-col gap-4">
-            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:flex-col">
               {buttons !== 'call' && (
-                <CtaButton variant="accent" to={AUDIT_PATH}>
+                <CtaButton variant="accent" to={AUDIT_PATH} className="min-w-0 whitespace-normal! px-4">
                   {auditLabel}
                 </CtaButton>
               )}
               {buttons !== 'audit' && (
-                <CtaButton variant={buttons === 'call' ? 'accent' : 'outline-light'} to={BOOKING_PATH}>
-                  Schedule a Call
+                <CtaButton variant={buttons === 'call' ? 'accent' : 'outline-light'} to={BOOKING_PATH} className="min-w-0 whitespace-normal! px-4">
+                  {callLabel}
                 </CtaButton>
               )}
             </div>

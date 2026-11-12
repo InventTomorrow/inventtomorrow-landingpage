@@ -2,6 +2,7 @@ import { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { Link } from 'react-router';
 import { getCtaIconForPath } from '../utils/ctaIcon';
+import { prefetchPage } from '../pages/lazyPages';
 
 type Variant = 'primary' | 'accent' | 'outline' | 'outline-light';
 type Size = 'sm' | 'md' | 'lg';
@@ -55,9 +56,12 @@ export function CtaButton(props: CtaButtonProps) {
   const leading = Icon && <Icon className={`h-[1.125rem] w-[1.125rem] shrink-0 transition-transform duration-300 motion-safe:group-hover:scale-110 ${size === 'sm' ? 'max-sm:hidden' : ''}`} aria-hidden="true" />;
 
   if (props.to !== undefined) {
-    const { to, variant: _v, size: _s, className: _c, icon: _i, children, ...rest } = props;
+    const { to, variant: _v, size: _s, className: _c, icon: _i, children, onPointerEnter, onFocus, ...rest } = props;
     return (
-      <Link to={to} className={classes} {...rest}>
+      <Link to={to} className={classes} {...rest}
+        onPointerEnter={(event) => { onPointerEnter?.(event); if (!event.defaultPrevented) prefetchPage(to); }}
+        onFocus={(event) => { onFocus?.(event); if (!event.defaultPrevented) prefetchPage(to); }}
+      >
         {leading}
         <span>{children}</span>
       </Link>

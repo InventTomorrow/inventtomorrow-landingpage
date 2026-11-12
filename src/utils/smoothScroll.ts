@@ -1,4 +1,4 @@
-import Lenis from 'lenis';
+import type Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 
 // Eased scrolling for the mouse wheel, trackpad and menu links (touch scrolling stays native).
@@ -9,11 +9,26 @@ let savedOverflow: { root: string; body: string } | null = null;
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function startSmoothScroll() {
-  if (prefersReducedMotion()) return () => {};
-  lenis = new Lenis({ autoRaf: true, lerp: 0.1 });
+  // Touch devices stay native; optional desktop easing loads after the first paint.
+  if (prefersReducedMotion() || !window.matchMedia('(min-width: 48rem) and (pointer: fine)').matches) return () => {};
+  let cancelled = false;
+  let instance: Lenis | null = null;
+  const start = () => {
+    void import('lenis').then(({ default: Lenis }) => {
+      if (cancelled || prefersReducedMotion()) return;
+      instance = new Lenis({ autoRaf: true, lerp: 0.1 });
+      lenis = instance;
+      if (savedOverflow) instance.stop();
+    }).catch(() => { /* Native scrolling remains available if this optional chunk fails. */ });
+  };
+  const idle = typeof window.requestIdleCallback === 'function';
+  const task = idle ? window.requestIdleCallback(start, { timeout: 2000 }) : window.setTimeout(start, 0);
   return () => {
-    lenis?.destroy();
-    lenis = null;
+    cancelled = true;
+    if (idle) window.cancelIdleCallback(task);
+    else window.clearTimeout(task);
+    instance?.destroy();
+    if (lenis === instance) lenis = null;
   };
 }
 

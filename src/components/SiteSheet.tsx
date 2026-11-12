@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { ChevronDown, X } from 'lucide-react';
 import { AnimatePresence, m } from 'motion/react';
 import { useEffect, useRef } from 'react';
 import { NavLink } from 'react-router';
@@ -9,6 +9,8 @@ import { BrandLogo } from './BrandLogo';
 import { CtaButton } from './CtaButton';
 import { RecentPostsList } from './RecentPostsList';
 import { SocialLinks } from './SocialLinks';
+import { SERVICE_CATALOG, SERVICE_GROUPS } from '../content/serviceCatalog';
+import { prefetchPage } from '../pages/lazyPages';
 
 export const SITE_SHEET_ID = 'site-sheet';
 
@@ -31,7 +33,7 @@ export function SiteSheet({ isOpen, onClose }: SiteSheetProps) {
 
     const keepFocusInside = (event: KeyboardEvent) => {
       if (event.key !== 'Tab') return;
-      const controls = [...panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]')]
+      const controls = [...panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), summary, input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]')]
         .filter((element) => element.getClientRects().length > 0);
       const first = controls[0];
       const last = controls[controls.length - 1];
@@ -100,16 +102,37 @@ export function SiteSheet({ isOpen, onClose }: SiteSheetProps) {
               <ul className="flex flex-col">
                 {NAV_ITEMS.map((item) => (
                   <li key={item.id}>
-                    <NavLink
-                      to={item.to}
-                      end={item.to === '/'}
-                      onClick={onClose}
-                      className={({ isActive }) =>
-                        `block border-b border-white/10 py-4 text-lg font-medium transition-colors hover:text-white ${isActive ? 'text-white' : 'text-white/70'}`
-                      }
-                    >
-                      {item.label}
-                    </NavLink>
+                    {item.id === 'services' ? (
+                      <details className="group border-b border-white/10">
+                        <summary className="flex cursor-pointer list-none items-center justify-between py-4 text-lg font-medium text-white/85 focus-visible:outline-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden">
+                          Services<ChevronDown className="size-5 transition-transform group-open:rotate-180" aria-hidden="true" />
+                        </summary>
+                        <div className="pb-5 pl-3">
+                          <NavLink to="/services" onClick={onClose} className="mb-5 block py-2 text-sm font-semibold text-white underline underline-offset-4">View all services</NavLink>
+                          {SERVICE_GROUPS.map((group) => (
+                            <div key={group.id} className="mt-5">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-white/55">{group.title}</p>
+                              <ul className="mt-2">
+                                {SERVICE_CATALOG.filter((service) => service.group === group.title).map((service) => (
+                                  <li key={service.path}><NavLink to={service.path} onClick={onClose} onFocus={() => prefetchPage(service.path)} className={({ isActive }) => `block rounded-lg px-2 py-3 text-sm hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-accent ${isActive ? 'bg-white/10 font-semibold text-white' : 'text-white/80'}`}>{service.title}</NavLink></li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    ) : (
+                      <NavLink
+                        to={item.to}
+                        end={item.to === '/'}
+                        onClick={onClose}
+                        className={({ isActive }) =>
+                          `block border-b border-white/10 py-4 text-lg font-medium transition-colors hover:text-white ${isActive ? 'text-white' : 'text-white/70'}`
+                        }
+                      >
+                        {item.label}
+                      </NavLink>
+                    )}
                   </li>
                 ))}
               </ul>

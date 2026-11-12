@@ -47,8 +47,7 @@ export function Footer() {
             <AccentHeading>Invent Tomorrow</AccentHeading>
             <p className="mt-4 font-display text-lg font-semibold text-white">Win back the jobs you already earned.</p>
             <p className="mt-3 max-w-sm text-base text-white/70">
-              We're Invent Tomorrow, a team that works with cleaning businesses to solve everyday challenges and build simpler ways to work.
-              Follow up and booking systems: inquiries answered, teams informed and less for you to chase.
+              We book cleaning companies extra cleans from the calls, quotes and past clients they already have. Done for you, and guaranteed.
             </p>
             <SocialLinks isSquare className="mt-6" />
           </StaggerItem>

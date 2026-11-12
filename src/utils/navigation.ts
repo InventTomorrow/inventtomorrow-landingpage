@@ -23,27 +23,5 @@ export function absoluteUrl(path: string) {
 }
 
 export const AUDIT_PATH = '/free-audit';
+export const AUDIT_ADS_PATH = '/free-audit-ads';
 export const BOOKING_PATH = '/contact#book-or-message';
-
-// Booking calendar shared by the audit form and contact page.
-export const CALENDLY_URL = 'https://calendly.com/abdulhaadi-businesschat/30min';
-
-export interface BookingDetails {
-  businessName?: string;
-  phone?: string;
-  description?: string;
-}
-
-// These must match the event's Invitee form question order. See docs/booking-setup.md.
-const CALENDLY_QUESTIONS = { businessName: 'a1', phone: 'a2', description: 'a3' } as const;
-
-export function calendlyLink(name?: string, email?: string, details: BookingDetails = {}) {
-  const url = new URL(CALENDLY_URL);
-  if (name?.trim()) url.searchParams.set('name', name.trim());
-  if (email?.trim()) url.searchParams.set('email', email.trim());
-  for (const field of Object.keys(CALENDLY_QUESTIONS) as (keyof BookingDetails)[]) {
-    const value = details[field]?.trim();
-    if (value) url.searchParams.set(CALENDLY_QUESTIONS[field], value);
-  }
-  return url.toString();
-}

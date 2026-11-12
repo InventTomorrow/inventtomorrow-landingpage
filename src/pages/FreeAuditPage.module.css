@@ -1,0 +1,242 @@
+.page {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  overflow: clip;
+  padding: 2rem 1.25rem;
+  background: var(--color-paper);
+}
+
+.curves {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  fill: var(--color-accent);
+}
+
+.curves path:first-child {
+  opacity: 0.08;
+}
+
+.curves path:last-child {
+  opacity: 0.08;
+}
+
+.layout {
+  display: grid;
+  width: 100%;
+  max-width: 40rem;
+  align-items: center;
+  gap: 2rem;
+}
+
+.intro {
+  min-width: 0;
+}
+
+.eyebrow {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.375rem 0.875rem;
+  background: color-mix(in srgb, var(--color-accent) 15%, var(--color-paper));
+  color: var(--color-accent-hover);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.headline {
+  margin-top: 1rem;
+  color: var(--color-primary);
+  font-family: var(--font-sans);
+  font-size: clamp(2rem, 6.5vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.16;
+  user-select: text;
+}
+
+.description {
+  max-width: 35rem;
+  margin-top: 1.25rem;
+  color: color-mix(in srgb, var(--color-primary) 38%, var(--color-body));
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.6;
+  user-select: text;
+}
+
+.actions {
+  width: min(100%, 25.5rem);
+  margin-top: 1.75rem;
+}
+
+.bookingButton {
+  display: flex;
+  width: 100%;
+  min-height: 3.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  border-radius: 0.875rem;
+  padding: 0.875rem 1rem;
+  background: var(--color-accent);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--color-accent) 16%, transparent);
+  color: var(--color-on-primary);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.bookingButton:hover {
+  background: var(--color-accent-hover);
+}
+
+.bookingButton:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 4px;
+}
+
+.bookingButton svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+}
+
+.bookingButton svg:last-child {
+  margin-left: 0.25rem;
+}
+
+.bookingButton span {
+  white-space: nowrap;
+}
+
+.chatHint {
+  position: relative;
+  margin-top: 1rem;
+  color: color-mix(in srgb, var(--color-primary) 38%, var(--color-body));
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.chatHint svg {
+  display: none;
+}
+
+.chat {
+  width: 100%;
+  min-width: 0;
+  height: 29rem;
+}
+
+@media (min-width: 40rem) {
+  .page {
+    padding: 2.5rem;
+  }
+
+  .eyebrow {
+    padding: 0.375rem 1.125rem;
+    font-size: 0.875rem;
+  }
+
+  .description {
+    font-size: 1.125rem;
+  }
+
+  .bookingButton {
+    min-height: 4.375rem;
+    gap: 1rem;
+    font-size: 1.375rem;
+  }
+
+  .bookingButton svg {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .chatHint {
+    font-size: 1rem;
+  }
+
+  .chat {
+    height: 31.5rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .page {
+    padding: clamp(2rem, 5vh, 4.5rem) clamp(2rem, 5vw, 5rem);
+  }
+
+  .layout {
+    max-width: 87.5rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.03fr);
+    gap: clamp(2rem, 3.5vw, 3.5rem);
+  }
+
+  .headline {
+    margin-top: 1.25rem;
+    font-size: clamp(2.25rem, 3.6vw, 3.875rem);
+  }
+
+  .eyebrow {
+    font-size: 1rem;
+  }
+
+  .headline span {
+    display: block;
+  }
+
+  .description {
+    margin-top: 1.5rem;
+    font-size: clamp(1.125rem, 1.4vw, 1.375rem);
+  }
+
+  .actions {
+    margin-top: 2rem;
+  }
+
+  .chatHint {
+    margin-top: 1.375rem;
+  }
+
+  .chatHint svg {
+    position: absolute;
+    top: -1.5rem;
+    left: calc(100% + 0.5rem);
+    display: none;
+    width: clamp(3rem, 6vw, 7rem);
+    height: 3rem;
+    overflow: visible;
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 3.5;
+  }
+
+  .chat {
+    height: clamp(31.5rem, 37vw, 34rem);
+  }
+}
+
+@media (min-width: 80rem) {
+  .chatHint svg {
+    display: block;
+  }
+
+  .chat {
+    height: 35rem;
+  }
+}

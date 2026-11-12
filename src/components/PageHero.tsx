@@ -10,6 +10,7 @@ interface PageHeroProps {
   description?: ReactNode;
   children?: ReactNode; // buttons
   meta?: ReactNode; // small line under everything (blog posts)
+  breadcrumb?: ReactNode;
   size?: 'default' | 'compact';
   // Optional photo behind the hero, under a navy tint, e.g. "/images/hero-services.webp" (1920 × 600 px)
   backgroundSrc?: string;
@@ -18,7 +19,7 @@ interface PageHeroProps {
 const ease = [0.16, 1, 0.3, 1] as const;
 
 // The navy hero at the top of every inner page: a soft blue glow, a grid and brand drops.
-export function PageHero({ eyebrow, title, titleMuted, description, children, meta, size = 'default', backgroundSrc }: PageHeroProps) {
+export function PageHero({ eyebrow, title, titleMuted, description, children, meta, breadcrumb, size = 'default', backgroundSrc }: PageHeroProps) {
   return (
     <section
       className={`relative z-10 flex w-full flex-col justify-center overflow-hidden bg-navy-glow px-6 sm:px-12 ${
@@ -47,8 +48,9 @@ export function PageHero({ eyebrow, title, titleMuted, description, children, me
           size === 'compact' ? 'py-14 sm:py-16' : 'py-16 sm:py-20 lg:py-24'
         }`}
       >
+        {breadcrumb && <div className="mb-7">{breadcrumb}</div>}
         <m.p
-          initial={{ opacity: 0, y: 14 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, ease }}
           className="text-xs font-semibold text-white/75"
@@ -57,7 +59,7 @@ export function PageHero({ eyebrow, title, titleMuted, description, children, me
         </m.p>
 
         <m.h1
-          initial={{ opacity: 0, y: 22 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, delay: 0.08, ease }}
           className={`mt-5 font-bold leading-[1.15] tracking-display text-white text-balance select-text ${
@@ -75,7 +77,7 @@ export function PageHero({ eyebrow, title, titleMuted, description, children, me
 
         {description && (
           <m.p
-            initial={{ opacity: 0, y: 18 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.18, ease }}
             className="mt-6 max-w-2xl text-lg leading-relaxed text-white/85 text-balance"
@@ -86,7 +88,7 @@ export function PageHero({ eyebrow, title, titleMuted, description, children, me
 
         {children && (
           <m.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3, ease }}
             className="mt-9 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row"
@@ -97,7 +99,7 @@ export function PageHero({ eyebrow, title, titleMuted, description, children, me
 
         {meta && (
           <m.div
-            initial={{ opacity: 0 }}
+            initial={false}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="mt-7 text-sm text-white/70"

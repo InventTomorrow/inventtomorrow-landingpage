@@ -1,0 +1,32 @@
+.pinned {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  height: 100vh;
+  height: var(--audit-height, 100dvh);
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pinned > :not(main) {
+  flex-shrink: 0;
+}
+
+.main,
+.page {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.main {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+.page {
+  min-height: 100%;
+  flex-shrink: 0;
+}

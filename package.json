@@ -3,17 +3,23 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build && tsx scripts/prerender.ts",
+    "optimize:images": "tsx scripts/optimize-images.ts",
+    "build:vercel": "npm run lint && npm test && npm run build && tsx scripts/verify-deployment.ts",
     "preview": "vite preview",
-    "test": "tsx --test src/utils/*.test.ts",
+    "test": "node --test scripts/chat-runtime.test.mjs && tsx --test src/utils/*.test.ts src/pages/*.test.tsx",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit && tsc --noEmit -p api/tsconfig.json"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
     "@tailwindcss/vite": "^4.3.3",
+    "@vercel/functions": "^3.11.1",
     "@vitejs/plugin-react": "^6.1.1",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
@@ -32,6 +38,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10.4.21",
+    "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.21.0",
     "typescript": "^7.0.2"
