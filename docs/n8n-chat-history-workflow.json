@@ -4,7 +4,8 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "5fc07193-8d6b-4873-9a87-ddcb0772e7c0",
-        "options": {}
+        "options": {},
+        "responseMode": "lastNode"
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.2,
@@ -18,7 +19,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One sheet row per chat visit. Every message carries everything known so far, so each update\n// can safely overwrite the row. Details show up as soon as the visitor types them.\nconst out = [];\n\nfor (const item of $input.all()) {\n  const p = item.json.body ?? item.json;\n  const transcript = Array.isArray(p.transcript) ? p.transcript : [];\n  const lead = p.lead || {};\n\n  const contact = [\n    lead.name && `Name: ${lead.name}`,\n    lead.businessName && `Business: ${lead.businessName}`,\n    lead.email && `Email: ${lead.email}`,\n    lead.phone && `Phone: ${lead.phone}`,\n  ].filter(Boolean);\n\n  out.push({\n    json: {\n      'Session ID': p.sessionId || `no-session-${Date.now()}`,\n      'Last Updated': p.timestamp || new Date().toISOString(),\n      'Contact Detials': contact.join('\\n'),\n      'Main Concern': lead.description || '',\n      'Lead Captured': p.leadCaptured === true ? 'Yes' : 'No',\n      'Asked To Book Directly': p.askedToBookDirectly === true ? 'Yes' : 'No',\n      'Chat': transcript\n        .map((m) => `${m.role === 'user' ? 'Visitor' : 'Invo'}: ${m.content}`)\n        .join('\\n'),\n    },\n  });\n}\n\nreturn out;"
+        "jsCode": "// One row per session. Save even the first visitor message, before an AI reply.\n// The version gate below prevents old retries from replacing a newer conversation.\nconst out = [];\n\nfor (const item of $input.all()) {\n  const p = item.json.body ?? item.json;\n  const transcript = Array.isArray(p.transcript) ? p.transcript : [];\n  const lead = p.lead || {};\n\n  const contact = [\n    lead.name && `Name: ${lead.name}`,\n    lead.businessName && `Business: ${lead.businessName}`,\n    lead.email && `Email: ${lead.email}`,\n    lead.phone && `Phone: ${lead.phone}`,\n  ].filter(Boolean);\n\n  out.push({\n    json: {\n      'Version': Number(p.version) || transcript.length,\n      'Page': p.pagePath || '/free-audit',\n      'Event ID': p.eventId || '',\n      'Session ID': p.sessionId || `no-session-${Date.now()}`,\n      'Last Updated': p.timestamp || new Date().toISOString(),\n      'Contact Detials': contact.join('\\n'),\n      'Main Concern': lead.description || '',\n      'Lead Captured': p.leadCaptured === true ? 'Yes' : 'No',\n      'Asked To Book Directly': p.askedToBookDirectly === true ? 'Yes' : 'No',\n      'Chat': transcript\n        .map((m) => `${m.role === 'user' ? 'Visitor' : 'Invo'}: ${m.content}`)\n        .join('\\n'),\n    },\n  });\n}\n\nreturn out;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -28,6 +29,67 @@
       ],
       "id": "f076710f-f63f-4b26-90f8-b72f03606ef7",
       "name": "Structure Output"
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "1E98eYWwEOoICQUb7N8uUdwZ7Ao-_mKXey3jmP2muk5Y",
+          "mode": "list",
+          "cachedResultName": "InventTomorrow-n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E98eYWwEOoICQUb7N8uUdwZ7Ao-_mKXey3jmP2muk5Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "chat-history",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1E98eYWwEOoICQUb7N8uUdwZ7Ao-_mKXey3jmP2muk5Y/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Session ID",
+              "lookupValue": "={{ $json[\"Session ID\"] }}"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        0
+      ],
+      "id": "chat-existing-row",
+      "name": "Read existing chat",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "tegdmMbb1YcU94lg",
+          "name": "Google Sheets account 3"
+        }
+      },
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
+    },
+    {
+      "parameters": {
+        "jsCode": "const incoming = $('Structure Output').first().json;\nconst existing = $input.first().json;\n// FIFO queue + acknowledgement after writing serializes the read/write pair.\n// Equal/older versions are safe no-ops, including retries after dedupe expires.\nif (existing['Session ID'] === incoming['Session ID'] &&\n    Number(existing['Version'] || 0) >= Number(incoming['Version'])) {\n  return [];\n}\n// Partial updates must not erase details collected earlier in the session.\nfor (const key of ['Contact Detials', 'Main Concern']) {\n  if (!incoming[key] && existing[key]) incoming[key] = existing[key];\n}\nif (existing['Lead Captured'] === 'Yes') incoming['Lead Captured'] = 'Yes';\nif (existing['Asked To Book Directly'] === 'Yes') incoming['Asked To Book Directly'] = 'Yes';\nreturn [{ json: incoming }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "chat-version-gate",
+      "name": "Keep newest chat"
     },
     {
       "parameters": {
@@ -115,6 +177,33 @@
               "display": true,
               "type": "string",
               "canBeUsedToMatch": false
+            },
+            {
+              "id": "Version",
+              "displayName": "Version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Page",
+              "displayName": "Page",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Event ID",
+              "displayName": "Event ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -125,7 +214,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        448,
+        896,
         0
       ],
       "id": "267551ef-2d14-4a74-b06d-777f46b3312d",
@@ -135,7 +224,10 @@
           "id": "tegdmMbb1YcU94lg",
           "name": "Google Sheets account 3"
         }
-      }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1000
     }
   ],
   "connections": {
@@ -151,6 +243,28 @@
       ]
     },
     "Structure Output": {
+      "main": [
+        [
+          {
+            "node": "Read existing chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read existing chat": {
+      "main": [
+        [
+          {
+            "node": "Keep newest chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep newest chat": {
       "main": [
         [
           {

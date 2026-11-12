@@ -58,8 +58,9 @@ export function TimelineSection() {
     <section id="stay-focused" aria-label="Stay focused" className={`${styles.section} section-y px-6 sm:px-12`}>
       <div className={styles.container}>
         <SectionHeading
-          eyebrow="Stay focused"
-          title={<>It's 2:14 pm. <span className="text-accent">You're on a job.</span></>}
+          eyebrow="From missed call to next clean"
+          size="compact"
+          title={<>It's 2:14 pm. You're mid-clean. <span className="text-accent">A new client is calling.</span></>}
         />
 
         <ol ref={listRef} className={styles.timeline}>
@@ -77,7 +78,7 @@ export function TimelineSection() {
 
         <FadeUp delay={0.3} y={16}>
           <p className={styles.closing}>
-            You stay focused. <span className="font-normal text-body">The opportunity keeps moving.</span>
+            You finish the job. <span className="font-normal text-body">The next one still gets booked.</span>
           </p>
         </FadeUp>
       </div>

@@ -42,6 +42,7 @@
   --text-base--line-height: calc(28 / 16);
 
   --shadow-float: 0 0 2.125rem 0 rgb(0 0 0 / 0.08);
+  --shadow-header: 0 4px 12px -3px rgb(1 15 52 / 0.18);
 }
 
 /* Vertical rhythm for every full-width section: 64px phones, 80px tablets, 96px laptops */
@@ -110,7 +111,7 @@ body {
   h1, h2, h3, h4, h5, h6 { font-family: var(--font-display); }
 }
 
-/* Home and About: every section below the hero is at least one screen tall (under the sticky header), content centred.
+/* About: every section below the hero is at least one screen tall (under the sticky header), content centred.
    Longer sections simply grow. The closing call to action, the tools strip (which sits under the hero's curve) and the stats band stay compact. */
 @layer components {
   .screen-sections > section:not(.final-cta):not(#tools):not(#stats) {

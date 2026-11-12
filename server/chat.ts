@@ -1,19 +1,19 @@
-// Server-side core of the audit chatbot. Used by the Vercel function (api/chat.ts) and by the
+// Shared server-side core, kept outside api/ so Vercel only creates the intended chat endpoint.
+// Used by the Vercel function (api/chat.ts) and by the
 // Vite dev server (vite.config.ts), so the API key never reaches the browser.
+import { normalizeUsPhone } from './contact.ts';
+import { randomUUID } from 'node:crypto';
+import { webhookUrl } from './webhook.ts';
+import { deliverChatLog, type ChatDeliveryEnv, type ChatLog } from './chatDelivery.ts';
+export { normalizeUsPhone } from './contact.ts';
+export { webhookTarget } from './webhook.ts';
 
-export interface ChatEnv {
+export interface ChatEnv extends ChatDeliveryEnv {
   KOBOILLM_API_KEY?: string;
   KOBOILLM_BASE_URL?: string;
   KOBOILLM_MODEL?: string;
-  // n8n webhook that receives the chat history. Production deployments use N8N_WEBHOOK_URL;
-  // local dev and preview deployments use N8N_WEBHOOK_TEST_URL.
-  N8N_WEBHOOK_URL?: string;
-  N8N_WEBHOOK_TEST_URL?: string;
-  // 'true' sends the history after every reply (partial chats included); otherwise only on lead/calendar events.
+  // Enabled by default. Explicit 'false' opts out of partial conversation logs.
   N8N_LOG_EVERY_MESSAGE?: string;
-  // 'true' makes local dev and previews use the production webhook (the one that works without "Listen for test event").
-  N8N_USE_PRODUCTION?: string;
-  VERCEL_ENV?: string;
 }
 
 export interface BookingDetails {
@@ -26,10 +26,10 @@ export interface BookingDetails {
 
 export interface ChatResult {
   status: number;
-  body: { reply?: string; booking?: BookingDetails; directLink?: boolean; contact?: { email: string; phone: string }; error?: string };
+  body: { reply?: string; booking?: BookingDetails; directLink?: boolean; contact?: { email: string; phone: string }; requestSent?: boolean; error?: string; logSaved?: boolean; loggingDisabled?: boolean };
 }
 
-const MAX_MESSAGES = 30;
+const MAX_MESSAGES = 200;
 const MAX_MESSAGE_CHARS = 1500;
 const RATE_LIMIT = 30; // requests per IP per window
 const RATE_WINDOW_MS = 10 * 60 * 1000;
@@ -52,7 +52,7 @@ Messages are written in the owner's voice, the owner approves wording and timing
 
 Your job has two parts:
 1. Answer questions about Invent Tomorrow and the free business audit.
-2. Find out their main concern, and when they are open to it, collect the essential details to book the audit, then hand them to the booking calendar.
+2. Find out their main concern, and when they are open to it, collect the essential details to request the audit. The team follows up to arrange a time. There is no booking calendar, external booking link or instant appointment confirmation.
 
 Facts you may share (do not invent anything beyond these):
 - The audit is free: a 30 minute call where we walk through their calls, quotes and bookings, identify what could come off their list, and leave them with a clear next step. No obligation.
@@ -70,7 +70,7 @@ Who it fits: US cleaning businesses. If a visitor runs a different kind of busin
 PRICING POLICY (strict, overrides everything else):
 - Never give prices, quotes, estimates, starting prices, packages, price ranges or cost calculations, and never guess a cost, even if the visitor gives detailed requirements.
 - For any pricing question, explain that every system is tailored to the cleaning business's needs and existing workflow, so pricing is only discussed on a free consultation call, and offer to book it.
-- If they agree, collect their details and open the booking calendar. If they insist on a number, politely repeat that pricing can only be discussed on a scheduled call. Never pressure them; keep answering other questions if they are not ready to book.
+- If they agree, collect their details to request an audit. If they insist on a number, politely repeat that pricing can only be discussed on a scheduled call. Never pressure them; keep answering other questions if they are not ready to book.
 
 Approved answers (these are the facts; always shorten them to ONE sentence, never recite them in full or combine several):
 - What does Invent Tomorrow do? We help cleaning businesses save time and capture more opportunities by setting up systems for missed calls, customer follow ups, bookings and reviews.
@@ -84,12 +84,12 @@ Approved answers (these are the facts; always shorten them to ONE sentence, neve
 
 Conversation flow:
 - If the visitor already wants to book (for example "I'd like a free audit", "book me in", "yes"), go straight to collecting details. Do not ask about their challenges first.
-- If the visitor explicitly says they are in a hurry, want to book right now, immediately or ASAP, asks for the booking link or calendar, or says "Book a call directly", skip the name and business questions but still collect, one at a time, their email address and then their valid US phone number (same rules as below; never skip either). Only then call show_calendar_link with both. A plain "I'd like a free audit" or "yes" means the full details flow instead.
+- If the visitor explicitly says they are in a hurry, want to book right now, immediately or ASAP, asks for the booking link or calendar, or says "Book a call directly", skip the name and business questions but still collect, one at a time, their email address and then their valid US phone number (same rules as below; never skip either). Only then call submit_audit_contact with both. Explain that the team will follow up to arrange a time. A plain "I'd like a free audit" or "yes" means the full details flow instead.
 - Otherwise, if you don't yet know their main concern (missed calls, follow ups and cold quotes, reviews, repeat bookings), ask one short question about it. When they share it, connect it to the matching system in one sentence, then offer the free audit. Don't interrogate: no questions about team size or software unless they bring it up. Never ask them to pick from a list of challenges.
 - Remember their main concern from the chat and never ask them to describe it again. If they never mentioned one, leave the description empty rather than asking.
 - Once they agree to book, ask only for essential details, one at a time, in this order: (1) their name, (2) their cleaning business's name, (3) their email address, (4) their US phone number. The phone number is required: it is how we confirm the audit. Skip anything they already told you.
 - We only work with US businesses. The phone number must be a valid US number (10 digits, area code included; +1 is fine). If they give anything else, such as too few digits, a fake-looking number or a non-US number, say it doesn't look like a valid US number and ask for it again. If they try to skip it, say briefly that we need it to confirm the booking and ask again. Never accept or guess a number.
-- Only when you have their name, business name, email AND a valid US phone number, all typed by the visitor in this chat, call submit_booking_details. Never invent, guess or use placeholder details such as "User", example emails or 555 numbers; if any is missing, ask for it instead. After calling it, say: "Great! Let's choose a time for your free audit."
+- Only when you have their name, business name, email AND a valid US phone number, all typed by the visitor in this chat, call submit_booking_details. Never invent, guess or use placeholder details such as "User", example emails or 555 numbers; if any is missing, ask for it instead. Never claim an appointment is scheduled. The server confirms when the audit request has been received.
 - In the description field, write a one-line summary of the visitor's main concern and anything else relevant they shared (type of cleaning, team size, tools). Leave it empty if they shared nothing.
 
 Length rules (strict, most important): the chat is a quick exchange, not a conversation to explain things. Every reply is ONE short sentence, 20 words or fewer, plain text. Give at most one small piece of information, then ask for the next detail. Never use two sentences unless the second is the question that collects the next detail, and even then stay under 25 words total. No preamble, no restating what the visitor said, no filler like "Got it", "Great question" or "Thanks for your interest", no lists of options. Only go longer if the visitor explicitly asks for an explanation, and even then three sentences at most.
@@ -113,9 +113,9 @@ const TOOLS = [
   {
     type: 'function',
     function: {
-      name: 'show_calendar_link',
+      name: 'submit_audit_contact',
       description:
-        'Call only when the visitor explicitly wants to book right now, is in a hurry, or asks for the booking link, AND has typed their email and a valid US phone number. Shows the booking calendar with those prefilled.',
+        'Call only when the visitor explicitly wants to book right now, is in a hurry, or asks for the booking link, AND has typed their email and a valid US phone number. Submits an audit request for the team to follow up.',
       parameters: {
         type: 'object',
         properties: {
@@ -131,7 +131,7 @@ const TOOLS = [
     function: {
       name: 'submit_booking_details',
       description:
-        'Call once the visitor has typed their name, business name, email and a valid US phone number. Hands them to the booking calendar with these details pre-filled.',
+        'Call once the visitor has typed their name, business name, email and a valid US phone number. Submits an audit request for the team to follow up and arrange a time.',
       parameters: {
         type: 'object',
         properties: {
@@ -165,7 +165,7 @@ interface ChatMessage {
   content: string;
 }
 
-function parseMessages(input: unknown): ChatMessage[] | null {
+function parseMessages(input: unknown, logOnly = false): ChatMessage[] | null {
   const raw = (input as { messages?: unknown } | null)?.messages;
   if (!Array.isArray(raw) || raw.length === 0 || raw.length > MAX_MESSAGES) return null;
   const out: ChatMessage[] = [];
@@ -176,7 +176,7 @@ function parseMessages(input: unknown): ChatMessage[] | null {
     const text = content.trim().slice(0, MAX_MESSAGE_CHARS);
     if (text) out.push({ role, content: text });
   }
-  return out.length > 0 && out[out.length - 1].role === 'user' ? out : null;
+  return out.some((m) => m.role === 'user') && (logOnly || out[out.length - 1].role === 'user') ? out : null;
 }
 
 const clean = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
@@ -200,22 +200,6 @@ function parseBooking(args: string): BookingDetails | null {
 
 // The model must never invent booking details: each one has to appear in what the visitor typed.
 const words = (text: string) => text.toLowerCase().match(/[a-z0-9]+/g) ?? [];
-// US numbers only (NANP): 10 digits, optional leading 1, no 0/1 start for area code or exchange,
-// no N11 service codes, no repeated digits, no fictional 555-01XX. Returns +1XXXXXXXXXX or null.
-export function normalizeUsPhone(input: string): string | null {
-  let digits = input.replace(/\D/g, '');
-  if (digits.length === 11 && digits.startsWith('1')) digits = digits.slice(1);
-  if (digits.length !== 10) return null;
-  const area = digits.slice(0, 3);
-  const exchange = digits.slice(3, 6);
-  const line = digits.slice(6);
-  if (!/^[2-9]/.test(area) || !/^[2-9]/.test(exchange)) return null;
-  if (area.endsWith('11') || exchange.endsWith('11')) return null;
-  if (/^(\d)\1{9}$/.test(digits)) return null;
-  if (exchange === '555' && /^01\d\d$/.test(line)) return null;
-  return `+1${digits}`;
-}
-
 const PHONE_ASK = "What's your phone number?";
 const PHONE_INVALID = "That doesn't look like a valid US phone number. Could you enter it with the area code?";
 
@@ -271,7 +255,6 @@ async function runChat(input: unknown, ip: string, env: ChatEnv): Promise<ChatRe
 
   const messages = parseMessages(input);
   if (!messages) return { status: 400, body: { error: 'Invalid request.' } };
-  if (rateLimited(ip)) return { status: 429, body: { error: 'Too many messages. Please try again shortly.' } };
 
   const baseUrl = (env.KOBOILLM_BASE_URL || 'https://api.koboillm.com/v1').replace(/\/+$/, '');
   try {
@@ -282,7 +265,7 @@ async function runChat(input: unknown, ip: string, env: ChatEnv): Promise<ChatRe
         model: env.KOBOILLM_MODEL || 'gpt-4.1-mini',
         temperature: 0.3,
         max_tokens: 90,
-        messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
+        messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages.slice(-30)],
         tools: TOOLS,
       }),
       signal: AbortSignal.timeout(25_000),
@@ -293,7 +276,7 @@ async function runChat(input: unknown, ip: string, env: ChatEnv): Promise<ChatRe
       choices?: { message?: { content?: string | null; tool_calls?: { function?: { name?: string; arguments?: string } }[] } }[];
     };
     const message = data.choices?.[0]?.message;
-    const linkCall = message?.tool_calls?.find((t) => t.function?.name === 'show_calendar_link');
+    const linkCall = message?.tool_calls?.find((t) => t.function?.name === 'submit_audit_contact');
     if (linkCall && !message?.tool_calls?.some((t) => t.function?.name === 'submit_booking_details')) {
       let args: Record<string, unknown> = {};
       try {
@@ -306,7 +289,7 @@ async function runChat(input: unknown, ip: string, env: ChatEnv): Promise<ChatRe
       const phone = typedContact.phone ?? clean(args.phone, 40);
       const problem = contactProblem(email, phone, messages);
       if (problem) return { status: 200, body: { reply: problem } };
-      return { status: 200, body: { reply: 'Great! Pick a time below.', directLink: true, contact: { email, phone: normalizeUsPhone(phone) ?? '' } } };
+      return { status: 200, body: { reply: 'Your audit details are ready.', directLink: true, contact: { email, phone: normalizeUsPhone(phone) ?? '' } } };
     }
     const call = message?.tool_calls?.find((t) => t.function?.name === 'submit_booking_details');
     if (call) {
@@ -318,7 +301,7 @@ async function runChat(input: unknown, ip: string, env: ChatEnv): Promise<ChatRe
         const missing = missingDetail(booking, messages);
         if (missing) return { status: 200, body: { reply: missing } };
         booking.phone = normalizeUsPhone(booking.phone ?? '') ?? '';
-        return { status: 200, body: { booking, reply: "Great! Let's choose a time for your free audit." } };
+        return { status: 200, body: { booking, reply: 'Your audit details are ready.' } };
       }
       return { status: 200, body: { reply: 'Something looks off in those details. Could you check your email address and phone number?' } };
     }
@@ -328,32 +311,6 @@ async function runChat(input: unknown, ip: string, env: ChatEnv): Promise<ChatRe
     return { status: 200, body: { reply: concise(reply) } };
   } catch {
     return { status: 502, body: { error: 'The assistant is unavailable right now.' } };
-  }
-}
-
-function webhookUrl(env: ChatEnv) {
-  const production = env.VERCEL_ENV === 'production' || env.N8N_USE_PRODUCTION === 'true';
-  return (production ? env.N8N_WEBHOOK_URL : env.N8N_WEBHOOK_TEST_URL) || '';
-}
-
-// Which n8n webhook this server will send to, without revealing the URL. Used for logs and a dev header.
-export function webhookTarget(env: ChatEnv): 'production' | 'test' | 'off' {
-  if (!webhookUrl(env)) return 'off';
-  return env.VERCEL_ENV === 'production' || env.N8N_USE_PRODUCTION === 'true' ? 'production' : 'test';
-}
-
-// Sends the conversation to n8n. Never throws: a webhook problem must not break the chat.
-async function sendToWebhook(url: string, payload: unknown) {
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(5_000),
-    });
-    if (!response.ok) console.warn(`[chat] n8n webhook responded ${response.status}`);
-  } catch {
-    console.warn('[chat] n8n webhook request failed');
   }
 }
 
@@ -411,71 +368,115 @@ async function extractLead(messages: ChatMessage[], env: ChatEnv): Promise<Lead 
   }
 }
 
-// The visitor asked for the quick route: skip straight to the calendar (email and phone still required).
+// The quick audit request still requires the visitor's email and US phone.
 const DIRECT_INTENT = /book(?:ing)?\s+(?:a\s+)?(?:call\s+)?directly|book\s+(?:me\s+)?(?:in\s+)?(?:right\s+)?now|in a hurry|\basap\b|(?:booking|calendar)\s+link|(?:give|send)\s+me\s+(?:the\s+)?(?:link|calendar)/i;
 
-// Hands the visitor to the calendar as soon as the last required detail arrives, without depending on the
+// Captures the audit request as soon as the last required detail arrives, without depending on the
 // model to notice (it sometimes asks again even though a valid number was just given). Only fires on the
 // message that completes the email + phone pair, and only with details the visitor really typed.
-async function completedHandoff(messages: ChatMessage[], extraction: Promise<Lead | null>): Promise<ChatResult | null> {
+async function completedHandoff(messages: ChatMessage[], extract: () => Promise<Lead | null>): Promise<ChatResult | null> {
   const now = lastTypedContact(messages);
   if (!now.email || !now.phone) return null;
   const before = lastTypedContact(messages.slice(0, -1));
   if (before.email && before.phone) return null;
 
   if (DIRECT_INTENT.test(typedBy(messages))) {
-    return { status: 200, body: { reply: 'Great! Pick a time below.', directLink: true, contact: { email: now.email, phone: now.phone } } };
+    return { status: 200, body: { reply: 'Your audit details are ready.', directLink: true, contact: { email: now.email, phone: now.phone } } };
   }
-  const lead = await extraction;
+  const lead = await extract();
   if (lead?.name && lead.businessName) {
     const booking: BookingDetails = { name: lead.name, businessName: lead.businessName, email: now.email, phone: now.phone, description: lead.description ?? '' };
-    return { status: 200, body: { reply: "Great! Let's choose a time for your free audit.", booking } };
+    return { status: 200, body: { reply: 'Your audit details are ready.', booking } };
   }
   return null;
 }
 
-export async function handleChat(input: unknown, ip: string, env: ChatEnv): Promise<ChatResult> {
-  const body = input as { sessionId?: unknown; state?: { lead?: unknown; askedDirect?: unknown } } | null;
-  const messages = parseMessages(input);
-  const url = webhookUrl(env);
-  // Runs alongside the reply (it never throws), so saving details adds no waiting for the visitor.
-  const extraction = url && messages ? extractLead(messages, env) : Promise.resolve(null);
-  let result: ChatResult;
+export function handleChat(
+  input: unknown,
+  ip: string,
+  env: ChatEnv,
+  defer?: (task: Promise<void>) => void,
+): Promise<ChatResult> {
+  const task = processChat(input, ip, env);
+  // Retain the entire request, including first-message capture, if its browser
+  // disconnects while the model is running. This is not the durable retry queue.
+  defer?.(task.then(() => {}, () => {}));
+  return task;
+}
 
-  result = await runChat(input, ip, env);
-  if (messages && result.status === 200 && !result.body.booking && !result.body.directLink) {
-    result = (await completedHandoff(messages, extraction)) ?? result;
+async function processChat(input: unknown, ip: string, env: ChatEnv): Promise<ChatResult> {
+  const body = input as { mode?: unknown; sessionId?: unknown; pagePath?: unknown; state?: { lead?: unknown; askedDirect?: unknown } } | null;
+  const logOnly = body?.mode === 'log';
+  const messages = parseMessages(input, logOnly);
+  if (!messages) return { status: 400, body: { error: 'Invalid request.' } };
+  if (rateLimited(`${logOnly ? 'log' : 'chat'}:${ip}`)) {
+    return { status: 429, body: { error: 'Too many messages. Please try again shortly.' } };
+  }
+  const url = webhookUrl(env);
+  const logEnabled = env.N8N_LOG_EVERY_MESSAGE !== 'false';
+  const sessionId = clean(body?.sessionId, 64) || randomUUID();
+  const pagePath = body?.pagePath === '/free-audit-ads' ? '/free-audit-ads' : '/free-audit';
+  const earlier = body?.state?.lead ? parseBooking(JSON.stringify(body.state.lead)) : null;
+  const typedContact = lastTypedContact(messages);
+  const makeLog = (transcript: ChatMessage[], result?: ChatResult): ChatLog => {
+    const booking = result?.body.booking;
+    const lead = {
+      name: booking?.name || earlier?.name || '',
+      businessName: booking?.businessName || earlier?.businessName || '',
+      email: typedContact.email || booking?.email || earlier?.email || '',
+      phone: typedContact.phone || booking?.phone || normalizeUsPhone(earlier?.phone ?? '') || '',
+      description: booking?.description || earlier?.description || '',
+    };
+    return {
+      event: result?.body.booking || result?.body.directLink ? 'audit_request' : 'message',
+      source: 'invo_chat', sessionId, pagePath, timestamp: new Date().toISOString(),
+      lead: Object.values(lead).some(Boolean) ? lead : null,
+      leadCaptured: !!(lead.email && lead.phone),
+      askedToBookDirectly: result?.body.directLink === true || body?.state?.askedDirect === true,
+      transcript,
+    };
+  };
+
+  if (logOnly && !logEnabled) return { status: 200, body: { loggingDisabled: true } };
+  // The visitor's words are captured BEFORE any model request. This also covers
+  // model timeouts, missing provider configuration and abandoned conversations.
+  const captured = logEnabled && url ? await deliverChatLog(env, makeLog(messages)) : false;
+  if (logOnly) {
+    return captured
+      ? { status: 200, body: { logSaved: true } }
+      : { status: 503, body: { logSaved: false, error: 'Chat history delivery is pending.' } };
   }
 
-  // Send the history when a lead is captured, the visitor goes to the calendar, and (optionally) after every reply.
-  const logEveryMessage = env.N8N_LOG_EVERY_MESSAGE === 'true' && result.status === 200 && !!result.body.reply;
-  const event = result.body.booking ? 'booking_details' : result.body.directLink ? 'calendar_link' : logEveryMessage ? 'message' : null;
-  if (event && messages && url) {
-    // Every message carries everything known so far, so n8n can overwrite a row without losing earlier details.
-    const extracted = await extraction;
-    const typedContact = lastTypedContact(messages);
-    const booking = result.body.booking;
-    const earlier = body?.state?.lead ? parseBooking(JSON.stringify(body.state.lead)) : null;
-    const first = (...values: (string | undefined)[]) => values.find((v) => v) ?? '';
-    const merged = {
-      name: first(booking?.name, extracted?.name, earlier?.name),
-      businessName: first(booking?.businessName, extracted?.businessName, earlier?.businessName),
-      email: first(booking?.email, result.body.contact?.email, typedContact.email, extracted?.email, earlier?.email),
-      phone: first(booking?.phone, result.body.contact?.phone, typedContact.phone, extracted?.phone, normalizeUsPhone(earlier?.phone ?? '') ?? undefined),
-      description: first(extracted?.description, booking?.description, earlier?.description),
-    };
-    const lead = Object.values(merged).some(Boolean) ? merged : null;
-    await sendToWebhook(url, {
-      event,
-      source: 'invent-tomorrow-free-audit-chat',
-      sessionId: clean(body?.sessionId, 64) || null,
-      timestamp: new Date().toISOString(),
-      lead,
-      // Reachable lead: a valid email and US phone are both given (compulsory in every path).
-      leadCaptured: !!(merged.email && merged.phone),
-      askedToBookDirectly: result.body.directLink === true || body?.state?.askedDirect === true,
-      transcript: [...messages, ...(result.body.reply ? [{ role: 'assistant', content: result.body.reply }] : [])],
-    });
+  // Extraction is only needed to complete an audit request. Ordinary history is
+  // saved verbatim without waiting for a second model to summarize it.
+  let extraction: Promise<Lead | null> | undefined;
+  const extract = () => {
+    extraction ??= url && messages ? extractLead(messages, env) : Promise.resolve(null);
+    return extraction;
+  };
+  let result = await runChat(input, ip, env);
+  if (result.status === 200 && !result.body.booking && !result.body.directLink) {
+    result = (await completedHandoff(messages, extract)) ?? result;
+  }
+  const isAuditRequest = !!(result.body.booking || result.body.directLink);
+  if (logEnabled && url) result.body.logSaved = captured;
+  if (!logEnabled) result.body.loggingDisabled = true;
+  if (isAuditRequest) {
+    result.body.requestSent = false;
+    result.body.reply = "We couldn't send your audit request. Please try the form below.";
+  }
+  if (url && result.status === 200 && result.body.reply && (isAuditRequest || logEnabled)) {
+    const reply = isAuditRequest
+      ? 'Your audit request is received. Our team will contact you to arrange a time.'
+      : result.body.reply;
+    // Await queue acceptance before replying: FIFO then preserves user/reply order
+    // across turns. QStash delivers to n8n independently of the browser afterwards.
+    const sent = await deliverChatLog(env, makeLog([...messages, { role: 'assistant', content: reply }], result));
+    result.body.logSaved = sent;
+    if (isAuditRequest && sent) {
+      result.body.requestSent = true;
+      result.body.reply = reply;
+    }
   }
   return result;
 }

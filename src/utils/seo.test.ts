@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { POSTS } from '../content/blog';
 import { CASE_STUDIES } from '../content/caseStudies';
 import { PAGE_META } from '../content/pages';
+import { AUDIT_ADS_PATH, NAV_ITEMS } from './navigation';
 import {
   SITE_URL,
   absoluteUrl,
@@ -26,12 +27,23 @@ test('every public page has a unique path, title and description', () => {
   }
 });
 
-test('the sitemap lists every public page but not the 404 page', () => {
+test('the sitemap lists every indexable page but not the 404 page', () => {
   const pages = getSitePages();
   const xml = buildSitemapXml(pages, '2026-11-10');
-  assert.equal(xml.match(/<url>/g)?.length, pages.length);
+  assert.equal(xml.match(/<url>/g)?.length, pages.filter((page) => page.meta.isIndexable !== false).length);
   assert.ok(xml.includes(`<loc>${SITE_URL}/</loc>`));
   assert.ok(!xml.includes(PAGE_META.notFound.path));
+});
+
+test('the ads page is prerendered for direct visits but excluded from site discovery', () => {
+  const pages = getSitePages();
+  const ads = pages.find((page) => page.meta.path === AUDIT_ADS_PATH);
+  assert.ok(ads);
+  assert.equal(ads.meta.isIndexable, false);
+  assert.ok(buildHeadTags(ads.meta, { ogType: 'website' }).includes('content="noindex"'));
+  assert.ok(!buildSitemapXml(pages, '2026-11-11').includes(AUDIT_ADS_PATH));
+  assert.ok(!buildLlmsTxt(pages).includes(AUDIT_ADS_PATH));
+  assert.ok(!NAV_ITEMS.some((item) => item.to === AUDIT_ADS_PATH));
 });
 
 test('blog posts use their own date in the sitemap', () => {

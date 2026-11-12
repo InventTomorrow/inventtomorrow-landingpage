@@ -9,8 +9,8 @@ export interface PageMeta {
 export const PAGE_META = {
   home: {
     path: '/',
-    title: 'Invent Tomorrow | Systems for Cleaning Service Businesses',
-    description: 'Win back missed enquiries, follow up quotes and build recurring bookings for your cleaning service business.',
+    title: 'Invent Tomorrow | More Booked Cleans From the Leads You Already Have',
+    description: 'We win back the cleans you lose to missed calls, cold quotes and one-time clients. Done for you, and guaranteed to pay for itself in 90 days.',
   },
   howItWorks: {
     path: '/how-it-works',
@@ -55,6 +55,12 @@ export const PAGE_META = {
     title: 'Your Business Audit | Invent Tomorrow',
     description:
       'Find where time is being lost in your calls, quotes and bookings, and what our system could take off your hands.',
+  },
+  freeAuditAds: {
+    path: '/free-audit-ads',
+    title: 'Free Business Audit | Invent Tomorrow',
+    description: 'Chat with Invo about missed calls, follow ups and repeat bookings, or book your free cleaning business audit directly.',
+    isIndexable: false,
   },
   contact: {
     path: '/contact',

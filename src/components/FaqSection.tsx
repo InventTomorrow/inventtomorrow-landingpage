@@ -1,57 +1,32 @@
 import { Plus } from 'lucide-react';
-import { AnimatePresence, m } from 'motion/react';
-import { useState } from 'react';
+import { useId } from 'react';
 import type { Faq } from '../content/faq';
 import { FadeUp } from './FadeUp';
 import { SiteImage } from './SiteImage';
 import { SectionHeading } from './SectionHeading';
-import { HelpScene } from './illustrations/leakScenes';
 import { TextLink } from './TextLink';
 
 function FaqList({ faqs }: { faqs: Faq[] }) {
-  // The first answer starts open.
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  // Native disclosures keep every answer in the HTML and work before JavaScript loads.
+  const groupName = useId();
 
   return (
     <div className="border-t border-border">
       {faqs?.map((faq, idx) => {
-        const isOpen = openIndex === idx;
-        const panelId = `faq-panel-${idx}`;
         return (
-          <div key={faq.q} className="border-b border-border">
-            <button
-              type="button"
-              onClick={() => setOpenIndex(isOpen ? null : idx)}
-              aria-expanded={isOpen}
-              aria-controls={panelId}
-              className="group flex w-full items-center justify-between gap-4 py-6 text-left cursor-pointer sm:gap-6"
+          <details key={faq.q} name={groupName} open={idx === 0} className="group border-b border-border">
+            <summary
+              className="flex w-full list-none items-center justify-between gap-4 py-6 text-left cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:gap-6 [&::-webkit-details-marker]:hidden"
             >
               <span className="min-w-0 flex-1 font-display text-base sm:text-lg font-semibold text-primary">{faq.q}</span>
               <span
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border text-primary/60 transition-colors group-hover:border-accent group-hover:bg-stone group-hover:text-primary"
               >
-                <m.span animate={{ rotate: isOpen ? 45 : 0 }} transition={{ duration: 0.2 }} className="inline-flex">
-                  <Plus className="h-4 w-4" aria-hidden="true" />
-                </m.span>
+                <Plus className="h-4 w-4 transition-transform duration-200 group-open:rotate-45 motion-reduce:transition-none" aria-hidden="true" />
               </span>
-            </button>
-
-            <AnimatePresence initial={false}>
-              {isOpen && (
-                <m.div
-                  id={panelId}
-                  key="answer"
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                  style={{ overflow: 'hidden' }}
-                >
-                  <p className="pb-6 pr-14 text-base text-body select-text">{faq.a}</p>
-                </m.div>
-              )}
-            </AnimatePresence>
-          </div>
+            </summary>
+            <p className="pb-6 text-base leading-relaxed text-ink select-text sm:pr-12">{faq.a}</p>
+          </details>
         );
       })}
     </div>
@@ -68,16 +43,18 @@ interface FaqSectionProps {
 export function FaqSection({ faqs, showAllLink = false }: FaqSectionProps) {
   return (
     <section id="faq" className="relative z-10 w-full bg-paper section-y section-deco px-6 sm:px-12">
-      <div className="mx-auto max-w-3xl">
-        <SectionHeading scene={HelpScene} eyebrow="FAQ" title="FAQ questions" />
-        <FadeUp delay={0.1} y={16} className="mt-12">
+      <div className="mx-auto grid max-w-7xl items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-14">
+        <div className="min-w-0 lg:sticky lg:top-28">
+          <SectionHeading align="left" size="compact" eyebrow="FAQ" title="Your questions, answered" />
+          {showAllLink && (
+            <p className="mt-5 text-sm text-body">
+              More questions? <TextLink to="/faq">See all answers</TextLink>
+            </p>
+          )}
+        </div>
+        <div className="min-w-0">
           <FaqList faqs={faqs} />
-        </FadeUp>
-        {showAllLink && (
-          <FadeUp delay={0.15} y={12} className="mt-10 text-center text-sm text-body">
-            More questions? <TextLink to="/faq">See all answers</TextLink>
-          </FadeUp>
-        )}
+        </div>
       </div>
     </section>
   );

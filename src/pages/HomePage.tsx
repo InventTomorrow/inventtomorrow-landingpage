@@ -1,17 +1,11 @@
-import { AboutIntroSection } from '../components/AboutIntroSection';
-import { BeforeAfterSection } from '../components/BeforeAfterSection';
-import { BlogPreviewSection } from '../components/BlogPreviewSection';
-import { FaqSection } from '../components/FaqSection';
-import { DefaultClosingCta } from '../components/FinalCtaSection';
-import { FoundingOfferSection } from '../components/FoundingOfferSection';
+import { lazy, Suspense } from 'react';
 import { HeroSection } from '../components/HeroSection';
-import { ServicesSection } from '../components/ServicesSection';
-import { StatsSection } from '../components/StatsSection';
-import { TimelineSection } from '../components/TimelineSection';
 import { ToolsSection } from '../components/ToolsSection';
-import { HOME_FAQS } from '../content/faq';
 import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
+
+// Keep the first screen light. Prerendering still waits for and includes all sections.
+const HomeSections = lazy(() => import('./HomeSections').then((module) => ({ default: module.HomeSections })));
 
 export function HomePage() {
   usePageMeta(PAGE_META.home);
@@ -20,18 +14,12 @@ export function HomePage() {
     <>
       <HeroSection />
 
-      {/* Home page sections alternate white / light gray backgrounds. */}
-      <div className="screen-sections">
+      {/* Sections grow with their content instead of being forced to fill the viewport. */}
+      <div className="home-sections">
         <ToolsSection />
-        <AboutIntroSection />
-        <StatsSection isDark />
-        <ServicesSection />
-        <TimelineSection />
-        <BeforeAfterSection />
-        <FoundingOfferSection />
-        <BlogPreviewSection />
-        <FaqSection faqs={HOME_FAQS} showAllLink />
-        <DefaultClosingCta />
+        <Suspense fallback={<section className="min-h-48 bg-paper" aria-busy="true" aria-label="Loading more information" />}>
+          <HomeSections />
+        </Suspense>
       </div>
     </>
   );

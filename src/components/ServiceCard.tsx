@@ -2,6 +2,8 @@ import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router';
 import type { Fix } from '../content/fixes';
 import { SiteImage } from './SiteImage';
+import { SERVICE_CATALOG } from '../content/serviceCatalog';
+import { prefetchPage } from '../pages/lazyPages';
 
 interface ServiceCardProps {
   fix: Fix;
@@ -10,9 +12,10 @@ interface ServiceCardProps {
 }
 
 export function ServiceCard({ fix, number, isCopy = false }: ServiceCardProps) {
+  const path = SERVICE_CATALOG.find((service) => service.title === fix.title)?.path ?? '/services';
   return (
-    <article className="flex h-full flex-col rounded-2xl border border-border bg-paper p-7">
-      <div className="-mx-3 -mt-3 aspect-[4/3] overflow-hidden rounded-xl bg-white">
+    <article className="flex h-full min-w-0 flex-col rounded-2xl border border-border bg-paper p-6">
+      <div className="-mx-2 -mt-2 aspect-[8/5] overflow-hidden rounded-xl bg-white">
         <SiteImage
           src={fix.image.src}
           alt={fix.image.alt}
@@ -22,10 +25,11 @@ export function ServiceCard({ fix, number, isCopy = false }: ServiceCardProps) {
           className="h-full! object-contain!"
         />
       </div>
-      <h3 className="mt-5 text-xl font-semibold text-primary">{fix.problemTitle}</h3>
-      <hr className="my-5 border-border" />
+      <h3 className="mt-5 text-pretty text-xl font-semibold leading-snug text-primary">{fix.problemTitle}</h3>
+      <p className="mt-1 text-sm font-medium text-accent">{fix.title}</p>
+      <hr className="my-4 border-border" />
       <p className="text-base">{fix.text}</p>
-      <div className="mt-auto flex flex-wrap items-center justify-between gap-x-4 gap-y-3 pt-8">
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-x-4 gap-y-3 pt-6">
         <span
           className="shrink-0 font-display text-5xl font-semibold text-primary/55"
           aria-hidden="true"
@@ -33,7 +37,9 @@ export function ServiceCard({ fix, number, isCopy = false }: ServiceCardProps) {
           {String(number).padStart(2, '0')}
         </span>
         <Link
-          to="/services"
+          to={path}
+          onPointerEnter={() => prefetchPage(path)}
+          onFocus={() => prefetchPage(path)}
           tabIndex={isCopy ? -1 : undefined}
           className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap text-sm font-medium uppercase text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
         >

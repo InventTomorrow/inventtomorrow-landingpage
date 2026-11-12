@@ -1,52 +1,65 @@
-# Booking calendar and notifications
+# Audit requests and the shared n8n webhook
 
-The audit chatbot on `/free-audit` collects full name, business name, email, phone number, and an optional description in conversation. Once the visitor confirms, a button opens the existing Calendly event with these details pre-filled. The chat is served by `api/chat.ts` (Vercel) and needs the `KOBOILLM_API_KEY` environment variable set in the Vercel project (and in `.env.local` for `npm run dev`). A meeting is booked only after the visitor chooses a time and completes Calendly's confirmation.
+The audit buttons on `/free-audit` and `/free-audit-ads` open the audit form without navigating away. Existing booking links to `/contact#book-or-message` lead to the same form on the contact page. Calendly is no longer part of the website flow. The visitor chooses a preferred appointment date and time; the team confirms availability.
 
-The contact page embeds the same event. Both use `CALENDLY_URL` in `src/utils/navigation.ts`.
+The form collects full name, business name, email, a valid US phone number, one required combined appointment datetime field, a US time zone, and an optional description. The forms use US Eastern Time (`America/New_York`), regardless of the visitor's location or browser setting. The time-zone field is hidden and still sent in the webhook payload. The API also defaults to Eastern Time if the zone is omitted and rejects zones outside that list. The browser posts to `/api/audit`, which validates the input and sends only the form details to n8n. Invalid datetimes or zones, and past appointments in the selected US zone are rejected. No model API key is needed for the form, and no chat messages are included.
 
-## Account configuration required before release
+The datetime selector uses an inline month calendar and 30-minute time buttons with 12-hour labels. It supports keyboard navigation and filters past days/times using the selected US zone. Time choices are preferences for team confirmation, not live calendar availability. The selected value still posts as one `appointment datetime` field; the custom UI does not add a scheduling service or change the webhook payload.
 
-The website changes prepare the handoff; they do not configure the Calendly account. Calendar connections, invitee questions, and notification recipients still need to be checked in the event owner's account.
+Chat continues through `/api/chat` on both audit pages. The first visitor message is captured before the AI request, even if the AI fails or the visitor leaves. Every reply produces another transcript snapshot. Partial logging defaults to enabled; `N8N_LOG_EVERY_MESSAGE=false` opts out. With `QSTASH_TOKEN`, chat snapshots and completed chat requests wait for durable FIFO queue acceptance; QStash delivers to n8n and retries independently of the browser. Without it, chat waits for direct n8n acceptance. Form submissions still wait for direct n8n acceptance. See [chat logging setup](chat-logging.md) for activation and failure/reload behavior.
 
-### Match the invitee questions
+## Destination
 
-In Calendly, edit the event at `https://calendly.com/abdulhaadi-businesschat/30min`, open **More options → Invitee form**, and configure the enabled custom questions in this exact order:
+Both APIs use the same server-only environment settings:
 
-| Position | Question | Answer type | Required | Website parameter |
-| --- | --- | --- | --- | --- |
-| 1 | Business name | One line | Yes | `a1` |
-| 2 | Phone number | Phone number | Yes | `a2` |
-| 3 | Description | Multiple lines | No | `a3` |
+- Production (`VERCEL_ENV=production`) or `N8N_USE_PRODUCTION=true`: `N8N_WEBHOOK_URL`.
+- Local and Preview by default: `N8N_WEBHOOK_TEST_URL`.
 
-Keep Calendly's built-in full-name and email fields. Check existing custom questions before changing their order; if other questions must remain, update `CALENDLY_QUESTIONS` in `src/utils/navigation.ts` to match their actual positions. Calendly will only store pre-filled custom answers when the corresponding questions exist and are enabled.
+The production workflow must be active. A test webhook must be listening for a test event. Missing webhook configuration prevents request submission; the form shows an error rather than a success message. Webhook rejection or timeout also leaves the form available to retry.
 
-Reference: [Pre-fill invitee information](https://calendly.com/help/how-to-pre-fill-invitee-information-in-your-calendly-link), [Add or remove invitee questions](https://calendly.com/help/how-to-add-or-remove-invitee-questions).
+## Route by source in n8n
 
-### Connect the host calendar
+After the existing Webhook node, add a Switch using `{{ $json.body.source }}`:
 
-1. In the event owner's Calendly account, open the calendar settings and connect the intended Google or Microsoft calendar account.
-2. Select calendars to check for conflicts and the calendar to add new events to.
-3. Set the host's availability and timezone, and review the event's meeting location and duration.
-4. Prefer Calendar invitations for supported connected calendars so invitees receive calendar updates.
+| Source | Handler |
+| --- | --- |
+| `invo_chat` | Chat history and chat audit requests |
+| `form_data` | Audit form submissions |
 
-References: [Connect your calendar](https://calendly.com/help/connect-your-calendar-to-calendly), [Scheduling notifications](https://calendly.com/help/calendly-scheduling-notifications).
+If a prior node has already unwrapped `body`, use `{{ $json.source }}` instead.
 
-### Booking notifications
+Chat payloads retain `sessionId`, `timestamp`, `lead`, `leadCaptured`, `askedToBookDirectly`, and `transcript`. They also include `pagePath`, `version` (transcript message count), and a stable `eventId` for retries. The `event` is `message` for partial chats and `audit_request` for completed requests. Use `sessionId` to update a chat's existing record and reject equal/older versions. Log-only recovery always uses `event=message` and never repeats an audit submission.
 
-Calendly sends its host a booking confirmation at the account's login email address. Custom invitee answers are included by default. Confirm that this is the inbox that should receive alerts.
+Form payload example:
 
-For additional recipients, use an **Email someone else** Automation when the account's plan supports it, or configure a forwarding rule in the host's email account. Do not add notification recipients as meeting guests merely to send alerts.
+```json
+{
+  "source": "form_data",
+  "event": "audit_request",
+  "submissionId": "4ed9f3c8-e908-4f64-bfd4-5a67aebcfdb8",
+  "timestamp": "2026-11-11T12:00:00.000Z",
+  "pagePath": "/free-audit-ads",
+  "appointment datetime": "2026-11-12T14:30",
+  "appointmentTimeZone": "America/New_York",
+  "lead": {
+    "name": "Alex Morgan",
+    "businessName": "Bright Home Cleaning",
+    "email": "alex@example.com",
+    "phone": "+12022345678",
+    "description": "Help with missed calls and quote follow ups"
+  },
+  "leadCaptured": true
+}
+```
 
-References: [Multiple calendars and email addresses](https://calendly.com/help/how-to-manage-multiple-calendars-and-email-addresses), [Host booking confirmations](https://calendly.com/help/why-am-i-not-receiving-calendly-email-confirmations).
+The combined field is named exactly `appointment datetime` at the top level, with a value in `YYYY-MM-DDTHH:mm` format (24-hour time). `appointmentTimeZone` stays separate (for example `America/New_York`). Interpret the datetime in that zone; it is not implicitly UTC. In n8n, access the combined value as `{{ $json.body['appointment datetime'] }}` and the zone as `{{ $json.body.appointmentTimeZone }}`. Separate `appointmentDate` and `appointmentTime` fields are no longer sent.
 
-## End-to-end verification
+The form payload has no `transcript`, `messages`, `sessionId`, or `askedToBookDirectly`. The server assigns `source` rather than trusting a value supplied by the browser. A retry from the same form keeps `submissionId`; use it as an upsert/deduplication key if the first response was interrupted after n8n received the request.
 
-After the account settings are saved, make an authorized test booking using a test email inbox:
+`docs/n8n-chat-history-workflow.json` is the chat-only workflow export with a version guard and acknowledgement after the Sheet write. Add `Version`, `Page`, and `Event ID` columns to the chat sheet, and route by source before its chat processing nodes. Preserve the existing `form_data` branch; replacing the entire shared workflow with this chat-only export would remove form handling. The website changes do not modify live n8n.
 
-1. Complete the chatbot conversation with a business name, an international phone number, and a multi-line description.
-2. Choose a time in Calendly and verify every field is pre-filled in the correct question before confirming.
-3. Verify the meeting appears in Calendly and the intended host calendar, with all submitted details.
-4. Verify the host and any configured notification recipients receive the booking email.
-5. Cancel the test booking and verify the calendar updates.
+## Verification
 
-Passing the local build and URL tests does not verify calendar syncing or email delivery. No real test booking has been made as part of the website-only changes.
+Run `npm run build:vercel`. Runtime tests mock the provider and webhook, covering source separation, both environment destinations, input validation, delivery failures, rate limiting, and native/compiled API startup. They do not send test leads to the live webhook.
+
+After deployment, verify the form and chat once against the intended n8n environment and confirm each reaches the correct Switch branch. Runtime environment changes require redeployment.

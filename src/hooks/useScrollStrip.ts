@@ -48,6 +48,8 @@ export function useScrollStrip(stripRef: RefObject<HTMLElement | null>, count: n
     };
 
     const tick = (now: number) => {
+      frame = 0;
+      if (!isVisible || document.hidden || motionPreference.matches) return;
       const elapsed = Math.min(now - lastTime, 64);
       lastTime = now;
       if (loopWidth && isVisible && !document.hidden && !motionPreference.matches && !isDragging) {
@@ -61,6 +63,18 @@ export function useScrollStrip(stripRef: RefObject<HTMLElement | null>, count: n
         position = strip.scrollLeft;
       }
       frame = requestAnimationFrame(tick);
+    };
+
+    const updateAnimation = () => {
+      if (isVisible && !document.hidden && !motionPreference.matches) {
+        if (!frame) {
+          lastTime = performance.now();
+          frame = requestAnimationFrame(tick);
+        }
+      } else {
+        cancelAnimationFrame(frame);
+        frame = 0;
+      }
     };
 
     const onPointerDown = (event: PointerEvent) => {
@@ -121,7 +135,10 @@ export function useScrollStrip(stripRef: RefObject<HTMLElement | null>, count: n
     const resizeObserver = new ResizeObserver(measure);
     resizeObserver.observe(strip);
     if (strip.firstElementChild) resizeObserver.observe(strip.firstElementChild);
-    const visibilityObserver = new IntersectionObserver(([entry]) => { isVisible = entry.isIntersecting; });
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      updateAnimation();
+    });
     visibilityObserver.observe(strip);
     strip.addEventListener('pointermove', onPointerMove);
     strip.addEventListener('pointerdown', onPointerDown);
@@ -131,7 +148,8 @@ export function useScrollStrip(stripRef: RefObject<HTMLElement | null>, count: n
     strip.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('pointerup', onPointerUp);
     window.addEventListener('pointercancel', onPointerUp);
-    frame = requestAnimationFrame(tick);
+    document.addEventListener('visibilitychange', updateAnimation);
+    motionPreference.addEventListener('change', updateAnimation);
 
     return () => {
       cancelAnimationFrame(frame);
@@ -146,6 +164,8 @@ export function useScrollStrip(stripRef: RefObject<HTMLElement | null>, count: n
       strip.removeEventListener('scroll', onScroll);
       window.removeEventListener('pointerup', onPointerUp);
       window.removeEventListener('pointercancel', onPointerUp);
+      document.removeEventListener('visibilitychange', updateAnimation);
+      motionPreference.removeEventListener('change', updateAnimation);
     };
   }, [stripRef, count]);
 

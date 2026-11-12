@@ -12,12 +12,13 @@ interface SectionHeadingProps {
   scene?: ComponentType;
   align?: 'center' | 'left';
   className?: string;
+  size?: 'default' | 'compact';
 }
 
 const NOTCH = 'h-3 w-2 shrink-0 bg-accent [clip-path:polygon(0_0,100%_0,35%_100%,0_100%)]';
 
 // The heading block of a section. Its parts appear one after another, watched by a single observer.
-export function SectionHeading({ eyebrow, title, titleMuted, subtitle, scene: Scene, align = 'center', className = '' }: SectionHeadingProps) {
+export function SectionHeading({ eyebrow, title, titleMuted, subtitle, scene: Scene, align = 'center', className = '', size = 'default' }: SectionHeadingProps) {
   const isCentered = align === 'center';
 
   return (
@@ -37,7 +38,7 @@ export function SectionHeading({ eyebrow, title, titleMuted, subtitle, scene: Sc
         </StaggerItem>
       )}
       <StaggerItem distance={18}>
-        <h2 className="max-w-3xl text-3xl sm:text-4xl xl:text-5xl font-semibold leading-[1.2] tracking-display text-primary text-balance">
+        <h2 className={`max-w-3xl font-semibold leading-[1.2] tracking-display text-primary text-balance ${size === 'compact' ? 'text-3xl sm:text-4xl xl:text-[2.75rem]' : 'text-3xl sm:text-4xl xl:text-5xl'}`}>
           {title}
           {titleMuted && (
             <>

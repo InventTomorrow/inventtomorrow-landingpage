@@ -1,5 +1,4 @@
 import { STATS } from '../content/stats';
-import { CountUp } from './CountUp';
 import { Stagger } from './Stagger';
 import { StaggerItem } from './StaggerItem';
 
@@ -9,7 +8,7 @@ interface StatsSectionProps {
   className?: string;
 }
 
-// Four key numbers. They appear one after another and count up as the band scrolls into view.
+// Final values are rendered once so previews, screen readers and visitors see the same proof.
 export function StatsSection({ isDark = false, className = '' }: StatsSectionProps) {
   return (
     <section
@@ -25,9 +24,9 @@ export function StatsSection({ isDark = false, className = '' }: StatsSectionPro
           <StaggerItem key={stat.label} className={`flex min-w-0 flex-col gap-2 ${isDark ? 'lg:px-8 lg:first:pl-0' : ''}`}>
             <dt className={`text-base sm:text-lg ${isDark ? 'text-white/70' : ''}`}>{stat.label}</dt>
             <dd
-              className={`order-first whitespace-nowrap font-display text-4xl font-semibold leading-none tabular-nums sm:text-5xl xl:text-6xl ${isDark ? 'text-white' : 'text-primary'}`}
+              className={`order-first flex flex-wrap items-baseline gap-x-1 gap-y-2 font-display text-3xl font-semibold leading-none tabular-nums sm:text-4xl xl:text-5xl ${isDark ? 'text-white' : 'text-primary'}`}
             >
-              <CountUp value={stat.value} />
+              <span className="whitespace-nowrap">{stat.value}</span>
               {stat.suffix && <span className="text-xl text-accent sm:text-2xl xl:text-3xl">{stat.suffix}</span>}
             </dd>
           </StaggerItem>

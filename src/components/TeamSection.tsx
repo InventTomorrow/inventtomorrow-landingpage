@@ -1,20 +1,25 @@
 import { UserRound } from 'lucide-react';
 import { SHOW_LINKEDIN_LINKS } from '../content/social';
 import { TEAM_TIERS, type TeamMember } from '../content/team';
+import { getOptimizedImage } from '../utils/images';
 import { FadeUp } from './FadeUp';
 
 // One portrait tile: photo (or a placeholder) with the name and role over a dark fade at the bottom.
 function TeamCard({ member, delay }: { member: TeamMember; delay: number }) {
+  const image = member.image ? getOptimizedImage(member.image) : undefined;
   return (
     <FadeUp delay={delay} y={16} className="min-w-0">
       <figure className="relative aspect-[4/5] overflow-hidden rounded-xl bg-navy-glow ring-1 ring-white/10">
         {member.image ? (
           <img
-            src={member.image}
+            src={image?.src ?? member.image}
+            srcSet={image?.srcSet}
+            sizes="(min-width: 32rem) 14rem, calc((100vw - 3.75rem) / 2)"
             alt={`${member.name}, ${member.role}`}
-            width={800}
-            height={1000}
-            loading="lazy"
+            width={image?.width ?? 800}
+            height={image?.height ?? 1000}
+            loading="eager"
+            fetchPriority="low"
             decoding="async"
             draggable={false}
             className="h-full w-full object-cover object-top"

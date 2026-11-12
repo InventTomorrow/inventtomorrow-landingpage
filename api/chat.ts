@@ -1,4 +1,5 @@
-import { handleChat } from './_chat';
+import { waitUntil } from '@vercel/functions';
+import { handleChat } from '../server/chat.ts';
 
 // Minimal shapes for Vercel's Node request/response, so no extra type package is needed.
 interface Req {
@@ -21,6 +22,8 @@ export default async function handler(req: Req, res: Res) {
   }
   const forwarded = req.headers['x-forwarded-for'];
   const ip = (Array.isArray(forwarded) ? forwarded[0] : forwarded)?.split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
-  const result = await handleChat(req.body, ip, process.env);
+  const started = performance.now();
+  const result = await handleChat(req.body, ip, process.env, waitUntil);
+  res.setHeader('Server-Timing', `chat;dur=${(performance.now() - started).toFixed(1)}`);
   res.status(result.status).json(result.body);
 }

@@ -1,11 +1,13 @@
 import { Menu } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router';
+import { prefetchPage } from '../pages/lazyPages';
 import { AUDIT_PATH, NAV_ITEMS } from '../utils/navigation';
 import { setScrollLocked, smoothScrollTo } from '../utils/smoothScroll';
 import { BrandLogoImage } from './BrandLogoImage';
 import { CtaButton } from './CtaButton';
 import { SITE_SHEET_ID, SiteSheet } from './SiteSheet';
+import { ServicesMenu } from './ServicesMenu';
 
 // Keep the sticky bar and its layout height identical so scrolling never opens a gap above the page.
 // The menu button opens the side sheet.
@@ -28,11 +30,13 @@ export function Navbar() {
   return (
     <>
       <header
-        className="sticky top-0 z-50 h-16 w-full bg-header shadow-[0_8px_20px_-8px_rgb(1_15_52/0.35)] select-none sm:h-[5.625rem]"
+        className="sticky top-0 z-50 h-16 w-full bg-header shadow-header select-none sm:h-[5.625rem]"
       >
           <div className="mx-auto flex h-full max-w-7xl items-center px-5 sm:px-12">
             <Link
               to="/"
+              onPointerEnter={() => prefetchPage('/')}
+              onFocus={() => prefetchPage('/')}
               onClick={() => pathname === '/' && smoothScrollTo(0)}
               aria-label="Invent Tomorrow home"
               className="relative flex h-full shrink-0 items-center gap-2.5 rounded-br-[1.75rem] bg-paper pr-5 before:absolute before:right-[calc(100%-2px)] before:top-0 before:h-full before:w-screen before:bg-paper sm:rounded-br-[2.25rem] sm:pr-8"
@@ -41,10 +45,12 @@ export function Navbar() {
             </Link>
 
             <nav aria-label="Primary navigation" className="ml-10 hidden items-center gap-8 xl:flex">
-              {NAV_ITEMS.map((item) => (
+              {NAV_ITEMS.map((item) => item.id === 'services' ? <ServicesMenu key={item.id} disabled={isSheetOpen} /> : (
                 <NavLink
                   key={item.id}
                   to={item.to}
+                  onPointerEnter={() => prefetchPage(item.to)}
+                  onFocus={() => prefetchPage(item.to)}
                   end={item.to === '/'}
                   className={({ isActive }) =>
                     `group relative py-2 text-sm font-medium uppercase transition-colors duration-300 ${isActive ? 'text-white' : 'text-white/80 hover:text-white'}`
