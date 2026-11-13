@@ -1,17 +1,5 @@
-# Upload only the source and assets needed by the Vercel build.
-# Local env files, generated previews, scratch files and dependencies stay local.
-/*
-!/api/
-!/server/
-!/src/
-!/scripts/
-!/public/
-!/index.html
-!/package.json
-!/package-lock.json
-!/tsconfig.json
-!/vite.config.ts
-!/vercel.json
-!/.vercelignore
-!/.env.example
-!/README.md
+# Exclude local and temporary files
+output/
+.aistudio/
+.vscode/
+website-text-copy.txt
