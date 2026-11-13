@@ -19,7 +19,7 @@ export function AboutIntroSection() {
   return (
     <section id="about" className="relative z-10 w-full bg-paper section-y px-6 sm:px-12">
       <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-14">
-        <Reveal variant="left" distance={48} className="relative order-2 mx-auto w-full max-w-xs pb-14 sm:max-w-sm sm:pb-16 lg:order-1 lg:max-w-lg lg:pb-20">
+        <Reveal variant="left" distance={48} className="relative mx-auto w-full max-w-xs pb-14 sm:max-w-sm sm:pb-16 lg:max-w-lg lg:pb-20">
           <div className="absolute -left-5 top-6 hidden flex-col gap-3 sm:flex" aria-hidden="true">
             {Array.from({ length: 7 }, (_, i) => (
               <span key={i} className="size-2 rounded-full bg-accent" />
@@ -52,7 +52,7 @@ export function AboutIntroSection() {
           </div>
         </Reveal>
 
-        <div className="order-1 min-w-0 lg:order-2">
+        <div className="min-w-0">
           <SectionHeading
             align="left"
             size="compact"

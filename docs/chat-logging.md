@@ -41,11 +41,12 @@ browser data, and permanently failed queue jobs also limit recovery.
 3. Keep the existing `N8N_WEBHOOK_URL`/`N8N_WEBHOOK_TEST_URL` routing. QStash must
    reach the selected public webhook. Production n8n must be active; test n8n
    must be listening. Queue authorization is not forwarded to n8n.
-4. Add `Version`, `Page`, and `Event ID` columns to the existing chat-history Sheet.
+4. Add `Version`, `Page`, `Event ID`, and `Conversation ID` columns to the existing chat-history Sheet.
    Update the **chat branch** using `n8n-chat-history-workflow.json`, retaining the
    shared workflow's `source` Switch and existing `form_data` handling. The added
    read/version gate skips equal or older snapshots before writing; matching on
-   `Session ID` keeps one row per conversation. Sheet nodes retry transient errors.
+   `Conversation ID` (`sessionId:pagePath`) keeps one row per page history while
+   `Session ID` remains shared with forms across browser restarts. Sheet nodes retry transient errors.
 5. Set the shared Webhook to **When Last Node Finishes** (the export uses
    `responseMode: "lastNode"`). Leave errors as errors, with a non-2xx response.
    Returning 200 before storage succeeds prevents QStash from detecting failures.

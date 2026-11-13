@@ -1,9 +1,10 @@
 import { Award, CalendarDays, Check, ShieldCheck } from 'lucide-react';
 import { AUDIT_PATH } from '../utils/navigation';
+import { FOUNDING_SPOTS_LEFT } from '../utils/freeAudit';
 import { CtaButton } from './CtaButton';
 import { FadeUp } from './FadeUp';
 
-const REMAINING_SPOTS = 3;
+const REMAINING_SPOTS = FOUNDING_SPOTS_LEFT;
 const TOTAL_SPOTS = 5;
 
 const PERKS = [

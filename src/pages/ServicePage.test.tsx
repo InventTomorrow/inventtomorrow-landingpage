@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { existsSync } from 'node:fs';
 import { LazyMotion, domAnimation } from 'motion/react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter, Route, Routes } from 'react-router';
@@ -9,6 +10,7 @@ import { SiteSheet } from '../components/SiteSheet';
 import { FIXES } from '../content/fixes';
 import { SERVICE_CATALOG, SERVICE_GROUPS } from '../content/serviceCatalog';
 import { SERVICE_DETAILS } from '../content/serviceDetails';
+import { SERVICE_IMAGES } from '../content/serviceImages';
 import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
 import { getPageKey } from '../utils/pageModules';
 import { buildStructuredData, getSitePages } from '../utils/seo';
@@ -38,7 +40,7 @@ test('all 16 supplied services render complete pages with working destinations',
     for (const section of ['Service facts', 'The problem', 'How it works', 'What changes for you', 'Questions', 'Related services']) assert.ok(html.includes(section), `${summary.path}: ${section}`);
     for (const destination of [AUDIT_PATH, BOOKING_PATH, '/services']) assert.ok(html.includes(`href="${destination}"`));
     for (const related of detail.related) assert.ok(html.includes(`href="${SERVICE_CATALOG.find((item) => item.title === related)!.path}"`));
-    for (const match of html.matchAll(/href="(\/[^"#?]*)/g)) assert.ok(knownPaths.has(match[1]), `${summary.path} links to missing ${match[1]}`);
+    for (const match of html.matchAll(/<a\b[^>]*href="(\/[^"#?]*)/g)) assert.ok(knownPaths.has(match[1]), `${summary.path} links to missing ${match[1]}`);
     assert.doesNotMatch(html, /undefined|Note for you|Target search|\*\*|\\\[|\]\(https/);
   }
 });
@@ -68,13 +70,41 @@ test('unknown service paths show the existing not-found page', () => {
   assert.match(render('/services/not-a-service'), /not found|find that page/i);
 });
 
+test('every service uses its own headline-matched image in the hero and dropdown', () => {
+  assert.equal(new Set(Object.values(SERVICE_IMAGES).map((image) => image.src)).size, 17);
+  for (const service of SERVICE_CATALOG) {
+    const image = SERVICE_IMAGES[service.path];
+    const html = render(service.path);
+    assert.equal(image.headline, SERVICE_DETAILS.find((detail) => detail.path === service.path)!.headline);
+    assert.ok(html.includes(`src="${image.src}"`), service.path);
+    assert.ok(html.includes(`srcSet="${image.srcSet}"`), service.path);
+    for (const source of image.srcSet.split(', ').map((item) => item.split(' ')[0])) {
+      assert.ok(existsSync(new URL(`../../public${source}`, import.meta.url)), source);
+    }
+    const menu = renderToStaticMarkup(<MemoryRouter initialEntries={[service.path]}><ServicesMenu /></MemoryRouter>);
+    assert.ok(menu.includes(`src="${image.thumbnail}"`), service.path);
+    assert.doesNotMatch(menu, /services-menu-feature-v[12]\.webp/);
+  }
+});
+
 test('desktop and mobile navigation expose every service and an overview link', () => {
   const wrap = (children: React.ReactNode) => renderToStaticMarkup(<MemoryRouter><LazyMotion features={domAnimation}>{children}</LazyMotion></MemoryRouter>);
   const desktop = wrap(<ServicesMenu />);
   const mobile = wrap(<SiteSheet isOpen onClose={() => {}} />);
   assert.match(desktop, /aria-expanded="false" aria-controls="desktop-services-menu"/);
-  assert.match(desktop, /id="desktop-services-menu"[^>]*hidden/);
+  assert.match(desktop, /<div(?=[^>]*id="desktop-services-menu")(?=[^>]*data-open="false")(?=[^>]*aria-hidden="true")(?=[^>]*inert="")[^>]*>/);
   assert.match(mobile, /<summary[^>]*>Services/);
+  // A shared native disclosure name makes these categories mutually exclusive.
+  const categories = [...mobile.matchAll(/<details\b(?=[^>]*name="mobile-service-category")[^>]*>([\s\S]*?)<\/details>/g)];
+  assert.equal(categories.length, SERVICE_GROUPS.length);
+  for (const [index, category] of categories.entries()) {
+    const group = SERVICE_GROUPS[index];
+    assert.doesNotMatch(category[0].split('>')[0], /\bopen(?:=|\s|$)/);
+    assert.ok(category[1].includes(group.title));
+    for (const service of SERVICE_CATALOG.filter((service) => service.group === group.title)) {
+      assert.ok(category[1].includes(`href="${service.path}"`));
+    }
+  }
   for (const html of [desktop, mobile]) {
     assert.ok(html.includes('href="/services"'));
     for (const service of SERVICE_CATALOG) assert.ok(html.includes(`href="${service.path}"`), service.path);

@@ -85,7 +85,7 @@ export function SiteSheet({ isOpen, onClose }: SiteSheetProps) {
                 type="button"
                 onClick={onClose}
                 aria-label="Close menu"
-                className="relative isolate flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-paper text-primary transition-colors duration-300 before:absolute before:inset-0 before:-z-10 before:origin-top before:scale-y-0 before:bg-accent before:transition-transform before:duration-300 before:ease-out hover:text-on-primary hover:before:scale-y-100 motion-reduce:before:transition-none cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+                className="flex size-12 shrink-0 cursor-pointer items-center justify-center rounded-full bg-paper text-primary transition-colors duration-300 ease-out hover:bg-accent hover:text-on-primary motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
               >
                 <X className="h-6 w-6" aria-hidden="true" />
               </button>
@@ -103,21 +103,23 @@ export function SiteSheet({ isOpen, onClose }: SiteSheetProps) {
                 {NAV_ITEMS.map((item) => (
                   <li key={item.id}>
                     {item.id === 'services' ? (
-                      <details className="group border-b border-white/10">
+                      <details className="services-mobile-details group/services border-b border-white/10">
                         <summary className="flex cursor-pointer list-none items-center justify-between py-4 text-lg font-medium text-white/85 focus-visible:outline-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden">
-                          Services<ChevronDown className="size-5 transition-transform group-open:rotate-180" aria-hidden="true" />
+                          Services<ChevronDown className="size-5 transition-transform duration-[320ms] ease-linear group-open/services:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
                         </summary>
-                        <div className="pb-5 pl-3">
-                          <NavLink to="/services" onClick={onClose} className="mb-5 block py-2 text-sm font-semibold text-white underline underline-offset-4">View all services</NavLink>
+                        <div className="services-mobile-content pb-3 pl-3">
+                          <NavLink to="/services" onClick={onClose} className="mb-2 flex min-h-11 items-center py-2 text-sm font-semibold text-white underline underline-offset-4">View all services</NavLink>
                           {SERVICE_GROUPS.map((group) => (
-                            <div key={group.id} className="mt-5">
-                              <p className="text-xs font-semibold uppercase tracking-wide text-white/55">{group.title}</p>
-                              <ul className="mt-2">
+                            <details key={group.id} name="mobile-service-category" className="group/service-category border-b border-white/10 last:border-b-0">
+                              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 py-3 text-xs font-semibold uppercase tracking-wide text-white/85 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden">
+                                {group.title}<ChevronDown className="size-4 shrink-0 text-white/60 transition-transform duration-200 group-open/service-category:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
+                              </summary>
+                              <ul className="mb-3 ml-1 border-l border-white/15 pl-3">
                                 {SERVICE_CATALOG.filter((service) => service.group === group.title).map((service) => (
-                                  <li key={service.path}><NavLink to={service.path} onClick={onClose} onFocus={() => prefetchPage(service.path)} className={({ isActive }) => `block rounded-lg px-2 py-3 text-sm hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-accent ${isActive ? 'bg-white/10 font-semibold text-white' : 'text-white/80'}`}>{service.title}</NavLink></li>
+                                  <li key={service.path}><NavLink to={service.path} onClick={onClose} onFocus={() => prefetchPage(service.path)} className={({ isActive }) => `flex min-h-11 items-center rounded-lg px-2 py-2 text-sm hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-accent ${isActive ? 'bg-white/10 font-semibold text-white' : 'text-white/80'}`}>{service.title}</NavLink></li>
                                 ))}
                               </ul>
-                            </div>
+                            </details>
                           ))}
                         </div>
                       </details>

@@ -19,7 +19,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// One row per session. Save even the first visitor message, before an AI reply.\n// The version gate below prevents old retries from replacing a newer conversation.\nconst out = [];\n\nfor (const item of $input.all()) {\n  const p = item.json.body ?? item.json;\n  const transcript = Array.isArray(p.transcript) ? p.transcript : [];\n  const lead = p.lead || {};\n\n  const contact = [\n    lead.name && `Name: ${lead.name}`,\n    lead.businessName && `Business: ${lead.businessName}`,\n    lead.email && `Email: ${lead.email}`,\n    lead.phone && `Phone: ${lead.phone}`,\n  ].filter(Boolean);\n\n  out.push({\n    json: {\n      'Version': Number(p.version) || transcript.length,\n      'Page': p.pagePath || '/free-audit',\n      'Event ID': p.eventId || '',\n      'Session ID': p.sessionId || `no-session-${Date.now()}`,\n      'Last Updated': p.timestamp || new Date().toISOString(),\n      'Contact Detials': contact.join('\\n'),\n      'Main Concern': lead.description || '',\n      'Lead Captured': p.leadCaptured === true ? 'Yes' : 'No',\n      'Asked To Book Directly': p.askedToBookDirectly === true ? 'Yes' : 'No',\n      'Chat': transcript\n        .map((m) => `${m.role === 'user' ? 'Visitor' : 'Invo'}: ${m.content}`)\n        .join('\\n'),\n    },\n  });\n}\n\nreturn out;"
+        "jsCode": "// One row per browser and page. Save even the first visitor message, before an AI reply.\n// The version gate below prevents old retries from replacing a newer conversation.\nconst out = [];\n\nfor (const item of $input.all()) {\n  const p = item.json.body ?? item.json;\n  const transcript = Array.isArray(p.transcript) ? p.transcript : [];\n  const lead = p.lead || {};\n\n  const contact = [\n    lead.name && `Name: ${lead.name}`,\n    lead.businessName && `Business: ${lead.businessName}`,\n    lead.email && `Email: ${lead.email}`,\n    lead.phone && `Phone: ${lead.phone}`,\n  ].filter(Boolean);\n\n  out.push({\n    json: {\n      'Version': Number(p.version) || transcript.length,\n      'Page': p.pagePath || '/free-audit',\n      'Event ID': p.eventId || '',\n      'Session ID': p.sessionId || `no-session-${Date.now()}`,\n      'Conversation ID': `${p.sessionId || 'no-session'}:${p.pagePath || '/free-audit'}`,\n      'Last Updated': p.timestamp || new Date().toISOString(),\n      'Contact Detials': contact.join('\\n'),\n      'Main Concern': lead.description || '',\n      'Lead Captured': p.leadCaptured === true ? 'Yes' : 'No',\n      'Asked To Book Directly': p.askedToBookDirectly === true ? 'Yes' : 'No',\n      'Chat': transcript\n        .map((m) => `${m.role === 'user' ? 'Visitor' : 'Invo'}: ${m.content}`)\n        .join('\\n'),\n    },\n  });\n}\n\nreturn out;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -50,8 +50,8 @@
         "filtersUI": {
           "values": [
             {
-              "lookupColumn": "Session ID",
-              "lookupValue": "={{ $json[\"Session ID\"] }}"
+              "lookupColumn": "Conversation ID",
+              "lookupValue": "={{ $json[\"Conversation ID\"] }}"
             }
           ]
         },
@@ -80,7 +80,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const incoming = $('Structure Output').first().json;\nconst existing = $input.first().json;\n// FIFO queue + acknowledgement after writing serializes the read/write pair.\n// Equal/older versions are safe no-ops, including retries after dedupe expires.\nif (existing['Session ID'] === incoming['Session ID'] &&\n    Number(existing['Version'] || 0) >= Number(incoming['Version'])) {\n  return [];\n}\n// Partial updates must not erase details collected earlier in the session.\nfor (const key of ['Contact Detials', 'Main Concern']) {\n  if (!incoming[key] && existing[key]) incoming[key] = existing[key];\n}\nif (existing['Lead Captured'] === 'Yes') incoming['Lead Captured'] = 'Yes';\nif (existing['Asked To Book Directly'] === 'Yes') incoming['Asked To Book Directly'] = 'Yes';\nreturn [{ json: incoming }];"
+        "jsCode": "const incoming = $('Structure Output').first().json;\nconst existing = $input.first().json;\n// FIFO queue + acknowledgement after writing serializes the read/write pair.\n// Equal/older versions are safe no-ops, including retries after dedupe expires.\nif (existing['Conversation ID'] === incoming['Conversation ID'] &&\n    Number(existing['Version'] || 0) >= Number(incoming['Version'])) {\n  return [];\n}\n// Partial updates must not erase details collected earlier in the session.\nfor (const key of ['Contact Detials', 'Main Concern']) {\n  if (!incoming[key] && existing[key]) incoming[key] = existing[key];\n}\nif (existing['Lead Captured'] === 'Yes') incoming['Lead Captured'] = 'Yes';\nif (existing['Asked To Book Directly'] === 'Yes') incoming['Asked To Book Directly'] = 'Yes';\nreturn [{ json: incoming }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -112,14 +112,14 @@
           "mappingMode": "autoMapInputData",
           "value": {},
           "matchingColumns": [
-            "Session ID"
+            "Conversation ID"
           ],
           "schema": [
             {
               "id": "Session ID",
               "displayName": "Session ID",
               "required": false,
-              "defaultMatch": true,
+              "defaultMatch": false,
               "display": true,
               "type": "string",
               "canBeUsedToMatch": true
@@ -204,6 +204,15 @@
               "display": true,
               "type": "string",
               "canBeUsedToMatch": false
+            },
+            {
+              "id": "Conversation ID",
+              "displayName": "Conversation ID",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
             }
           ],
           "attemptToConvertTypes": false,

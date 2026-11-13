@@ -68,6 +68,24 @@
   line-height: 1.5;
 }
 
+.field .checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-top: 0.75rem;
+}
+
+.field .checkboxLabel input {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--color-accent);
+}
+
+.note a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .fields:disabled {
   opacity: 0.65;
 }

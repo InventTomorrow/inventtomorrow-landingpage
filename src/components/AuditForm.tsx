@@ -1,6 +1,8 @@
 import { CheckCircle2, Send } from 'lucide-react';
-import { useId, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { DEFAULT_APPOINTMENT_TIME_ZONE } from '../utils/appointment';
+import { getBrowserSessionId } from '../utils/sessionId';
+import { browserAttribution } from '../utils/attribution';
 import { AppointmentPicker } from './AppointmentPicker';
 import styles from './AuditForm.module.css';
 
@@ -14,10 +16,11 @@ export interface AuditFormValues {
   appointmentTimeZone: string;
 }
 
-export function AuditForm({ pagePath, initialValues = {}, autoFocus = false }: {
+export function AuditForm({ pagePath, initialValues = {}, autoFocus = false, durationMinutes = 30 }: {
   pagePath: string;
   initialValues?: Partial<AuditFormValues>;
   autoFocus?: boolean;
+  durationMinutes?: number;
 }) {
   const id = useId();
   const [pending, setPending] = useState(false);
@@ -27,6 +30,9 @@ export function AuditForm({ pagePath, initialValues = {}, autoFocus = false }: {
   const [appointmentInvalid, setAppointmentInvalid] = useState(false);
   const submitting = useRef(false);
   const submissionId = useRef<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  useEffect(() => { setSessionId(getBrowserSessionId()); }, []);
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -47,7 +53,7 @@ export function AuditForm({ pagePath, initialValues = {}, autoFocus = false }: {
       const response = await fetch('/api/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...details, submissionId: submissionId.current, pagePath }),
+        body: JSON.stringify({ ...details, submissionId: submissionId.current, sessionId: sessionId || getBrowserSessionId(), pagePath, tracking: browserAttribution() }),
         signal: AbortSignal.timeout(15_000),
       });
       const result = await response.json().catch(() => ({})) as { success?: boolean; error?: string };
@@ -95,6 +101,7 @@ export function AuditForm({ pagePath, initialValues = {}, autoFocus = false }: {
           <AppointmentPicker
             value={appointmentDateTime}
             timeZone={DEFAULT_APPOINTMENT_TIME_ZONE}
+            durationMinutes={durationMinutes}
             onChange={(value) => { setAppointmentDateTime(value); if (value) setAppointmentInvalid(false); }}
             invalid={appointmentInvalid}
           />

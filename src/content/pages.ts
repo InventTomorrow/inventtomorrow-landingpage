@@ -52,14 +52,14 @@ export const PAGE_META = {
   },
   freeAudit: {
     path: '/free-audit',
-    title: 'Your Business Audit | Invent Tomorrow',
+    title: 'Free 15-Minute Audit | Invent Tomorrow',
     description:
-      'Find where time is being lost in your calls, quotes and bookings, and what our system could take off your hands.',
+      "Find out how many jobs your cleaning business is losing to missed calls, cold quotes and clients who never rebook, and what they're worth. Free, 15 minutes.",
   },
   freeAuditAds: {
     path: '/free-audit-ads',
-    title: 'Free Business Audit | Invent Tomorrow',
-    description: 'Chat with Invo about missed calls, follow ups and repeat bookings, or book your free cleaning business audit directly.',
+    title: 'Free 15-Minute Cleaning Audit | Invent Tomorrow',
+    description: "Find the cleaning jobs you're missing through unanswered calls, quiet quotes and clients who never rebook. See what they could be worth in a free 15-minute audit.",
     isIndexable: false,
   },
   contact: {

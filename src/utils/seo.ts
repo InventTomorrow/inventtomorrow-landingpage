@@ -220,6 +220,8 @@ export function injectPage(template: string, head: string, appHtml: string) {
     throw new Error('index.html is missing the <!--app-head--> or <!--/app-html--> marker');
   }
   return template
+    // Production pages already contain their content; never cover it with the dev bootstrap.
+    .replace(/<!--app-bootstrap-->[\s\S]*?<!--\/app-bootstrap-->/, '')
     .replace(HEAD_MARKER, () => head)
     .replace(ROOT_PATTERN, () => `<div id="root" data-prerendered>${appHtml}</div>`);
 }

@@ -5,11 +5,12 @@ import { setScrollLocked } from '../utils/smoothScroll';
 import { AuditForm, type AuditFormValues } from './AuditForm';
 import styles from './AuditForm.module.css';
 
-export function AuditModal({ isOpen, onClose, pagePath, initialValues }: {
+export function AuditModal({ isOpen, onClose, pagePath, initialValues, durationMinutes = 30 }: {
   isOpen: boolean;
   onClose: () => void;
   pagePath: string;
   initialValues?: Partial<AuditFormValues>;
+  durationMinutes?: number;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -43,14 +44,14 @@ export function AuditModal({ isOpen, onClose, pagePath, initialValues }: {
     >
       <div className={styles.modalHeader}>
         <div>
-          <h2 id={titleId}>Book your free audit</h2>
+          <h2 id={titleId}>Book your free {durationMinutes}-minute audit</h2>
           <p>Tell us about your business and choose your preferred appointment time.</p>
         </div>
         <button type="button" onClick={onClose} className={styles.close} aria-label="Close audit form">
           <X aria-hidden="true" />
         </button>
       </div>
-      <AuditForm pagePath={pagePath} initialValues={initialValues} autoFocus />
+      <AuditForm pagePath={pagePath} initialValues={initialValues} durationMinutes={durationMinutes} autoFocus />
     </dialog>,
     document.body,
   );

@@ -10,6 +10,7 @@ import { ServiceIcon } from '../components/ServiceIcon';
 import { ServiceOverviewCard } from '../components/ServiceOverviewCard';
 import { SERVICE_CATALOG, type ServiceSummary } from '../content/serviceCatalog';
 import { SERVICE_DETAILS, type ServiceDetail } from '../content/serviceDetails';
+import { SERVICE_IMAGES } from '../content/serviceImages';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
 import { NotFoundPage } from './NotFoundPage';
@@ -26,13 +27,15 @@ export function ServicePage() {
 function ServiceContent({ summary, service }: { summary: ServiceSummary; service: ServiceDetail }) {
   usePageMeta(summary.meta);
   const related = SERVICE_CATALOG.filter((item) => service.related.includes(item.title));
+  const image = SERVICE_IMAGES[summary.path];
 
   return (
     <>
       <PageHero
+        visual={<img src={image.src} srcSet={image.srcSet} sizes="(min-width: 1024px) 45vw, 100vw" alt={image.alt} width={image.width} height={image.height} loading="eager" fetchPriority="high" decoding="async" className="aspect-video w-full rounded-2xl border border-white/15 object-cover" />}
         breadcrumb={
           <nav aria-label="Breadcrumb">
-            <ol className="flex flex-wrap items-center justify-center gap-2 text-xs text-white/65 sm:text-sm">
+            <ol className="flex flex-wrap items-center gap-2 text-xs text-white/65 sm:text-sm">
               <li><Link to="/" className="hover:text-white">Home</Link></li>
               <li aria-hidden="true"><ChevronRight className="size-3" /></li>
               <li><Link to="/services" className="hover:text-white">Services</Link></li>

@@ -7,11 +7,12 @@ import styles from './AppointmentPicker.module.css';
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const CALENDAR_KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'];
 
-export function AppointmentPicker({ value, timeZone, onChange, invalid = false }: {
+export function AppointmentPicker({ value, timeZone, onChange, invalid = false, durationMinutes = 30 }: {
   value: string;
   timeZone: string;
   onChange: (value: string) => void;
   invalid?: boolean;
+  durationMinutes?: number;
 }) {
   const id = useId();
   const [open, setOpen] = useState(false);
@@ -139,7 +140,7 @@ export function AppointmentPicker({ value, timeZone, onChange, invalid = false }
         <CalendarDays className={styles.calendarIcon} aria-hidden="true" />
         <span className={styles.triggerText}>
           <span>{value ? `${appointmentDateLabel(value.slice(0, 10))} at ${appointmentTimeLabel(value.slice(11))}` : 'Select a date & time'}</span>
-          <span>{zoneLabel} · 30-minute audit</span>
+          <span>{zoneLabel} · {durationMinutes}-minute audit</span>
         </span>
         <ChevronDown className={styles.chevron} data-open={open} aria-hidden="true" />
       </button>

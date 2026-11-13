@@ -4,6 +4,7 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { escapeHtml, getOutputFile, getSitePages } from '../src/utils/seo';
 import { OPTIMIZED_IMAGES } from '../src/content/optimizedImages';
+import { SERVICE_IMAGES } from '../src/content/serviceImages';
 import { getPageKey } from '../src/utils/pageModules';
 import { AUDIT_ADS_PATH, AUDIT_PATH, BOOKING_PATH } from '../src/utils/navigation';
 
@@ -18,6 +19,7 @@ for (const { meta } of pages) {
   assert.ok(html.includes('id="root" data-prerendered'), `${meta.path}: missing prerendered content`);
   assert.equal((html.match(/<h1\b/g) ?? []).length, 1, `${meta.path}: expected one main heading`);
   assert.ok(!html.includes('Loading the site'), `${meta.path}: blocking loading screen returned`);
+  assert.ok(!html.includes('id="app-bootstrap"'), `${meta.path}: startup loader must not cover prerendered content`);
   assert.ok(!html.includes('fonts.googleapis.com'), `${meta.path}: external render-blocking font stylesheet returned`);
   const entry = manifest[`src/pages/${getPageKey(meta.path)}.tsx`];
   assert.ok(entry && html.includes(`href="/${entry.file}"`), `${meta.path}: current route is not preloaded`);
@@ -44,10 +46,10 @@ assert.ok(!/<nav\b|<footer\b|Run My Audit|Open menu/i.test(ads), 'Ads page must 
 assert.ok(!/<a\b[^>]*href="\/(?!\/)/.test(ads), 'Ads page must have no links to other site pages');
 assert.ok(ads.includes('content="noindex"'), 'Ads page must not be indexed');
 for (const html of [ads, audit]) {
-  assert.ok(html.includes('Where are you losing the most time or potential jobs?'), 'Both audit pages must start with Invo\'s welcome');
-  assert.ok(/<button[^>]*aria-haspopup="dialog"[^>]*>[\s\S]*?Book My Free Audit/.test(html), 'Both audit pages must open the audit form');
+  assert.ok(html.includes('Invent Tomorrow&#x27;s AI assistant'), 'Both audit pages must identify Invo as AI');
+  assert.ok(/<button[^>]*aria-haspopup="dialog"[^>]*>[\s\S]*?Book a 15-minute call/.test(html), 'Both audit pages must open the 15-minute booking form');
   assert.ok(html.includes('id="audit-chat-input"'), 'Both audit pages must include the chat composer');
-  for (const suggestion of ['Missed Calls', 'Quote Follow-Ups', 'Old Leads', 'Repeat Bookings']) {
+  for (const suggestion of ['Book my free audit', 'missing calls', 'My quotes go quiet', 'I want more repeat clients', 'What does it cost?', 'Talk to a person']) {
     assert.ok(html.includes(suggestion), `Missing chat suggestion: ${suggestion}`);
   }
 }
@@ -86,3 +88,15 @@ for (const source of imageFiles) {
 }
 console.log(`Deployment artifacts verified: ${pages.length} prerendered pages, 404, sitemap, llms.txt, robots.txt and client assets.`);
 console.log(`Verified ${imageFiles.size} responsive image files.`);
+let serviceImageCount = 0;
+for (const [route, image] of Object.entries(SERVICE_IMAGES)) {
+  const html = await readFile(path.join(output, getOutputFile(route)), 'utf8');
+  assert.ok(html.includes(`src="${image.src}"`), `${route}: missing service hero image`);
+  assert.ok(html.includes(`src="${image.thumbnail}"`), `${route}: wrong dropdown image`);
+  assert.ok(!html.includes('services-menu-feature-v2.webp'), `${route}: generic dropdown image returned`);
+  for (const source of image.srcSet.split(', ').map((candidate) => candidate.split(' ')[0])) {
+    assert.ok((await stat(path.join(output, source))).size > 0, `Missing service image: ${source}`);
+    serviceImageCount++;
+  }
+}
+console.log(`Verified ${serviceImageCount} generated image sizes matched to ${Object.keys(SERVICE_IMAGES).length} service pages.`);

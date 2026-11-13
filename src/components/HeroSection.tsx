@@ -72,7 +72,7 @@ export function HeroSection() {
           </m.p>
 
           <p className="mt-5 flex max-w-full items-start gap-3 rounded-xl bg-accent-soft px-4 py-3 font-display text-base font-semibold leading-snug text-primary sm:text-lg">
-            <ShieldCheck className="mt-0.5 size-5 shrink-0 text-accent" aria-hidden="true" />
+            <ShieldCheck className="mt-0.5 size-5 shrink-0 text-green-600" aria-hidden="true" />
             Pays for itself in 90 days, guaranteed.
           </p>
 
@@ -104,7 +104,7 @@ export function HeroSection() {
           >
             {TRUST_POINTS.map(({ Icon, label }) => (
               <li key={label} className="flex min-w-0 items-center gap-2.5 text-[0.8125rem] leading-5 text-primary sm:gap-2 sm:text-sm sm:font-medium sm:leading-normal">
-                <Icon className="h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
+                <Icon className="h-4 w-4 shrink-0 text-green-600" aria-hidden="true" />
                 {label}
               </li>
             ))}
