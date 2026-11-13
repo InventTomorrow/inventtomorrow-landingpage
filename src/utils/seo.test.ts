@@ -117,6 +117,13 @@ test('injectPage refuses a template without markers', () => {
   assert.throws(() => injectPage('<head></head>', '', ''));
 });
 
+test('prerendered pages remove the standalone startup loader and retain visible page content', () => {
+  const template = TEMPLATE.replace('<body>', '<body><!--app-bootstrap--><div id="app-bootstrap">Brand loading</div><!--/app-bootstrap-->');
+  const html = injectPage(template, '<title>Ready</title>', '<h1>Visible page</h1>');
+  assert.ok(html.includes('<h1>Visible page</h1>'));
+  assert.doesNotMatch(html, /app-bootstrap|Brand loading/);
+});
+
 test('getOutputFile maps paths to folder index files', () => {
   assert.equal(getOutputFile('/'), 'index.html');
   assert.equal(getOutputFile('/blog/a-post'), 'blog/a-post/index.html');

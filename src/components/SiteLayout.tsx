@@ -62,7 +62,7 @@ export function SiteLayout() {
         <div ref={layoutRef} className={`w-full bg-paper text-body select-none ${isAuditPage ? styles.pinned : 'relative min-h-screen overflow-x-clip'}`}>
           {isAdsPage ? (
             <header className="relative z-50 h-16 bg-header shadow-header sm:h-[5.625rem]" aria-label="Invent Tomorrow">
-              <div className="mx-auto flex h-full max-w-7xl items-center px-5 sm:px-12">
+              <div className="flex h-full w-full items-center px-4 sm:px-8 lg:px-12 xl:px-16">
                 <div className="relative flex h-full shrink-0 items-center rounded-br-[1.75rem] bg-paper pr-5 before:absolute before:right-[calc(100%-2px)] before:top-0 before:h-full before:w-screen before:bg-paper sm:rounded-br-[2.25rem] sm:pr-8">
                   <BrandLogoImage className="h-10 sm:h-14" />
                 </div>

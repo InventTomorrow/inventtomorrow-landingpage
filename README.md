@@ -7,6 +7,10 @@ The ad landing page is available directly at `/free-audit-ads`. It shares the
 It has no site navigation or footer, is marked `noindex`, and is omitted
 from the sitemap and `llms.txt`.
 
+Both audit pages now use the four-question quick audit and a results form.
+Chat and email prompts, the new webhook event, and required email/SMS workflow
+wiring are documented in [free audit setup](docs/free-audit-setup.md).
+
 ## Run locally
 
 1. Install Node.js 24 LTS and run `npm ci`.
@@ -69,7 +73,7 @@ themselves.
 | --- | --- |
 | `KOBOILLM_API_KEY` | Your existing provider API key; required for chat. |
 | `KOBOILLM_BASE_URL` | `https://api.koboillm.com/v1`, unless using a provider override. |
-| `KOBOILLM_MODEL` | `gpt-4.1-mini`, unless using a model override. |
+| `KOBOILLM_MODEL` | `gpt-6-luna`, unless using a model override. |
 | `N8N_WEBHOOK_URL` | The shared n8n production webhook for chat history and audit forms; required for audit submissions. |
 | `N8N_LOG_EVERY_MESSAGE` | Defaults to enabled; `false` explicitly disables partial chat logs. |
 | `QSTASH_TOKEN` | Enables durable chat delivery/retries after the browser closes; no separate database. |
@@ -133,7 +137,9 @@ After a Preview deployment, check `/about`, `/free-audit` and a case-study URL
 directly, then reload each. Confirm that an unknown URL returns HTTP 404.
 `GET /api/chat` should return HTTP 405, not 500; a 500 before any conversation
 indicates a function startup/configuration problem to inspect in Vercel's logs.
-Test the chat through name, business name, email, phone and audit request confirmation.
+Test the quick audit through business name, missed calls, old quotes and typical clean price,
+then submit the results form. Check closing/reopening the form and the locked results state.
+Use the [synced n8n export and setup guide](docs/n8n-free-audit-setup.md) alongside these API changes; forms now require a matching saved-submission acknowledgement. Configure the real email footer, Abdul Hadi's alert address and your existing SMS branch before activation.
 Submit the form on `/contact` and open it from both audit pages. In n8n, route
 `body.source === "invo_chat"` and `body.source === "form_data"` to their respective handlers.
 A deployment without the provider key returns a controlled 503 for chat requests.

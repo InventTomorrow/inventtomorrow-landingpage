@@ -32,7 +32,7 @@ export function Navbar() {
       <header
         className="sticky top-0 z-50 h-16 w-full bg-header shadow-header select-none sm:h-[5.625rem]"
       >
-          <div className="mx-auto flex h-full max-w-7xl items-center px-5 sm:px-12">
+          <div className="flex h-full w-full items-center px-4 sm:px-8 lg:px-12 xl:px-16">
             <Link
               to="/"
               onPointerEnter={() => prefetchPage('/')}
@@ -44,7 +44,7 @@ export function Navbar() {
               <BrandLogoImage className="h-10 sm:h-14" />
             </Link>
 
-            <nav aria-label="Primary navigation" className="ml-10 hidden items-center gap-8 xl:flex">
+            <nav aria-label="Primary navigation" className="ml-10 hidden self-stretch items-center gap-8 xl:flex">
               {NAV_ITEMS.map((item) => item.id === 'services' ? <ServicesMenu key={item.id} disabled={isSheetOpen} /> : (
                 <NavLink
                   key={item.id}
@@ -85,7 +85,7 @@ export function Navbar() {
                 aria-haspopup="dialog"
                 aria-expanded={isSheetOpen}
                 aria-controls={SITE_SHEET_ID}
-                className="relative isolate flex size-11 items-center justify-center overflow-hidden rounded-full bg-paper text-primary transition-colors duration-300 before:absolute before:inset-0 before:-z-10 before:origin-top before:scale-y-0 before:bg-primary before:transition-transform before:duration-300 before:ease-out hover:text-on-primary hover:before:scale-y-100 motion-reduce:before:transition-none sm:size-12 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+                className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full bg-paper text-primary transition-colors duration-300 ease-out hover:bg-primary hover:text-on-primary motion-reduce:transition-none sm:size-12 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
               >
                 <Menu className="h-5 w-5" aria-hidden="true" />
               </button>

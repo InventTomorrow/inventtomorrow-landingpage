@@ -9,13 +9,16 @@ import { FinalCtaSection } from '../components/FinalCtaSection';
 import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
+import { SERVICE_IMAGES } from '../content/serviceImages';
 
 export function ServicesPage() {
   usePageMeta(PAGE_META.services);
+  const image = SERVICE_IMAGES['/services'];
 
   return (
     <>
       <PageHero
+        visual={<img src={image.src} srcSet={image.srcSet} sizes="(min-width: 1024px) 45vw, 100vw" alt={image.alt} width={image.width} height={image.height} loading="eager" fetchPriority="high" decoding="async" className="aspect-video w-full rounded-2xl border border-white/15 object-cover" />}
         eyebrow="Services"
         title="Less chasing"
         titleMuted="behind every job"

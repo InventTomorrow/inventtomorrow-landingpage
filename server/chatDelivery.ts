@@ -27,7 +27,7 @@ export interface ChatLog {
 // Retries carry the same ID even after a reload. Never include timestamps in it.
 export function chatEventId(payload: ChatLog): string {
   return createHash('sha256').update(JSON.stringify([
-    payload.sessionId, payload.event, payload.transcript,
+    payload.sessionId, payload.pagePath, payload.event, payload.transcript,
   ])).digest('hex');
 }
 

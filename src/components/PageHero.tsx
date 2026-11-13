@@ -11,6 +11,7 @@ interface PageHeroProps {
   children?: ReactNode; // buttons
   meta?: ReactNode; // small line under everything (blog posts)
   breadcrumb?: ReactNode;
+  visual?: ReactNode;
   size?: 'default' | 'compact';
   // Optional photo behind the hero, under a navy tint, e.g. "/images/hero-services.webp" (1920 × 600 px)
   backgroundSrc?: string;
@@ -19,7 +20,7 @@ interface PageHeroProps {
 const ease = [0.16, 1, 0.3, 1] as const;
 
 // The navy hero at the top of every inner page: a soft blue glow, a grid and brand drops.
-export function PageHero({ eyebrow, title, titleMuted, description, children, meta, breadcrumb, size = 'default', backgroundSrc }: PageHeroProps) {
+export function PageHero({ eyebrow, title, titleMuted, description, children, meta, breadcrumb, visual, size = 'default', backgroundSrc }: PageHeroProps) {
   return (
     <section
       className={`relative z-10 flex w-full flex-col justify-center overflow-hidden bg-navy-glow px-6 sm:px-12 ${
@@ -44,69 +45,72 @@ export function PageHero({ eyebrow, title, titleMuted, description, children, me
       </div>
 
       <div
-        className={`relative mx-auto flex w-full max-w-4xl flex-col items-center text-center ${
+        className={`relative mx-auto w-full ${visual ? 'grid max-w-7xl items-center gap-10 lg:grid-cols-2 lg:gap-14' : 'max-w-4xl text-center'} ${
           size === 'compact' ? 'py-14 sm:py-16' : 'py-16 sm:py-20 lg:py-24'
         }`}
       >
-        {breadcrumb && <div className="mb-7">{breadcrumb}</div>}
-        <m.p
-          initial={false}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, ease }}
-          className="text-xs font-semibold text-white/75"
-        >
-          {eyebrow}
-        </m.p>
-
-        <m.h1
-          initial={false}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.65, delay: 0.08, ease }}
-          className={`mt-5 font-bold leading-[1.15] tracking-display text-white text-balance select-text ${
-            size === 'compact' ? 'text-3xl sm:text-4xl' : 'text-3xl sm:text-4xl xl:text-5xl'
-          }`}
-        >
-          {title}
-          {titleMuted && (
-            <>
-              <br />
-              <span className="text-white/70">{titleMuted}</span>
-            </>
-          )}
-        </m.h1>
-
-        {description && (
+        <div className={`flex flex-col ${visual ? 'items-start text-left' : 'items-center'}`}>
+          {breadcrumb && <div className="mb-7">{breadcrumb}</div>}
           <m.p
             initial={false}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.18, ease }}
-            className="mt-6 max-w-2xl text-lg leading-relaxed text-white/85 text-balance"
+            transition={{ duration: 0.55, ease }}
+            className="text-xs font-semibold text-white/75"
           >
-            {description}
+            {eyebrow}
           </m.p>
-        )}
 
-        {children && (
-          <m.div
+          <m.h1
             initial={false}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3, ease }}
-            className="mt-9 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row"
+            transition={{ duration: 0.65, delay: 0.08, ease }}
+            className={`mt-5 font-bold leading-[1.15] tracking-display text-white text-balance select-text ${
+              size === 'compact' ? 'text-3xl sm:text-4xl' : 'text-3xl sm:text-4xl xl:text-5xl'
+            }`}
           >
-            {children}
-          </m.div>
-        )}
+            {title}
+            {titleMuted && (
+              <>
+                <br />
+                <span className="text-white/70">{titleMuted}</span>
+              </>
+            )}
+          </m.h1>
 
-        {meta && (
-          <m.div
-            initial={false}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-7 text-sm text-white/70"
-          >
-            {meta}
-          </m.div>
-        )}
+          {description && (
+            <m.p
+              initial={false}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.18, ease }}
+              className="mt-6 max-w-2xl text-lg leading-relaxed text-white/85 text-balance"
+            >
+              {description}
+            </m.p>
+          )}
+
+          {children && (
+            <m.div
+              initial={false}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3, ease }}
+              className={`mt-9 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:flex-wrap ${visual ? 'justify-start' : 'justify-center'}`}
+            >
+              {children}
+            </m.div>
+          )}
+
+          {meta && (
+            <m.div
+              initial={false}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="mt-7 text-sm text-white/70"
+            >
+              {meta}
+            </m.div>
+          )}
+        </div>
+        {visual && <div className="min-w-0">{visual}</div>}
       </div>
     </section>
   );

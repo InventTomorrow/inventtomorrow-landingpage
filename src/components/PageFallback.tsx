@@ -1,4 +1,5 @@
-// Holds the page's place while its code loads, so the footer doesn't jump up and down.
+// Startup already has one persistent full-screen loader. Lazy routes reserve
+// their space without mounting another logo or restarting the startup animation.
 export function PageFallback() {
-  return <div className="min-h-[70vh]" aria-busy="true" />;
+  return <div className="page-loading" role="status" aria-busy="true" aria-label="Loading page"><span className="sr-only">Loading page</span></div>;
 }

@@ -3,8 +3,10 @@ import { Link } from 'react-router';
 import type { ServiceSummary } from '../content/serviceCatalog';
 import { prefetchPage } from '../pages/lazyPages';
 import { ServiceIcon } from './ServiceIcon';
+import { SERVICE_IMAGES } from '../content/serviceImages';
 
 export function ServiceOverviewCard({ service }: { service: ServiceSummary }) {
+  const image = SERVICE_IMAGES[service.path];
   return (
     <Link
       to={service.path}
@@ -12,6 +14,7 @@ export function ServiceOverviewCard({ service }: { service: ServiceSummary }) {
       onFocus={() => prefetchPage(service.path)}
       className="group flex h-full flex-col rounded-2xl border border-border bg-paper p-6 transition-colors hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:p-7"
     >
+      <img src={image.thumbnail} alt={image.alt} width={480} height={270} loading="lazy" decoding="async" className="mb-5 aspect-video w-full rounded-xl object-cover" />
       <div className="flex items-center justify-between gap-3">
         <span className="flex size-12 items-center justify-center rounded-xl bg-accent-soft text-accent">
           <ServiceIcon title={service.title} />

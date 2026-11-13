@@ -157,6 +157,13 @@ body {
 }
 }
 
+/* Fast routes do not flash a loading screen; slower routes retain a stable page height. */
+.page-loading {
+  display: flex;
+  flex: 1;
+  min-height: calc(100svh - 9rem);
+}
+
 /* Loading placeholder: a flat block with a light band sweeping across it */
 @layer components {
 .skeleton {
@@ -224,6 +231,74 @@ body {
 
 /* Illustration motion: gentle float, ring pulses. All switched off for reduced motion. */
 @keyframes illu-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+/* Opposite transforms keep the content stationary while its mask opens downwards.
+   Persistent layers also let interrupted openings reverse without restarting. */
+@keyframes services-mobile-reveal {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0 0 -2rem 0); }
+}
+@layer components {
+  .services-menu-panel {
+    --services-reveal-duration: 400ms;
+    visibility: hidden;
+    pointer-events: none;
+    transition: visibility 0s linear var(--services-reveal-duration);
+  }
+  .services-menu-panel[data-open="true"] {
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
+  }
+  .services-menu-mask,
+  .services-menu-surface {
+    will-change: transform;
+    transition: transform var(--services-reveal-duration) cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .services-menu-mask {
+    overflow: hidden;
+    transform: translate3d(0, -100%, 0);
+  }
+  .services-menu-surface {
+    transform: translate3d(0, 100%, 0);
+  }
+  .services-menu-panel[data-open="true"] .services-menu-mask,
+  .services-menu-panel[data-open="true"] .services-menu-surface {
+    transform: translate3d(0, 0, 0);
+  }
+  /* The full panel remains a stable hover area while its contents are revealing. */
+  .services-menu-mask,
+  .services-menu-surface {
+    pointer-events: none;
+  }
+  .services-menu-panel[data-open="true"] .services-menu-surface {
+    pointer-events: auto;
+  }
+  .services-mobile-details[open] .services-mobile-content {
+    animation: services-mobile-reveal 320ms linear both;
+  }
+  /* Keyboard users see their focused destination immediately. */
+  .services-menu-panel[data-open="true"]:focus-within .services-menu-mask,
+  .services-menu-panel[data-open="true"]:focus-within .services-menu-surface {
+    transform: translate3d(0, 0, 0);
+    transition: none;
+  }
+  .services-mobile-details[open] .services-mobile-content:focus-within {
+    animation: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .services-menu-panel {
+      --services-reveal-duration: 0ms;
+    }
+    .services-menu-mask,
+    .services-menu-surface {
+      transition: none;
+      will-change: auto;
+    }
+    .services-mobile-details[open] .services-mobile-content {
+      animation: none;
+    }
+  }
+}
 @keyframes illu-ring { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 @keyframes illu-dot { 0%, 100% { opacity: 0.3; } 40% { opacity: 1; } }
 @keyframes illu-spin { to { transform: rotate(360deg); } }

@@ -13,6 +13,7 @@ import {
   Zap,
   type LucideIcon,
 } from 'lucide-react';
+import { SERVICE_IMAGES } from './serviceImages';
 
 export interface Scene {
   trigger: string;
@@ -35,7 +36,7 @@ export const FIXES: Fix[] = [
   {
     title: 'Quote Revival',
     problemTitle: 'Cold Quotes',
-    image: { src: '/images/services/quote-revival.webp', alt: 'An old cleaning estimate revived into a confirmed booking.' },
+    image: SERVICE_IMAGES['/services/quote-revival'],
     text: 'Old quotes become booked cleans.',
     icon: RotateCcw,
     scene: {
@@ -51,7 +52,7 @@ export const FIXES: Fix[] = [
   {
     title: 'Missed Call Rescue',
     problemTitle: 'Missed Calls',
-    image: { src: '/images/services/missed-call-rescue.webp', alt: 'A missed phone call receiving an automatic text reply.' },
+    image: SERVICE_IMAGES['/services/missed-call-rescue'],
     text: 'Every missed call gets a text in seconds.',
     icon: PhoneCall,
     scene: {
@@ -67,7 +68,7 @@ export const FIXES: Fix[] = [
   {
     title: '60 Second Response',
     problemTitle: 'Late Replies',
-    image: { src: '/images/services/fast-response.webp', alt: 'A stopwatch and message showing a reply in under a minute.' },
+    image: SERVICE_IMAGES['/services/60-second-response'],
     text: 'Every lead hears back in under a minute.',
     icon: Zap,
     scene: {
@@ -83,7 +84,7 @@ export const FIXES: Fix[] = [
   {
     title: 'Quote Chaser',
     problemTitle: 'Missed Follow Ups',
-    image: { src: '/images/services/quote-follow-up.webp', alt: 'Automatic messages following up on a cleaning estimate.' },
+    image: SERVICE_IMAGES['/services/quote-chaser'],
     text: 'Every estimate gets followed up, automatically.',
     icon: Send,
     scene: {
@@ -99,7 +100,7 @@ export const FIXES: Fix[] = [
   {
     title: '5 Star Engine',
     problemTitle: 'Too Few Reviews',
-    image: { src: '/images/services/review-requests.webp', alt: 'Review requests collecting customer feedback after cleaning.' },
+    image: SERVICE_IMAGES['/services/review-requests'],
     text: 'A review request after every clean.',
     icon: Star,
     scene: {
@@ -115,7 +116,7 @@ export const FIXES: Fix[] = [
   {
     title: 'Busy Season Ready',
     problemTitle: 'Seasonal Booking Gaps',
-    image: { src: '/images/services/seasonal-bookings.webp', alt: 'Seasonal cleaning inquiries flowing into an organized schedule.' },
+    image: SERVICE_IMAGES['/services/busy-season'],
     text: 'First to every customer during spring cleaning and move out rushes.',
     icon: CalendarRange,
     scene: {
@@ -131,7 +132,7 @@ export const FIXES: Fix[] = [
   {
     title: 'Recurring Booker',
     problemTitle: 'No Repeat Bookings',
-    image: { src: '/images/services/recurring-bookings.webp', alt: 'A cleaning calendar with repeat bookings and reminder loops.' },
+    image: SERVICE_IMAGES['/services/recurring-bookings'],
     text: 'One time clients become weekly and monthly regulars.',
     icon: Repeat,
     scene: {

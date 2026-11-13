@@ -12,23 +12,24 @@
       @font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 400 700; font-display: swap; src: url('/fonts/dm-sans-latin-9fea608a947e.woff2') format('woff2'); }
       @font-face { font-family: 'Outfit'; font-style: normal; font-weight: 500 700; font-display: swap; src: url('/fonts/outfit-latin-6c18d579fd87.woff2') format('woff2'); }
       /* Development-only bootstrap. Production prerendering replaces this with the visible page. */
-      html, body { margin: 0; background: #010f34; }
-      .boot-loader { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; background: #010f34; color: #fff; font-family: Outfit, system-ui, sans-serif; }
-      .boot-loader__ring { position: relative; width: 6rem; height: 6rem; }
-      .boot-loader__ring::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 4px solid rgba(255, 255, 255, 0.15); border-top-color: #2077bc; animation: boot-spin 1s linear infinite; }
-      .boot-loader__mark { position: absolute; inset: 0.75rem; box-sizing: border-box; width: 4.5rem; height: 4.5rem; border-radius: 50%; padding: 0.5rem; background: #fff; object-fit: contain; }
-      .boot-loader__name { margin: 0; font-size: 1.25rem; font-weight: 600; }
-      @keyframes boot-spin { to { transform: rotate(360deg); } }
-      @media (prefers-reduced-motion: reduce) { .boot-loader__ring::before { animation: none; } }
+      html, body { margin: 0; background: #fff; }
+      .boot-loader { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.75rem; background: #fff; }
+      .boot-loader__logo { position: relative; display: block; width: clamp(12rem, 60vw, 18rem); aspect-ratio: 613 / 158; overflow: hidden; }
+      .boot-loader__logo img { position: absolute; left: 0; top: 0; height: 100%; width: auto; max-width: none; }
+      .boot-loader__track { width: 5rem; height: 3px; overflow: hidden; border-radius: 2px; background: #e9eff6; }
+      .boot-loader__track::after { content: ''; display: block; width: 100%; height: 100%; border-radius: inherit; background: #0181f5; transform-origin: left; animation: boot-progress 1.4s ease-in-out infinite alternate; }
+      @keyframes boot-progress { from { transform: scaleX(.25); opacity: .5; } to { transform: scaleX(1); opacity: 1; } }
+      @media (prefers-reduced-motion: reduce) { .boot-loader__track::after { animation: none; } }
     </style>
   </head>
   <body>
-    <div id="root"><!--app-html-->
-      <div class="boot-loader" role="status" aria-label="Loading Invent Tomorrow">
-        <div class="boot-loader__ring"><img class="boot-loader__mark" src="/images/logo-mark.png" alt="" width="72" height="72" fetchpriority="high" /></div>
-        <p class="boot-loader__name">Invent Tomorrow</p>
+    <!--app-bootstrap-->
+      <div id="app-bootstrap" class="boot-loader" role="status" aria-label="Loading Invent Tomorrow">
+        <span class="boot-loader__logo"><img src="/images/logo.webp" alt="Invent Tomorrow" width="720" height="158" fetchpriority="high" /></span>
+        <span class="boot-loader__track" aria-hidden="true"></span>
       </div>
-    <!--/app-html--></div>
+    <!--/app-bootstrap-->
+    <div id="root"><!--app-html--><!--/app-html--></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
