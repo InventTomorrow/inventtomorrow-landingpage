@@ -38,3 +38,18 @@ export function getBrowserSessionId(): string {
   catch { browserSessionId = newSessionId(); }
   return browserSessionId;
 }
+
+// "Reset Invo": a brand-new conversation ID for this browser, used by the chat,
+// the audit popup and the talk-to-a-person form from then on.
+export function startNewSession(storage: SessionStorage): string {
+  const id = newSessionId();
+  try { storage.setItem(SESSION_ID_KEY, id); } catch { /* memory copy below still isolates the new chat */ }
+  return id;
+}
+
+export function resetBrowserSessionId(): string {
+  if (typeof window === 'undefined') return newSessionId();
+  try { browserSessionId = startNewSession(window.localStorage); }
+  catch { browserSessionId = newSessionId(); }
+  return browserSessionId;
+}

@@ -1,10 +1,10 @@
 import { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
-import type { LucideIcon } from 'lucide-react';
+import { ArrowRight, type LucideIcon } from 'lucide-react';
 import { Link } from 'react-router';
 import { getCtaIconForPath } from '../utils/ctaIcon';
 import { prefetchPage } from '../pages/lazyPages';
 
-type Variant = 'primary' | 'accent' | 'outline' | 'outline-light';
+type Variant = 'primary' | 'accent' | 'outline' | 'outline-light' | 'book';
 type Size = 'sm' | 'md' | 'lg';
 
 interface Common {
@@ -39,6 +39,8 @@ const VARIANTS: Record<Variant, string> = {
   accent: `border border-paper bg-paper text-primary ${SHIMMER_ON_WHITE}`,
   outline: `border border-primary text-primary before:bg-primary hover:text-on-primary ${FILL_FROM_TOP}`,
   'outline-light': `border border-white/60 text-white before:bg-paper hover:border-paper hover:text-primary ${FILL_FROM_TOP}`,
+  // The booking button, as on the Free Audit page: solid blue, rounded, sentence case, with a trailing arrow
+  book: `rounded-xl! border border-accent bg-accent text-base font-bold normal-case text-on-primary shadow-[0_6px_16px_color-mix(in_srgb,var(--color-accent)_25%,transparent)] hover:border-accent-hover hover:bg-accent-hover ${SHIMMER}`,
 };
 
 const SIZES: Record<Size, string> = {
@@ -64,6 +66,7 @@ export function CtaButton(props: CtaButtonProps) {
       >
         {leading}
         <span>{children}</span>
+        {variant === 'book' && <ArrowRight className="h-5 w-5 shrink-0 transition-transform duration-300 motion-safe:group-hover:translate-x-1" aria-hidden="true" />}
       </Link>
     );
   }
@@ -73,6 +76,7 @@ export function CtaButton(props: CtaButtonProps) {
     <button type={type} className={classes} {...rest}>
       {leading}
       <span>{children}</span>
+      {variant === 'book' && <ArrowRight className="h-5 w-5 shrink-0" aria-hidden="true" />}
     </button>
   );
 }

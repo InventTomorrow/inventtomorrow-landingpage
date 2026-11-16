@@ -35,6 +35,9 @@ browser data, and permanently failed queue jobs also limit recovery.
    API URL into Vercel's server-only `QSTASH_TOKEN` and `QSTASH_URL` settings. Use
    the URL shown in that account (the default is `https://qstash.upstash.io`). Do
    not put these values in client variables or commit the token.
+   Run `npm run check:qstash` to confirm the token works (it is read-only: nothing is
+   sent to n8n). After deploying, the `X-Chat-Timing` response header on `/api/chat`
+   should show `log1` and `log2` of roughly 100–300ms.
 2. Create/verify the FIFO queue `invo-chat-production` with parallelism **1**.
    Development/Preview uses `invo-chat-test` unless `N8N_USE_PRODUCTION=true`.
    Separate the environments; don't send Preview traffic to the production queue.
@@ -61,9 +64,15 @@ serialize these operations. Monitor QStash's dead-letter queue and retry exhaust
 jobs after correcting n8n failures; durable acceptance is not proof of Sheet write.
 Do not trigger lead follow-up actions again for a duplicate `eventId`.
 
-With no QStash token, direct sending still captures the first message and retries
-transient delivery errors once inside the request. It does **not** provide durable
-background retries beyond that request after the visitor closes the browser.
+With no QStash token, an ordinary chat reply does **not** wait for n8n (a full workflow
+run, often 2–4 seconds). The first message starts saving immediately, the reply goes out as
+soon as the AI answers, and the reply snapshot is saved afterwards in the background,
+always after the first one. The response says `logSaved: false, logDeferred: true`, so the
+browser keeps its pending flag and double-checks the save about 15 seconds later; every
+snapshot holds the whole conversation, so any later save repairs a gap. Audit requests
+still wait for n8n, because "request received" must mean it was saved. This is best
+effort and does **not** provide durable background retries after the visitor closes the
+browser; set `QSTASH_TOKEN` for that.
 
 References: [QStash queues](https://upstash.com/docs/qstash/features/queues),
 [deduplication window](https://upstash.com/docs/qstash/features/deduplication),

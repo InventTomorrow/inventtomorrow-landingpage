@@ -92,6 +92,19 @@ test('chat logs carry the quick-audit lead only after the popup has been accepte
   assert.equal(chatRequest(session).state.audit?.businessName, 'Bright Home');
 });
 
+test('chat requests tell the AI which audit question is waiting, or that results are shown', () => {
+  const session = createChatSession('/free-audit', 'browser-session');
+  assert.equal(chatRequest(session).state.auditProgress, undefined, 'no audit yet');
+  session.audit = { started: true, answers: {} };
+  assert.equal(chatRequest(session).state.auditProgress, 1);
+  session.audit.answers = { businessName: 'Bright Home', missedCalls: '6–15' };
+  assert.equal(chatRequest(session).state.auditProgress, 3);
+  session.audit.answers = { ...session.audit.answers, oldQuotes: 'Not sure', typicalClean: 'Under $120' };
+  assert.equal(chatRequest(session).state.auditProgress, undefined, 'locked behind the form, so no chat');
+  session.audit.results = { missedCallsMonth: 43, missedCallValue: 850, oldQuotesNumber: null, revivalValue: null, guaranteeStatus: 'none' };
+  assert.equal(chatRequest(session).state.auditProgress, 'done');
+});
+
 test('a pending audit draft restores every field and the retry ID after reload, independently on each page', () => {
   const storage = memoryStorage();
   const draft: AuditDraft = {

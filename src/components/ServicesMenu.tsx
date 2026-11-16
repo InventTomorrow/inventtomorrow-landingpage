@@ -121,7 +121,9 @@ export function ServicesMenu({ disabled = false }: { disabled?: boolean }) {
                   alt={featuredImage.alt}
                   width={480}
                   height={270}
-                  loading="eager"
+                  // Lazy, not eager: this panel sits in the header, so desktop still loads it up front, while
+                  // phones and tablets (where the desktop menu is display:none) never download it.
+                  loading="lazy"
                   fetchPriority="low"
                   decoding="async"
                   className="aspect-video w-full bg-primary object-cover"

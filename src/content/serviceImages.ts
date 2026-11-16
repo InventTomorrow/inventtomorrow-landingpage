@@ -15,7 +15,7 @@ export const SERVICE_IMAGES: Record<string, ServiceImage> = {
     "srcSet": "/images/services/generated/24-7-receptionist-v3-480.webp 480w, /images/services/generated/24-7-receptionist-v3-960.webp 960w, /images/services/generated/24-7-receptionist-v3-1280.webp 1280w",
     "thumbnail": "/images/services/generated/24-7-receptionist-v3-480.webp",
     "alt": "A receptionist answering calls beside a cleaning company appointment calendar.",
-    "headline": "Every call answered, even when you're mid-clean.",
+    "headline": "Every call answered, even when you're mid clean.",
     "width": 1280,
     "height": 720
   },
@@ -32,8 +32,8 @@ export const SERVICE_IMAGES: Record<string, ServiceImage> = {
     "src": "/images/services/generated/60-second-response-v3-1280.webp",
     "srcSet": "/images/services/generated/60-second-response-v3-480.webp 480w, /images/services/generated/60-second-response-v3-960.webp 960w, /images/services/generated/60-second-response-v3-1280.webp 1280w",
     "thumbnail": "/images/services/generated/60-second-response-v3-480.webp",
-    "alt": "A new cleaning enquiry receiving a reply beside a 42-second timer.",
-    "headline": "Every enquiry answered in under a minute.",
+    "alt": "A new cleaning inquiry receiving a reply beside a 42 second timer.",
+    "headline": "Every inquiry answered in under a minute.",
     "width": 1280,
     "height": 720
   },
@@ -41,8 +41,8 @@ export const SERVICE_IMAGES: Record<string, ServiceImage> = {
     "src": "/images/services/generated/website-chat-v3-1280.webp",
     "srcSet": "/images/services/generated/website-chat-v3-480.webp 480w, /images/services/generated/website-chat-v3-960.webp 960w, /images/services/generated/website-chat-v3-1280.webp 1280w",
     "thumbnail": "/images/services/generated/website-chat-v3-480.webp",
-    "alt": "A cleaning service website chat handling an enquiry late at night.",
-    "headline": "Your website books cleans while you sleep.",
+    "alt": "A cleaning service website chat handling an inquiry late at night.",
+    "headline": "Your website books jobs while you sleep.",
     "width": 1280,
     "height": 720
   },
@@ -68,7 +68,7 @@ export const SERVICE_IMAGES: Record<string, ServiceImage> = {
     "src": "/images/services/generated/quote-chaser-v3-1280.webp",
     "srcSet": "/images/services/generated/quote-chaser-v3-480.webp 480w, /images/services/generated/quote-chaser-v3-960.webp 960w, /images/services/generated/quote-chaser-v3-1280.webp 1280w",
     "thumbnail": "/images/services/generated/quote-chaser-v3-480.webp",
-    "alt": "A cleaning-business owner following up an estimate and confirming a booking.",
+    "alt": "A cleaning business owner following up an estimate and confirming a booking.",
     "headline": "Every quote followed up until it's a yes or a no.",
     "width": 1280,
     "height": 720
@@ -78,7 +78,7 @@ export const SERVICE_IMAGES: Record<string, ServiceImage> = {
     "srcSet": "/images/services/generated/quote-revival-v3-480.webp 480w, /images/services/generated/quote-revival-v3-960.webp 960w, /images/services/generated/quote-revival-v3-1280.webp 1280w",
     "thumbnail": "/images/services/generated/quote-revival-v3-480.webp",
     "alt": "Old cleaning estimates being reviewed and turned into a new appointment.",
-    "headline": "Your old quotes are full of booked cleans.",
+    "headline": "Your old quotes are full of booked jobs.",
     "width": 1280,
     "height": 720
   },
@@ -113,7 +113,7 @@ export const SERVICE_IMAGES: Record<string, ServiceImage> = {
     "src": "/images/services/generated/review-requests-v3-1280.webp",
     "srcSet": "/images/services/generated/review-requests-v3-480.webp 480w, /images/services/generated/review-requests-v3-960.webp 960w, /images/services/generated/review-requests-v3-1280.webp 1280w",
     "thumbnail": "/images/services/generated/review-requests-v3-480.webp",
-    "alt": "A satisfied cleaning customer leaving a five-star review on a phone.",
+    "alt": "A satisfied cleaning customer leaving a five star review on a phone.",
     "headline": "More Google reviews, so more people pick you.",
     "width": 1280,
     "height": 720
@@ -123,7 +123,7 @@ export const SERVICE_IMAGES: Record<string, ServiceImage> = {
     "srcSet": "/images/services/generated/recurring-bookings-v4-480.webp 480w, /images/services/generated/recurring-bookings-v4-960.webp 960w, /images/services/generated/recurring-bookings-v4-1280.webp 1280w",
     "thumbnail": "/images/services/generated/recurring-bookings-v4-480.webp",
     "alt": "An open paper planner with repeated blue cleaning appointment cards and a repeat symbol.",
-    "headline": "Turn one-time cleans into regulars.",
+    "headline": "Turn one time cleans into regulars.",
     "width": 1280,
     "height": 720
   },
@@ -131,7 +131,7 @@ export const SERVICE_IMAGES: Record<string, ServiceImage> = {
     "src": "/images/services/generated/busy-season-v3-1280.webp",
     "srcSet": "/images/services/generated/busy-season-v3-480.webp 480w, /images/services/generated/busy-season-v3-960.webp 960w, /images/services/generated/busy-season-v3-1280.webp 1280w",
     "thumbnail": "/images/services/generated/busy-season-v3-480.webp",
-    "alt": "A cleaning-business owner planning a full calendar before the spring rush.",
+    "alt": "A cleaning business owner planning a full calendar before the spring rush.",
     "headline": "Book the rush before it starts.",
     "width": 1280,
     "height": 720
@@ -158,8 +158,8 @@ export const SERVICE_IMAGES: Record<string, ServiceImage> = {
     "src": "/images/services/generated/services-overview-v3-1280.webp",
     "srcSet": "/images/services/generated/services-overview-v3-480.webp 480w, /images/services/generated/services-overview-v3-960.webp 960w, /images/services/generated/services-overview-v3-1280.webp 1280w",
     "thumbnail": "/images/services/generated/services-overview-v3-480.webp",
-    "alt": "A cleaning-business owner coordinating bookings while the crew prepares for work.",
-    "headline": "Less chasing. More booked cleans.",
+    "alt": "A cleaning business owner coordinating bookings while the crew prepares for work.",
+    "headline": "Less chasing. More booked jobs.",
     "width": 1280,
     "height": 720
   }

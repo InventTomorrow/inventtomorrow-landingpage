@@ -1,6 +1,7 @@
 import { ArrowRight, CalendarDays, Check } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { AuditChat } from '../components/AuditChat';
+import { FoundingCountdown } from '../components/FoundingCountdown';
 import { AuditModal } from '../components/AuditModal';
 import type { AuditFormValues } from '../components/AuditForm';
 import { PAGE_META } from '../content/pages';
@@ -30,7 +31,7 @@ export function FreeAuditPage({ isAds = false }: { isAds?: boolean } = {}) {
       <div className={styles.container}>
         <div className={styles.layout}>
           <div className={styles.intro}>
-            <span className={styles.eyebrow}>Free 15-minute audit</span>
+            <span className={styles.eyebrow}>Free 15 minute audit</span>
             <h1 id="free-audit-heading" className={styles.headline}>
               Find the jobs you're missing.
             </h1>
@@ -64,9 +65,10 @@ export function FreeAuditPage({ isAds = false }: { isAds?: boolean } = {}) {
           </div>
           <div className={styles.actions}>
             <button type="button" onClick={() => openForm()} aria-haspopup="dialog" className={styles.bookingButton}>
-              <CalendarDays aria-hidden="true" /><span>Book a 15-minute call</span><ArrowRight aria-hidden="true" />
+              <CalendarDays aria-hidden="true" /><span>Book a 15 minute call</span><ArrowRight aria-hidden="true" />
             </button>
-            <p className={styles.chatHint}>Free, no pressure. {FOUNDING_SPOTS_LEFT} of 5 founding spots left.</p>
+            <p className={styles.chatHint}>Free, no pressure. {FOUNDING_SPOTS_LEFT}/5 founding spots left.</p>
+            <FoundingCountdown variant="inline" className={`${styles.chatHint} ${styles.countdown}`} />
           </div>
         </section>
       </div>

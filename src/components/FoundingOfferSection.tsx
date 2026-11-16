@@ -3,6 +3,7 @@ import { AUDIT_PATH } from '../utils/navigation';
 import { FOUNDING_SPOTS_LEFT } from '../utils/freeAudit';
 import { CtaButton } from './CtaButton';
 import { FadeUp } from './FadeUp';
+import { FoundingCountdown } from './FoundingCountdown';
 
 const REMAINING_SPOTS = FOUNDING_SPOTS_LEFT;
 const TOTAL_SPOTS = 5;
@@ -14,10 +15,10 @@ const PERKS = [
 ];
 
 const BONUSES = [
-  { title: 'Old Quote Import and Clean-Up', text: 'We pull out and clean up your old quotes.' },
-  { title: 'Voice-Matched Reply Library', text: '40 ready answers to customer questions, written in your voice.' },
-  { title: 'Weekly Booked-Jobs Scoreboard', text: 'A weekly scoreboard of the cleans we booked you.' },
-  { title: 'Google Business Profile Booking Tune-Up', text: 'A Google Business Profile tune-up for bookings.' },
+  { title: 'Old Quote Import and Clean Up', text: 'We pull out and clean up your old quotes.' },
+  { title: 'Voice Matched Reply Library', text: '40 ready answers to customer questions, written in your voice.' },
+  { title: 'Weekly Booked Jobs Scoreboard', text: 'A weekly scoreboard of the jobs we booked you.' },
+  { title: 'Google Business Profile Booking Tune Up', text: 'A Google Business Profile tune up for bookings.' },
 ];
 
 const GUARANTEE_CONDITIONS = [
@@ -32,9 +33,9 @@ export function FoundingOfferSection() {
       <div className="mx-auto max-w-7xl">
         <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:gap-14">
           <div className="min-w-0">
-            <p className="text-sm font-semibold uppercase text-accent">One done-for-you package</p>
+            <p className="text-sm font-semibold uppercase text-accent">One package, fully managed for you</p>
             <h2 id="offer-title" className="mt-3 max-w-[22ch] font-display text-3xl font-semibold leading-[1.15] tracking-display text-primary sm:text-4xl xl:text-[2.75rem]">
-              The Spring-Ready <span className="text-accent">Booked Calendar System</span>
+              The Spring Ready <span className="text-accent">Booked Calendar System</span>
             </h2>
             <p className="mt-5 max-w-xl text-base text-ink sm:text-lg">
               All seven fixes, set up, written and run for you. Plus four bonuses:
@@ -62,7 +63,7 @@ export function FoundingOfferSection() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm font-semibold uppercase text-accent">Founding clients</p>
               <span className="rounded-full bg-paper px-3 py-1 text-sm font-semibold text-primary">
-                {REMAINING_SPOTS} of {TOTAL_SPOTS} founding spots left
+                {REMAINING_SPOTS}/{TOTAL_SPOTS} spots left
               </span>
             </div>
             <h3 className="mt-5 font-display text-2xl font-semibold leading-snug text-primary">5 founding spots.</h3>
@@ -70,6 +71,7 @@ export function FoundingOfferSection() {
               <CalendarDays className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden="true" />
               <span>Closing <time dateTime="2027-01-15">15 January 2027</time>, or when all 5 are taken.</span>
             </p>
+            <FoundingCountdown className="mt-5" />
 
             <div className="mt-6 border-y border-border py-6">
               <p className="flex flex-wrap items-baseline gap-x-2 font-display text-primary">
@@ -92,7 +94,7 @@ export function FoundingOfferSection() {
               ))}
             </ul>
             <p className="mt-5 text-sm leading-relaxed">
-              In return, your results become our next case study. Spots close on 15 January so your follow-up is running ahead of the spring rush.
+              In return, your results become our next case study. Spots close on 15 January so your follow up is running ahead of the spring rush.
             </p>
             <CtaButton to={AUDIT_PATH} className="mt-6 w-full min-w-0 whitespace-normal! px-4">
               Claim a founding spot
@@ -115,7 +117,7 @@ export function GuaranteeSection() {
             The Pays For Itself Guarantee
           </h2>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">
-            If the cleans we book you in your first 90 days don't add up to more than everything you've paid us, you pay no monthly fee until they do.
+            If the jobs we book you in your first 90 days don't add up to more than everything you've paid us, you pay no monthly fee until they do.
           </p>
         </FadeUp>
 

@@ -2,6 +2,8 @@ import { randomUUID } from 'node:crypto';
 import { validSessionId } from '../src/utils/sessionId.ts';
 import { DEFAULT_APPOINTMENT_TIME_ZONE, isUsAppointmentTimeZone } from '../src/utils/appointment.ts';
 import { normalizeUsPhone } from './contact.ts';
+// Same website rule as the audit form: "brighthome.com" becomes https://brighthome.com/.
+import { normalizeWebsite } from '../src/utils/contactChecks.ts';
 import { sendToWebhook, webhookTarget, webhookUrl, type WebhookEnv, type WebhookResult } from './webhook.ts';
 import { calculateAudit, COMPANY_SIZE_OPTIONS, FOUNDING_SPOTS_LEFT, parseAuditAnswers, type AuditEstimates } from '../src/utils/freeAudit.ts';
 import { AUDIT_EMAIL_SYSTEM_PROMPT } from './auditPrompts.ts';
@@ -12,17 +14,6 @@ import { pickTracking, type Tracking } from '../src/utils/attribution.ts';
 function trackingFields(raw: unknown): Record<string, string | Tracking> {
   const tracking = pickTracking(raw);
   return { ...tracking, tracking };
-}
-
-// Owners often type "brighthome.com"; accept it as https://brighthome.com.
-function normalizeWebsite(raw: unknown): string {
-  if (typeof raw !== 'string' || raw.length > 2048) return '';
-  const typed = raw.trim();
-  if (!typed) return '';
-  try {
-    const url = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(typed) ? typed : `https://${typed}`);
-    return ['https:', 'http:'].includes(url.protocol) && url.hostname.includes('.') && !url.username && !url.password ? url.href : '';
-  } catch { return ''; }
 }
 
 interface AuditResult {
@@ -120,6 +111,9 @@ async function submitQuickAudit(raw: Record<string, unknown>, env: WebhookEnv): 
   const companySize = COMPANY_SIZE_OPTIONS.find((size) => size === raw.companySize);
   const pagePath = raw.pagePath === '/free-audit' || raw.pagePath === '/free-audit-ads' ? raw.pagePath : null;
   const website = raw.noWebsite === true ? 'none' : normalizeWebsite(raw.website);
+  if (!website && raw.noWebsite !== true && answers && companySize && pagePath) {
+    return { status: 400, body: { error: 'Please enter a valid website, like brighthome.com, or tick "No website yet".' } };
+  }
   if (!answers || !companySize || !pagePath || !website || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return { status: 400, body: { error: 'Please complete your audit, email, website and company size.' } };
   }

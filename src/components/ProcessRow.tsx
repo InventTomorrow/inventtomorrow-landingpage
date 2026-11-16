@@ -23,8 +23,9 @@ export function ProcessRow({ steps, firstNumber, columnsClassName }: ProcessRowP
   return (
     <div ref={rowRef} className="relative">
       <svg className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
-        {segments.map((segment) => (
-          <line key={segment.x1} {...segment} className="stroke-accent" strokeWidth="1.5" strokeDasharray="4 6" strokeLinecap="round" />
+        {/* Segment i always joins step i to step i + 1, so its position is a stable key. */}
+        {segments.map((segment, index) => (
+          <line key={index} {...segment} className="stroke-accent" strokeWidth="1.5" strokeDasharray="4 6" strokeLinecap="round" />
         ))}
       </svg>
 

@@ -6,8 +6,8 @@ import { Stagger } from './Stagger';
 const CHANGES: { icon: LucideIcon; before: string; after: string }[] = [
   { icon: PhoneCall, before: 'Missed calls go to voicemail', after: 'Every missed call gets a reply in seconds' },
   { icon: FileText, before: 'Quotes go quiet', after: 'Every quote gets followed up' },
-  { icon: RotateCcw, before: 'Old quotes sit in a spreadsheet', after: 'Old quotes become booked cleans' },
-  { icon: Repeat, before: 'One-time clients disappear', after: 'One-time clients become regulars' },
+  { icon: RotateCcw, before: 'Old quotes sit in a spreadsheet', after: 'Old quotes become booked jobs' },
+  { icon: Repeat, before: 'One time clients disappear', after: 'One time clients become regulars' },
   { icon: Star, before: 'Reviews when you remember', after: 'A review request after every clean' },
 ];
 
@@ -20,7 +20,7 @@ export function BeforeAfterSection() {
           eyebrow="Before and after"
           size="compact"
           title="Same leads."
-          titleMuted="More booked cleans."
+          titleMuted="More booked jobs."
         />
 
         <div className="mt-10">

@@ -12,7 +12,7 @@ import { runInNewContext } from 'node:vm';
 import handler from '../api/chat.ts';
 import auditHandler from '../api/audit.ts';
 import { chatEventId } from '../server/chatDelivery.ts';
-import { AUDIT_QUICK_REPLIES, predefinedAuditReply } from '../src/utils/freeAudit.ts';
+import { AUDIT_PRICING_REPLY, AUDIT_QUESTIONS, AUDIT_QUICK_REPLIES, predefinedAuditReply } from '../src/utils/freeAudit.ts';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const envKeys = ['KOBOILLM_API_KEY', 'KOBOILLM_BASE_URL', 'KOBOILLM_MODEL', 'N8N_WEBHOOK_URL', 'N8N_WEBHOOK_TEST_URL', 'N8N_LOG_EVERY_MESSAGE', 'N8N_USE_PRODUCTION', 'VERCEL_ENV', 'QSTASH_TOKEN', 'QSTASH_URL'];
@@ -126,7 +126,7 @@ function enableLogging() {
   process.env.N8N_LOG_EVERY_MESSAGE = 'true';
 }
 
-test('the first visitor message is accepted before the AI runs and the full request survives a disconnect', async (t) => {
+test('without a queue the reply does not wait for n8n: both saves finish afterwards, in order, and the browser is told to double-check', async (t) => {
   enableLogging();
   const tasks = captureBackground(t);
   const webhook = Promise.withResolvers();
@@ -147,19 +147,27 @@ test('the first visitor message is accepted before the AI runs and the full requ
   const request = invoke({ messages, sessionId: 'abandoned-test', pagePath: '/free-audit-ads' }).then((value) => { response = value; });
   try {
     await nextTurn();
-    assert.equal(response, undefined);
-    assert.equal(modelCalls, 0, 'Capture must not depend on an AI reply');
+    await nextTurn();
+    // A direct n8n write takes a whole workflow run, so the AI must not queue up behind it
+    // (a queue's quick acceptance still goes first: see the durable FIFO queue test).
+    assert.equal(modelCalls, 1, 'The AI starts alongside the first log, not after it');
+    assert.equal(payloads.length, 1, 'The reply snapshot is sent only after the first one, so they stay in order');
+    // n8n is still busy with the first save, yet the visitor already has the reply.
+    assert.equal(response?.statusCode, 200);
+    assert.equal(response.body.reply, "What's your cleaning business called?");
+    assert.equal(response.body.logSaved, false, 'not confirmed yet');
+    assert.equal(response.body.logDeferred, true, 'the browser double-checks the save later');
     assert.deepEqual(payloads[0].transcript, messages);
     assert.equal(payloads[0].version, 1);
     assert.equal(payloads[0].pagePath, '/free-audit-ads');
-    assert.equal(tasks.length, 1, 'Vercel must retain the entire request');
+    assert.equal(tasks.length, 2, 'Vercel must retain the request and the background saves');
     // No browser callback is involved in continuing this request.
     webhook.resolve();
     await request;
-    assert.equal(response?.statusCode, 200);
-    assert.equal(response.body.reply, "What's your cleaning business called?");
-    assert.equal(response.body.logSaved, true);
+    await Promise.all(tasks);
     assert.match(response.headers['Server-Timing'], /^chat;dur=\d+(\.\d+)?$/);
+    // The saves finish after the reply, so only the AI wait and the total are known when it goes out.
+    assert.match(response.headers['X-Chat-Timing'], /^model=\d+ms total=\d+ms$/);
     assert.equal(modelCalls, 1, 'Ordinary logs need no extraction model request');
     assert.equal(payloads[1].sessionId, 'abandoned-test');
     assert.equal(payloads[1].event, 'message');
@@ -441,6 +449,26 @@ test('invalid form fields are rejected before any webhook call', async () => {
     assert.equal((await invokeForm(body)).statusCode, 400);
   }
   assert.equal(globalThis.fetch.mock.callCount(), 0);
+});
+
+test('a quick audit needs a real-looking website, with a clear message, before anything reaches n8n', async () => {
+  process.env.N8N_WEBHOOK_TEST_URL = 'https://logging.test/webhook';
+  for (const website of ['brighthome', 'my website.com', 'a.b', 'localhost', '192.168.1.1', 'bright_home.com', 'ftp://brighthome.com', 'http://user:pw@brighthome.com', '']) {
+    const response = await invokeForm({ ...quickAudit, website, noWebsite: false });
+    assert.equal(response.statusCode, 400, website);
+    assert.match(response.body.error, /valid website, like brighthome\.com, or tick "No website yet"/, website);
+  }
+  // "No website yet" skips the check, and a bare domain is fine.
+  globalThis.fetch.mock.mockImplementation(async (_url, options) => Response.json(webhookAcknowledgement(JSON.parse(options.body))));
+  const none = await invokeForm({ ...quickAudit, website: 'brighthome', noWebsite: true });
+  assert.equal(none.statusCode, 200);
+  const bare = await invokeForm({ ...quickAudit, submissionId: 'website-bare-domain-0001', website: 'BrightHome.com/about' });
+  assert.equal(bare.statusCode, 200);
+  assert.equal(JSON.parse(globalThis.fetch.mock.calls.at(-1).arguments[1].body).lead.website, 'https://brighthome.com/about');
+  // The visitor's country-code prefix from the form is accepted as a US number.
+  const prefixed = await invokeForm({ ...quickAudit, submissionId: 'website-bare-domain-0002', phone: '+1 (202) 234-5678' });
+  assert.equal(prefixed.statusCode, 200);
+  assert.equal(JSON.parse(globalThis.fetch.mock.calls.at(-1).arguments[1].body).lead.phone, '+12022345678');
 });
 
 test('missing, invalid and past appointment values never reach the webhook', async () => {
@@ -863,7 +891,7 @@ test('pricing gives the complete founding offer specified for the audit page', a
   assert.match(response.body.reply, /\$345 a month/);
   assert.match(response.body.reply, /audit is free/);
   assert.match(response.body.reply, /locked for life/);
-  assert.match(response.body.reply, /Three of five founding spots/);
+  assert.match(response.body.reply, /Two of five founding spots/);
   assert.match(response.body.reply, /guaranteed to pay for itself in 90 days/);
   assert.match(response.body.reply, /Want me to book it\?/);
   assert.equal(globalThis.fetch.mock.callCount(), 0);
@@ -883,8 +911,9 @@ test('the first four quick replies have complete predefined answers without need
   assert.equal(globalThis.fetch.mock.callCount(), 0);
 });
 
-test('predefined quick replies still log both visitor and complete assistant messages', async () => {
+test('predefined quick replies still log both visitor and complete assistant messages', async (t) => {
   process.env.N8N_WEBHOOK_TEST_URL = 'https://logging.test/webhook';
+  const tasks = captureBackground(t);
   const logs = [];
   globalThis.fetch.mock.mockImplementation(async (url, options) => {
     assert.equal(url, process.env.N8N_WEBHOOK_TEST_URL);
@@ -893,7 +922,8 @@ test('predefined quick replies still log both visitor and complete assistant mes
   });
   const response = await invoke({ experience: 'guided-audit', messages: [{ role: 'user', content: "I'm missing calls" }] });
   assert.equal(response.statusCode, 200);
-  assert.equal(response.body.logSaved, true);
+  assert.equal(response.body.logDeferred, true);
+  await Promise.all(tasks);
   assert.equal(logs.length, 2);
   assert.equal(logs[1].transcript.at(-1).content, AUDIT_QUICK_REPLIES["I'm missing calls"]);
 });
@@ -927,7 +957,13 @@ test('guided chat uses the updated AI prompt and cannot submit the legacy bookin
     assert.match(payload.messages[0].content, /AI assistant/);
     assert.match(payload.messages[0].content, /15-minute/);
     assert.match(payload.messages[0].content, /200 past enquiries/);
-    assert.match(payload.messages[0].content, /no fixed word or sentence limit/);
+    // Concise and professional by default, with full detail reserved for prices and guarantee terms.
+    assert.match(payload.messages[0].content, /Put the direct answer in the first sentence/);
+    assert.match(payload.messages[0].content, /1–3 short sentences/);
+    assert.match(payload.messages[0].content, /Professional, calm and courteous/);
+    assert.match(payload.messages[0].content, /never cryptic/);
+    assert.match(payload.messages[0].content, /always state the 200-enquiry condition/i);
+    assert.doesNotMatch(payload.messages[0].content, /no fixed word or sentence limit/);
     assert.doesNotMatch(payload.messages[0].content, /never more than 35 words|up to 60 words|1–2 short sentences/);
     assert.doesNotMatch(payload.messages[0].content, /30 minute|Never give prices/);
     return Response.json({ choices: [{ message: { content: 'Use Book my free audit to start your quick audit.' } }] });
@@ -935,6 +971,14 @@ test('guided chat uses the updated AI prompt and cannot submit the legacy bookin
   const response = await invoke({ experience: 'guided-audit', messages: [{ role: 'user', content: 'How does the audit work?' }] });
   assert.equal(response.statusCode, 200);
   assert.equal(response.body.requestSent, undefined);
+});
+
+test('the prompt in docs/prompts/invo-system-prompt.txt is exactly what the chat sends', async () => {
+  const { INVO_SYSTEM_PROMPT } = await import('../server/auditPrompts.ts');
+  const { FOUNDING_SPOTS_LEFT } = await import('../src/utils/freeAudit.ts');
+  const text = (await readFile(path.join(root, 'docs/prompts/invo-system-prompt.txt'), 'utf8')).split('\r\n').join('\n').trimEnd();
+  assert.equal(INVO_SYSTEM_PROMPT, text, 'edit the TXT, then run its contents into server/auditPrompts.ts');
+  assert.match(INVO_SYSTEM_PROMPT, new RegExp(String(FOUNDING_SPOTS_LEFT) + ' of 5 founding spots are left'));
 });
 
 test('chat preserves the full answer and paragraph formatting instead of dropping details after two sentences', async () => {
@@ -954,7 +998,7 @@ test('a long guarantee answer keeps its complete conditions and its additional e
   globalThis.fetch.mock.mockImplementation(async () => Response.json({ choices: [{ message: {
     content: terms + ' The audit checks eligibility.',
   } }] }));
-  const response = await invoke({ experience: 'guided-audit', messages: [{ role: 'user', content: 'What does the guarantee cover?' }] });
+  const response = await invoke({ experience: 'guided-audit', messages: [{ role: 'user', content: 'What does the guarantee cover if I only have 120 old quotes in total?' }] });
   assert.equal(response.body.reply, terms + ' The audit checks eligibility.');
   assert.match(response.body.reply, /200 past enquiries/);
   assert.match(response.body.reply, /90 days/);
@@ -989,6 +1033,106 @@ test('a combined pricing and guarantee question reaches the agent instead of los
   assert.match(response.body.reply, /200 past enquiries/);
   assert.match(response.body.reply, /90 days/);
   assert.equal(globalThis.fetch.mock.callCount(), 1);
+});
+
+test('only questions about our price get the pricing reply; earnings and the visitor\'s own prices reach the agent', async () => {
+  process.env.KOBOILLM_API_KEY = 'test-key';
+  process.env.N8N_LOG_EVERY_MESSAGE = 'false';
+  globalThis.fetch.mock.mockImplementation(async () => Response.json({ choices: [{ message: { content: 'Agent answer.' } }] }));
+  for (const content of ['Is there a setup fee?', 'pricing', 'How much is it?', 'What do you charge per month?']) {
+    const response = await invoke({ experience: 'guided-audit', messages: [{ role: 'user', content }] });
+    assert.equal(response.body.reply, AUDIT_PRICING_REPLY, content);
+  }
+  assert.equal(globalThis.fetch.mock.callCount(), 0);
+  for (const content of ['How much am I losing from missed calls?', 'How much is a missed call worth?', 'My cleans cost about $150, can you help?', 'How much could I make from old quotes?']) {
+    const response = await invoke({ experience: 'guided-audit', messages: [{ role: 'user', content }] });
+    assert.equal(response.body.reply, 'Agent answer.', content);
+  }
+  assert.equal(globalThis.fetch.mock.callCount(), 4);
+});
+
+test('mid-audit, the agent knows which question is waiting and canned replies stop inviting a restart', async () => {
+  process.env.KOBOILLM_API_KEY = 'test-key';
+  process.env.N8N_LOG_EVERY_MESSAGE = 'false';
+  const prompts = [];
+  globalThis.fetch.mock.mockImplementation(async (_url, options) => {
+    prompts.push(JSON.parse(options.body).messages[0].content);
+    return Response.json({ choices: [{ message: { content: 'Any call you could not answer on a job counts.' } }] });
+  });
+  const ask = (state, content) => invoke({ experience: 'guided-audit', state: { lead: null, askedDirect: false, ...state }, messages: [{ role: 'user', content }] });
+  await ask({ auditProgress: 2 }, 'What counts as a missed call?');
+  assert.match(prompts[0], /question 2 of 4/);
+  assert.ok(prompts[0].includes(AUDIT_QUESTIONS[1]));
+  assert.match(prompts[0], /Do not ask that question/);
+  await ask({ auditProgress: 'done' }, 'Do you work with commercial offices too?');
+  assert.match(prompts[1], /finished the quick audit/);
+  for (const auditProgress of [0, 5, '2', 'started']) await ask({ auditProgress }, 'Do you cover commercial offices as well?');
+  assert.ok(prompts.slice(2).every((prompt) => !/CURRENT STATE/.test(prompt)), 'unknown progress values are ignored');
+
+  const canned = await ask({ auditProgress: 1 }, "I'm missing calls");
+  assert.ok(AUDIT_QUICK_REPLIES["I'm missing calls"].startsWith(canned.body.reply));
+  assert.doesNotMatch(canned.body.reply, /Book my free audit/);
+  const pricing = await ask({ auditProgress: 3 }, 'What does it cost?');
+  assert.match(pricing.body.reply, /\$345 a month/);
+  assert.doesNotMatch(pricing.body.reply, /Want me to book it/);
+  const fresh = await ask({}, "I'm missing calls");
+  assert.equal(fresh.body.reply, AUDIT_QUICK_REPLIES["I'm missing calls"], 'before the audit the invitation stays');
+});
+
+test('Markdown from the model is shown as plain text in the chat bubble', async () => {
+  process.env.KOBOILLM_API_KEY = 'test-key';
+  process.env.N8N_LOG_EVERY_MESSAGE = 'false';
+  globalThis.fetch.mock.mockImplementation(async () => Response.json({ choices: [{ message: {
+    content: '## What we do\n**Missed Call Rescue** texts back in seconds.\n\n- Quote Chaser\n* Quote Revival\n\nSee [our site](https://www.inventtomorrow.pro/).',
+  } }] }));
+  const response = await invoke({ experience: 'guided-audit', messages: [{ role: 'user', content: 'Which of your services helps with after-hours enquiries?' }] });
+  assert.equal(response.body.reply, 'What we do\nMissed Call Rescue texts back in seconds.\n\n• Quote Chaser\n• Quote Revival\n\nSee our site (https://www.inventtomorrow.pro/).');
+});
+
+test('greetings and common questions are answered instantly with no AI call, even without an API key', async () => {
+  process.env.N8N_LOG_EVERY_MESSAGE = 'false';
+  const ask = (content, state) => invoke({ experience: 'guided-audit', ...(state ? { state } : {}), messages: [{ role: 'user', content }] });
+  for (const [content, expected] of [
+    ['hi', /Hello\. I'm Invo/], ['Hello!', /Hello\. I'm Invo/], ['thanks', /You're welcome/],
+    ['Is the audit free?', /Yes\. The audit is free and takes 15 minutes\./], ['are you human?', /Invo, Invent Tomorrow's AI assistant/],
+    ['what is the guarantee', /at least 200 past enquiries or quotes/], ['do I need new software?', /current tools can support it/],
+    ['what is Quote Revival?', /contacts old quotes that never booked/], ['hi, I\'m missing calls', /Missed Call Rescue texts back/],
+  ]) {
+    const response = await ask(content);
+    assert.equal(response.statusCode, 200, content);
+    assert.match(response.body.reply, expected, content);
+  }
+  assert.equal(globalThis.fetch.mock.callCount(), 0, 'no provider or webhook request');
+
+  // Before the audit a fixed answer nudges toward it; once it has started, that nudge is left out.
+  assert.match((await ask('Is the audit free?')).body.reply, /Book my free audit to get started\.$/);
+  for (const auditProgress of [2, 'done']) {
+    assert.doesNotMatch((await ask('Is the audit free?', { lead: null, askedDirect: false, auditProgress })).body.reply, /Book my free audit/);
+  }
+});
+
+test('an unclear or multi-part message still reaches the AI, and fixed answers are still logged', async (t) => {
+  process.env.KOBOILLM_API_KEY = 'test-key';
+  process.env.N8N_WEBHOOK_TEST_URL = 'https://logging.test/webhook';
+  process.env.N8N_LOG_EVERY_MESSAGE = 'true';
+  const tasks = captureBackground(t);
+  const logs = [];
+  let modelCalls = 0;
+  globalThis.fetch.mock.mockImplementation(async (url, options) => {
+    if (url === process.env.N8N_WEBHOOK_TEST_URL) { logs.push(JSON.parse(options.body)); return Response.json({ success: true }); }
+    modelCalls++;
+    return Response.json({ choices: [{ message: { content: 'Agent answer.' } }] });
+  });
+  const ask = (content) => invoke({ experience: 'guided-audit', sessionId: 'canned-session', messages: [{ role: 'user', content }] });
+  assert.equal((await ask('Is the audit free and do you work with commercial offices?')).body.reply, 'Agent answer.');
+  assert.equal(modelCalls, 1);
+  const fixed = await ask('hi');
+  assert.match(fixed.body.reply, /Hello\. I'm Invo/);
+  assert.equal(modelCalls, 1, 'the greeting did not call the AI');
+  await Promise.all(tasks);
+  const greeting = logs.filter((log) => log.transcript[0].content === 'hi');
+  assert.equal(greeting.length, 2, 'the visitor message and the fixed reply are both saved');
+  assert.match(greeting.at(-1).transcript.at(-1).content, /Hello\. I'm Invo/);
 });
 
 test('the compiled server entry point resolves its imports in plain Node', async (t) => {

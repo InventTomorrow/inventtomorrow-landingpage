@@ -3,7 +3,8 @@
 // Vite dev server (vite.config.ts), so the API key never reaches the browser.
 import { normalizeUsPhone } from './contact.ts';
 import { INVO_SYSTEM_PROMPT } from './auditPrompts.ts';
-import { AUDIT_PRICING_REPLY, predefinedAuditReply } from '../src/utils/freeAudit.ts';
+import { AUDIT_PRICING_REPLY, AUDIT_QUESTIONS, predefinedAuditReply } from '../src/utils/freeAudit.ts';
+import { cannedReply, cannedText, stripGreeting } from '../src/utils/cannedAnswers.ts';
 import { randomUUID } from 'node:crypto';
 import { validSessionId } from '../src/utils/sessionId.ts';
 import { webhookUrl } from './webhook.ts';
@@ -29,7 +30,9 @@ export interface BookingDetails {
 
 export interface ChatResult {
   status: number;
-  body: { reply?: string; booking?: BookingDetails; directLink?: boolean; contact?: { email: string; phone: string }; requestSent?: boolean; error?: string; logSaved?: boolean; loggingDisabled?: boolean };
+  // Milliseconds spent on each step (log1, model, log2), sent as a response header, never in the body.
+  timings?: Record<string, number>;
+  body: { reply?: string; booking?: BookingDetails; directLink?: boolean; contact?: { email: string; phone: string }; requestSent?: boolean; error?: string; logSaved?: boolean; logDeferred?: boolean; loggingDisabled?: boolean };
 }
 
 const MAX_MESSAGES = 200;
@@ -191,21 +194,65 @@ function missingDetail(booking: BookingDetails, messages: ChatMessage[]): string
   return contactProblem(booking.email, booking.phone ?? '', messages);
 }
 
+// A question about OUR price. Not a remark about the visitor's own prices
+// ("a clean costs $150") or what they could earn ("how much am I losing?").
+export function isPricingQuestion(text: string): boolean {
+  const t = text.trim().toLowerCase().replace(/[’‘]/g, "'");
+  if (/\b(?:guarantee|90 days?|qualif\w*)\b/.test(t)) return false;
+  if (/\b(?:my|our) (?:cleans?|customers?|clients?|rates?|prices?|jobs?)\b|\bper (?:clean|hour)\b|\b(?:we|i) charge\b/.test(t)) return false;
+  const aboutPrice = /\b(?:pric(?:e|es|ed|ing)|costs?|fees?|charges?)\b/.test(t)
+    || /\bhow much (?:is|are|do|does|would|will|for)\b(?!.*\b(?:lose|losing|lost|make|making|earn|earning|worth|save|saving|miss|missing)\b)/.test(t);
+  const asking = /\?|^(?:what|how|is|are|do|does|can|could|tell me)\b|^(?:price|prices|pricing|cost|costs|fees?)[.!]*$/.test(t);
+  return aboutPrice && asking;
+}
+
+type AuditProgress = 1 | 2 | 3 | 4 | 'done';
+function auditProgress(value: unknown): AuditProgress | null {
+  return value === 'done' || value === 1 || value === 2 || value === 3 || value === 4 ? value : null;
+}
+
+// Where the visitor is in the quick audit, so the model neither restarts it nor
+// asks its questions in free text (the interface owns those questions).
+function auditStateNote(progress: AuditProgress | null): string {
+  if (progress === 'done') {
+    return '\n\nCURRENT STATE: The visitor has finished the quick audit and can see their estimates. Do not restart it or ask its questions again. If they want to go through their numbers with us, point them to the "Book my 15-minute call" button.';
+  }
+  if (progress === null) return '';
+  return `\n\nCURRENT STATE: The visitor is answering question ${progress} of 4 of the quick audit ("${AUDIT_QUESTIONS[progress - 1]}"). Answer their message briefly, in one or two short sentences. Do not ask that question or any other audit question yourself, and do not tell them to press "Book my free audit": the chat shows the question again right after your reply.`;
+}
+
+// Chat bubbles show plain text, so Markdown from the model would appear as stray symbols.
+export function plainChatText(text: string): string {
+  return text
+    .replace(/\*\*([^*\n]+)\*\*/g, '$1').replace(/__([^_\n]+)__/g, '$1')
+    .replace(/^#{1,6}[ \t]+/gm, '')
+    .replace(/^[ \t]*[-*+][ \t]+/gm, '• ')
+    .replace(/\[([^\]\n]+)\]\((https?:\/\/[^)\s]+)\)/g, '$1 ($2)')
+    .replace(/`([^`\n]+)`/g, '$1')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 async function runChat(input: unknown, ip: string, env: ChatEnv): Promise<ChatResult> {
   const messages = parseMessages(input);
   if (!messages) return { status: 400, body: { error: 'Invalid request.' } };
 
   const question = messages.at(-1)?.content ?? '';
-  const predefined = predefinedAuditReply(question);
-  if (predefined) return { status: 200, body: { reply: predefined } };
-  if (/\b(?:pric(?:e|es|ing)|cost|how much|monthly fee|setup fee)\b/i.test(question)
-    && !/\b(?:guarantee|90 days?|qualif\w*)\b/i.test(question)) {
-    return { status: 200, body: { reply: AUDIT_PRICING_REPLY } };
+  const guided = (input as { experience?: string })?.experience === 'guided-audit';
+  const progress = guided ? auditProgress((input as { state?: { auditProgress?: unknown } })?.state?.auditProgress) : null;
+  // Once the audit has started, canned replies drop their "start the audit" invitation.
+  // "hi, I'm missing calls" is understood like "I'm missing calls".
+  const predefined = predefinedAuditReply(question) ?? predefinedAuditReply(stripGreeting(question));
+  if (predefined) return { status: 200, body: { reply: progress ? predefined.replace(/\n\n[^\n]*Book my free audit[^\n]*$/, '') : predefined } };
+  if (isPricingQuestion(question)) {
+    return { status: 200, body: { reply: progress ? AUDIT_PRICING_REPLY.replace(/\s*Want me to book it\?$/, '') : AUDIT_PRICING_REPLY } };
   }
+  // Greetings and the most common questions have fixed answers: instant, and no AI call.
+  const canned = guided ? cannedReply(question) : undefined;
+  if (canned) return { status: 200, body: { reply: cannedText(canned, progress !== null) } };
   const apiKey = env.KOBOILLM_API_KEY;
   if (!apiKey) return { status: 503, body: { error: 'Chat is not configured.' } };
 
-  const guided = (input as { experience?: string })?.experience === 'guided-audit';
   const baseUrl = (env.KOBOILLM_BASE_URL || 'https://api.koboillm.com/v1').replace(/\/+$/, '');
   try {
     const upstream = await fetch(`${baseUrl}/chat/completions`, {
@@ -213,7 +260,7 @@ async function runChat(input: unknown, ip: string, env: ChatEnv): Promise<ChatRe
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
         ...modelParameters(env, 1200, 0.3),
-        messages: [{ role: 'system', content: INVO_SYSTEM_PROMPT }, ...messages.slice(-30)],
+        messages: [{ role: 'system', content: INVO_SYSTEM_PROMPT + auditStateNote(progress) }, ...messages.slice(-30)],
         ...(guided ? {} : { tools: TOOLS }),
       }),
       signal: AbortSignal.timeout(25_000),
@@ -253,7 +300,7 @@ async function runChat(input: unknown, ip: string, env: ChatEnv): Promise<ChatRe
       }
       return { status: 200, body: { reply: 'Something looks off in those details. Could you check your email address and phone number?' } };
     }
-    const reply = message?.content?.trim();
+    const reply = plainChatText(message?.content ?? '');
     if (!reply) return { status: 502, body: { error: 'The assistant is unavailable right now.' } };
     return { status: 200, body: { reply } };
   } catch {
@@ -342,14 +389,14 @@ export function handleChat(
   env: ChatEnv,
   defer?: (task: Promise<void>) => void,
 ): Promise<ChatResult> {
-  const task = processChat(input, ip, env);
+  const task = processChat(input, ip, env, defer);
   // Retain the entire request, including first-message capture, if its browser
   // disconnects while the model is running. This is not the durable retry queue.
   defer?.(task.then(() => {}, () => {}));
   return task;
 }
 
-async function processChat(input: unknown, ip: string, env: ChatEnv): Promise<ChatResult> {
+async function processChat(input: unknown, ip: string, env: ChatEnv, defer?: (task: Promise<void>) => void): Promise<ChatResult> {
   const body = input as { mode?: unknown; sessionId?: unknown; pagePath?: unknown; state?: { lead?: unknown; askedDirect?: unknown; audit?: unknown } } | null;
   const logOnly = body?.mode === 'log';
   const messages = parseMessages(input, logOnly);
@@ -386,7 +433,20 @@ async function processChat(input: unknown, ip: string, env: ChatEnv): Promise<Ch
   if (logOnly && !logEnabled) return { status: 200, body: { loggingDisabled: true } };
   // The visitor's words are captured BEFORE any model request. This also covers
   // model timeouts, missing provider configuration and abandoned conversations.
-  const captured = logEnabled && url ? await deliverChatLog(env, makeLog(messages)) : false;
+  const startedAt = performance.now();
+  const timings: Record<string, number> = {};
+  const timedLog = async (key: string, log: ChatLog) => {
+    const began = performance.now();
+    const ok = await deliverChatLog(env, log);
+    timings[key] = Math.round(performance.now() - began);
+    return ok;
+  };
+  const firstLog = logEnabled && url ? timedLog('log1', makeLog(messages)) : Promise.resolve(false);
+  // With a queue, acceptance takes milliseconds, so it stays strictly before the model. Without one
+  // it is a whole n8n run (a Sheets write), so the model starts at the same moment instead of
+  // waiting for it. The reply log below still waits for this one, so the two arrive in order.
+  const queued = !!env.QSTASH_TOKEN?.trim();
+  let captured = queued || logOnly ? await firstLog : false;
   if (logOnly) {
     return captured
       ? { status: 200, body: { logSaved: true } }
@@ -400,12 +460,24 @@ async function processChat(input: unknown, ip: string, env: ChatEnv): Promise<Ch
     extraction ??= url && messages ? extractLead(messages, env) : Promise.resolve(null);
     return extraction;
   };
+  const modelStarted = performance.now();
   let result = await runChat(input, ip, env);
   if ((input as { experience?: string })?.experience !== 'guided-audit' && result.status === 200 && !result.body.booking && !result.body.directLink) {
     result = (await completedHandoff(messages, extract)) ?? result;
   }
+  timings.model = Math.round(performance.now() - modelStarted);
   const isAuditRequest = !!(result.body.booking || result.body.directLink);
-  if (logEnabled && url) result.body.logSaved = captured;
+  // Without a queue, saving means waiting for a whole n8n run (often 2-4s, retried after 3.5s), and the
+  // reply would wait for it twice. An ordinary message is therefore saved AFTER the reply goes out: the
+  // platform keeps this request alive for it (waitUntil), the reply snapshot still goes out after the first
+  // one so they stay in order, and every snapshot carries the full conversation, so the next message repairs
+  // any gap. The reply says logSaved:false + logDeferred, so the browser still double-checks the save itself.
+  // Audit requests keep waiting, because "request received" must mean it was saved.
+  const background = !queued && !!defer && logEnabled && !!url && !isAuditRequest && result.status === 200 && !!result.body.reply;
+  if (!queued && !background) captured = await firstLog;
+  // "Not confirmed yet": the browser keeps its own copy and double-checks shortly after, off the reply path.
+  if (logEnabled && url) result.body.logSaved = background ? false : captured;
+  if (background) result.body.logDeferred = true;
   if (!logEnabled) result.body.loggingDisabled = true;
   if (isAuditRequest) {
     result.body.requestSent = false;
@@ -415,14 +487,25 @@ async function processChat(input: unknown, ip: string, env: ChatEnv): Promise<Ch
     const reply = isAuditRequest
       ? 'Your audit request is received. Our team will contact you to arrange a time.'
       : result.body.reply;
-    // Await queue acceptance before replying: FIFO then preserves user/reply order
-    // across turns. QStash delivers to n8n independently of the browser afterwards.
-    const sent = await deliverChatLog(env, makeLog([...messages, { role: 'assistant', content: reply }], result));
-    result.body.logSaved = sent;
-    if (isAuditRequest && sent) {
-      result.body.requestSent = true;
-      result.body.reply = reply;
+    const replyLog = makeLog([...messages, { role: 'assistant', content: reply }], result);
+    if (background) {
+      defer!((async () => {
+        await firstLog;
+        await timedLog('log2', replyLog);
+        console.info(`[chat] saved in the background: ${Object.entries(timings).map(([step, ms]) => `${step}=${ms}ms`).join(' ')}`);
+      })().catch(() => {}));
+    } else {
+      // Await queue acceptance before replying: FIFO then preserves user/reply order
+      // across turns. QStash delivers to n8n independently of the browser afterwards.
+      const sent = await timedLog('log2', replyLog);
+      result.body.logSaved = sent;
+      if (isAuditRequest && sent) {
+        result.body.requestSent = true;
+        result.body.reply = reply;
+      }
     }
   }
+  timings.total = Math.round(performance.now() - startedAt);
+  result.timings = timings;
   return result;
 }

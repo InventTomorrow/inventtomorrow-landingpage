@@ -9,7 +9,7 @@ import { runInNewContext } from 'node:vm';
 import auditHandler from '../api/audit.ts';
 import chatHandler from '../api/chat.ts';
 import {
-  AUDIT_QUESTIONS, calculateAudit, CLEAN_PRICE_OPTIONS, COMPANY_SIZE_OPTIONS, MISSED_CALL_OPTIONS, OLD_QUOTE_OPTIONS,
+  AUDIT_INTRO, AUDIT_QUESTIONS, calculateAudit, CLEAN_PRICE_OPTIONS, COMPANY_SIZE_OPTIONS, MISSED_CALL_OPTIONS, OLD_QUOTE_OPTIONS,
 } from '../src/utils/freeAudit.ts';
 
 const load = async (file) => JSON.parse(await readFile(new URL(`../docs/${file}`, import.meta.url), 'utf8'));
@@ -286,4 +286,24 @@ test('patched: the sheet row, team alert and SMS hand-off carry the whole audit'
   assert.match(sms[0].json.consent.text, /Reply STOP to opt out/);
   assert.deepEqual(executeCode(patched, SMS, {}, { 'Structure Fields2': { ...normalized, sms_consent: false } }), []);
   assert.deepEqual(executeCode(patched, SMS, {}, { 'Structure Fields2': { ...normalized, audit_complete: false } }), []);
+});
+
+test('live: the short chat questions still let n8n read the answers back from the chat history', () => {
+  const transcript = [
+    { role: 'user', content: 'Book my free audit' }, { role: 'assistant', content: AUDIT_INTRO },
+    { role: 'assistant', content: AUDIT_QUESTIONS[0] }, { role: 'user', content: answers.businessName },
+    { role: 'assistant', content: AUDIT_QUESTIONS[1] }, { role: 'user', content: answers.missedCalls },
+    { role: 'assistant', content: AUDIT_QUESTIONS[2] }, { role: 'user', content: answers.oldQuotes },
+    { role: 'assistant', content: AUDIT_QUESTIONS[3] }, { role: 'user', content: answers.typicalClean },
+  ];
+  // Chat-history sheet: the business name is found from the answer after question 1.
+  const row = executeCode(live, 'Structure Output2', { body: { source: 'invo_chat', sessionId: quick.sessionId, transcript } })[0].json;
+  assert.equal(row['Business Name'], answers.businessName);
+  // The email step recovers the three range answers from the saved chat when the form lacks them.
+  const booking = { chat_session_id: quick.sessionId, audit_payload: {}, Appointment_message: '' };
+  const saved = { 'Session ID': quick.sessionId, Chat: row.Chat, 'Last Updated': row['Last Updated'] };
+  const email = executeCode(live, 'Prepare Email Context1', saved, { 'Structure Fields2': booking })[0].json;
+  assert.equal(email.audit_payload.missed_calls_answer, answers.missedCalls);
+  assert.equal(email.audit_payload.old_quotes_answer, answers.oldQuotes);
+  assert.equal(email.audit_payload.typical_clean_answer, answers.typicalClean);
 });

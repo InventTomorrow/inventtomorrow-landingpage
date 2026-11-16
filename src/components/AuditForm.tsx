@@ -1,8 +1,9 @@
 import { CheckCircle2, Send } from 'lucide-react';
-import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
+import { useId, useRef, useState, type FormEvent } from 'react';
 import { DEFAULT_APPOINTMENT_TIME_ZONE } from '../utils/appointment';
 import { getBrowserSessionId } from '../utils/sessionId';
 import { browserAttribution } from '../utils/attribution';
+import { formatUsPhoneInput, isValidUsPhone, PHONE_ERROR } from '../utils/contactChecks';
 import { AppointmentPicker } from './AppointmentPicker';
 import styles from './AuditForm.module.css';
 
@@ -30,13 +31,20 @@ export function AuditForm({ pagePath, initialValues = {}, autoFocus = false, dur
   const [appointmentInvalid, setAppointmentInvalid] = useState(false);
   const submitting = useRef(false);
   const submissionId = useRef<string | null>(null);
-  const [sessionId, setSessionId] = useState<string | null>(null);
-
-  useEffect(() => { setSessionId(getBrowserSessionId()); }, []);
+  // US numbers only: the box starts as "+1 " and shows what is typed or pasted as "+1 (202) 234-5678".
+  const [phone, setPhone] = useState(() => formatUsPhoneInput(initialValues.phone ?? ''));
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const phoneError = phoneTouched && !isValidUsPhone(phone) ? PHONE_ERROR : '';
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (submitting.current || submitted) return;
+    if (!isValidUsPhone(phone)) {
+      setPhoneTouched(true);
+      phoneRef.current?.focus();
+      return;
+    }
     if (!appointmentDateTime) {
       setAppointmentInvalid(true);
       return;
@@ -53,7 +61,7 @@ export function AuditForm({ pagePath, initialValues = {}, autoFocus = false, dur
       const response = await fetch('/api/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...details, submissionId: submissionId.current, sessionId: sessionId || getBrowserSessionId(), pagePath, tracking: browserAttribution() }),
+        body: JSON.stringify({ ...details, submissionId: submissionId.current, sessionId: getBrowserSessionId(), pagePath, tracking: browserAttribution() }),
         signal: AbortSignal.timeout(15_000),
       });
       const result = await response.json().catch(() => ({})) as { success?: boolean; error?: string };
@@ -95,7 +103,10 @@ export function AuditForm({ pagePath, initialValues = {}, autoFocus = false, dur
         </div>
         <div className={styles.field}>
           <label htmlFor={`${id}-phone`}>US phone number</label>
-          <input id={`${id}-phone`} name="phone" type="tel" autoComplete="tel" required maxLength={40} placeholder="(202) 234-5678" defaultValue={initialValues.phone} />
+          <input ref={phoneRef} id={`${id}-phone`} name="phone" type="tel" inputMode="tel" autoComplete="tel-national" aria-required="true" maxLength={20} placeholder="+1 (202) 234-5678"
+            aria-invalid={phoneError ? true : undefined} aria-describedby={phoneError ? `${id}-phone-error` : undefined}
+            value={phone} onChange={(event) => setPhone(formatUsPhoneInput(event.target.value))} onBlur={() => setPhoneTouched(true)} />
+          {phoneError && <p id={`${id}-phone-error`} className={styles.fieldError} role="alert">{phoneError}</p>}
         </div>
         <div className={styles.fullWidth}>
           <AppointmentPicker
@@ -108,7 +119,7 @@ export function AuditForm({ pagePath, initialValues = {}, autoFocus = false, dur
         </div>
         <div className={`${styles.field} ${styles.fullWidth}`}>
           <label htmlFor={`${id}-description`}>What would you like help with? <span>(optional)</span></label>
-          <textarea id={`${id}-description`} name="description" rows={3} maxLength={1000} defaultValue={initialValues.description} placeholder="Missed calls, quote follow-ups, old leads, repeat bookings…" />
+          <textarea id={`${id}-description`} name="description" rows={3} maxLength={1000} defaultValue={initialValues.description} placeholder="Missed calls, quote follow ups, old leads, repeat bookings…" />
         </div>
       </fieldset>
       {error && <p role="alert" className={styles.error}>{error}</p>}

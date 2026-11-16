@@ -12,6 +12,11 @@ export function useHexConnectors(rowRef: RefObject<HTMLElement | null>, hexRefs:
 
     const measure = () => {
       const rowBox = row.getBoundingClientRect();
+      // Hidden rows (the zig-zag is display:none on phones) have no layout to join.
+      if (!rowBox.width || !rowBox.height) {
+        setSegments((current) => (current.length ? [] : current));
+        return;
+      }
       const centres = hexRefs.current
         .slice(0, count)
         .filter((hex): hex is HTMLElement => hex !== null)

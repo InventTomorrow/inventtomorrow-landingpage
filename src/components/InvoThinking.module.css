@@ -1,0 +1,179 @@
+.bubble {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 92%;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 1.125rem;
+  padding: 0.6875rem 1.125rem 0.6875rem 0.6875rem;
+  background: rgb(255 255 255 / 0.1);
+  animation: bubble-in 0.3s ease-out both;
+}
+
+/* A glowing Invo "orb" with a light running round its edge. */
+.orb {
+  position: relative;
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%,
+    color-mix(in srgb, var(--color-accent) 55%, white),
+    var(--color-accent) 55%,
+    color-mix(in srgb, var(--color-accent) 55%, var(--color-primary)));
+  animation: orb-glow 1.8s ease-out infinite;
+}
+
+.orb::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0 55%, rgb(255 255 255 / 0.95) 85%, transparent 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  animation: orb-spin 1.2s linear infinite;
+}
+
+.orb svg {
+  width: 1rem;
+  height: 1rem;
+  color: white;
+  animation: sparkle 1.8s ease-in-out infinite;
+}
+
+.body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.4375rem;
+}
+
+.labelRow {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+/* The current stage, with a light sweeping across the words. */
+.label {
+  background: linear-gradient(90deg, rgb(255 255 255 / 0.6) 35%, #fff 50%, rgb(255 255 255 / 0.6) 65%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.4;
+  animation: label-in 0.3s ease-out both, shimmer 1.8s linear infinite;
+}
+
+.dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1875rem;
+  color: rgb(255 255 255 / 0.8);
+}
+
+.dots > span {
+  width: 0.25rem;
+  height: 0.25rem;
+  border-radius: 50%;
+  background: currentColor;
+  animation: dot 1.2s ease-in-out infinite;
+}
+
+.dots > span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.dots > span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* Reading · Understanding · Thinking · Typing */
+.steps {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.step {
+  width: 1.5rem;
+  height: 0.1875rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.18);
+  transition: background-color 0.3s ease;
+}
+
+.step[data-state='done'] {
+  background: color-mix(in srgb, var(--color-accent) 45%, white);
+}
+
+.step[data-state='active'] {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 45%, white) 30%, #fff 50%, color-mix(in srgb, var(--color-accent) 45%, white) 70%);
+  background-size: 250% 100%;
+  animation: shimmer 1s linear infinite;
+}
+
+@keyframes bubble-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes orb-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes orb-glow {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 70%, transparent); }
+  70%, 100% { box-shadow: 0 0 0 0.5rem transparent; }
+}
+
+@keyframes sparkle {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.85; }
+  50% { transform: scale(1.18) rotate(14deg); opacity: 1; }
+}
+
+@keyframes label-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: 0% 0; }
+}
+
+@keyframes dot {
+  0%, 60%, 100% { opacity: 0.35; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-0.1875rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble,
+  .orb,
+  .orb::before,
+  .orb svg,
+  .label,
+  .dots > span,
+  .step[data-state='active'] {
+    animation: none;
+  }
+
+  .orb::before {
+    display: none;
+  }
+
+  .label {
+    background: none;
+    color: white;
+  }
+
+  .step[data-state='active'] {
+    background: white;
+  }
+}

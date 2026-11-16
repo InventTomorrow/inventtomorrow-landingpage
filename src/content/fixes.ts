@@ -37,7 +37,7 @@ export const FIXES: Fix[] = [
     title: 'Quote Revival',
     problemTitle: 'Cold Quotes',
     image: SERVICE_IMAGES['/services/quote-revival'],
-    text: 'Old quotes become booked cleans.',
+    text: 'Old quotes become booked jobs.',
     icon: RotateCcw,
     scene: {
       trigger: 'Quote from March · no reply',

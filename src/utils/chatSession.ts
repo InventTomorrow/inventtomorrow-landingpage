@@ -1,4 +1,4 @@
-import { calculateAudit, CLEAN_PRICE_OPTIONS, COMPANY_SIZE_OPTIONS, MISSED_CALL_OPTIONS, OLD_QUOTE_OPTIONS, parseAuditAnswers, type AuditAnswers, type GuidedAudit } from './freeAudit';
+import { auditStep, calculateAudit, CLEAN_PRICE_OPTIONS, COMPANY_SIZE_OPTIONS, MISSED_CALL_OPTIONS, OLD_QUOTE_OPTIONS, parseAuditAnswers, type AuditAnswers, type GuidedAudit } from './freeAudit';
 import { newSessionId } from './sessionId';
 import { pickTracking } from './attribution';
 export { newSessionId } from './sessionId';
@@ -53,6 +53,16 @@ const auditDraftKey = (pagePath: ChatPagePath) => `invo-audit-draft:v1:${pagePat
 export const auditAnswerKey = (answers: AuditAnswers) => JSON.stringify([
   answers.businessName, answers.missedCalls, answers.oldQuotes, answers.typicalClean,
 ]);
+
+// Everything saved for the current conversation on BOTH audit pages. Ad attribution is
+// kept: it describes how the visitor arrived, not what they said to Invo.
+export function clearChatStorage(storage: Pick<Storage, 'removeItem'>): void {
+  for (const pagePath of ['/free-audit', '/free-audit-ads'] as const) {
+    for (const key of [storageKey(pagePath), auditDraftKey(pagePath)]) {
+      try { storage.removeItem(key); } catch { /* blocked storage */ }
+    }
+  }
+}
 
 export function readAuditDraft(storage: ChatStorage, pagePath: ChatPagePath, sessionId: string, answers: AuditAnswers): AuditDraft | null {
   try {
@@ -146,12 +156,17 @@ export function chatRequest(session: ChatSession, logOnly = false) {
   // history row in n8n shows the business, email, phone and "Lead Captured".
   const auditLead = audit?.results && audit.contact && audit.answers.businessName
     ? { businessName: audit.answers.businessName, email: audit.contact.email, phone: audit.contact.phone } : null;
+  // Tells the AI which audit question is waiting (1–4) or that results are shown,
+  // so it answers briefly instead of restarting or re-running the audit itself.
+  const step = audit ? auditStep(audit.answers) : 0;
+  const auditProgress = !audit?.started ? null : audit.results ? 'done' : step < 4 ? step + 1 : null;
   return {
     ...(logOnly ? { mode: 'log' } : {}),
     experience: 'guided-audit',
     messages: session.messages.filter((m) => !m.localOnly).map(({ role, content }) => ({ role, content })),
     sessionId: session.sessionId, pagePath: session.pagePath,
-    state: { lead: session.booking, askedDirect: session.directLink, ...(auditLead ? { audit: auditLead } : {}) },
+    state: { lead: session.booking, askedDirect: session.directLink, ...(auditLead ? { audit: auditLead } : {}),
+      ...(auditProgress !== null ? { auditProgress } : {}) },
   };
 }
 

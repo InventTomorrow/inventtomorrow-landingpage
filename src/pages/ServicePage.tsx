@@ -1,4 +1,4 @@
-import { Check, CheckCircle2, ChevronDown, ChevronRight, MessageSquareText } from 'lucide-react';
+import { Check, ChevronDown, ChevronRight } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { CtaButton } from '../components/CtaButton';
 import { FinalCtaSection } from '../components/FinalCtaSection';
@@ -49,7 +49,7 @@ function ServiceContent({ summary, service }: { summary: ServiceSummary; service
         description={service.intro}
       >
         <CtaButton size="lg" variant="accent" to={AUDIT_PATH}>Find my missed jobs</CtaButton>
-        <CtaButton size="lg" variant="outline-light" to={BOOKING_PATH}>Book a 15-minute call</CtaButton>
+        <CtaButton size="lg" variant="outline-light" to={BOOKING_PATH}>Book a 15 minute call</CtaButton>
       </PageHero>
 
       <div className="border-b border-border bg-paper px-6 sm:px-12">
@@ -64,31 +64,15 @@ function ServiceContent({ summary, service }: { summary: ServiceSummary; service
       </div>
 
       <Section bg="stone" width="max-w-7xl">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+        <div className="mx-auto max-w-3xl">
           <div>
             <SectionHeading eyebrow="The problem" title="Sound familiar?" align="left" size="compact" />
             <p className="mt-6 text-lg leading-relaxed text-ink"><ServiceCopy text={service.problem} /></p>
             <div className="mt-8 flex items-center gap-3 border-t border-border pt-6 text-sm font-medium text-primary">
               <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent"><ServiceIcon title={summary.title} className="size-5" /></span>
-              {summary.title} takes care of the follow-through.
+              {summary.title} takes care of what comes next.
             </div>
           </div>
-          <aside aria-label={`Example ${service.example.kind}`} className="rounded-2xl border border-border bg-paper p-5 sm:p-8">
-            <div className="flex items-center gap-3 border-b border-border pb-5">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent"><MessageSquareText className="size-5" aria-hidden="true" /></span>
-              <div><p className="font-display font-semibold text-primary">See it in action</p><p className="text-xs text-ink">Example {service.example.kind} · Bright Home Cleaning</p></div>
-            </div>
-            <p className="my-6 text-center text-xs font-medium text-ink">{service.example.trigger}</p>
-            <div className="flex flex-col gap-5">
-              {service.example.messages.map((message, index) => (
-                <div key={message.from} className={`max-w-[94%] ${index === 0 ? 'self-start' : 'self-end'}`}>
-                  <p className={`mb-1.5 text-xs font-medium text-ink ${index === 0 ? '' : 'text-right'}`}>{message.from}</p>
-                  <p className={`rounded-2xl px-5 py-4 text-sm leading-relaxed ${index === 0 ? 'rounded-tl-sm bg-primary text-white' : 'rounded-tr-sm bg-accent-soft text-primary'}`}><ServiceCopy text={message.text} /></p>
-                </div>
-              ))}
-            </div>
-            <p className="mt-7 flex items-center justify-center gap-2 rounded-lg bg-stone px-3 py-3 text-center text-xs font-semibold text-accent"><CheckCircle2 className="size-4 shrink-0" aria-hidden="true" />{service.example.result}</p>
-          </aside>
         </div>
       </Section>
 
@@ -147,7 +131,7 @@ function ServiceContent({ summary, service }: { summary: ServiceSummary; service
         <div className="mt-8 text-center"><Link to="/services" className="text-sm font-medium text-accent underline underline-offset-4">Back to all services</Link></div>
       </Section>
 
-      <FinalCtaSection title={service.cta.heading} body={<ServiceCopy text={service.cta.body} />} auditLabel="Find my missed jobs" callLabel="Book a 15-minute call" />
+      <FinalCtaSection title={service.cta.heading} body={<ServiceCopy text={service.cta.body} />} auditLabel="Find my missed jobs" callLabel="Book a 15 minute call" />
     </>
   );
 }

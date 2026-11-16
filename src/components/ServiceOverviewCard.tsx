@@ -20,7 +20,7 @@ export function ServiceOverviewCard({ service }: { service: ServiceSummary }) {
           <ServiceIcon title={service.title} />
         </span>
         <span className="rounded-full bg-stone px-3 py-1 text-xs font-medium text-ink">
-          {service.tier === 'core' ? 'Core package' : 'Add-on'}{service.ai ? ' · AI' : ''}
+          {service.tier === 'core' ? 'Core package' : 'Optional extra'}{service.ai ? ' · AI' : ''}
         </span>
       </div>
       <h3 className="mt-6 text-2xl font-semibold text-primary">{service.title}</h3>
