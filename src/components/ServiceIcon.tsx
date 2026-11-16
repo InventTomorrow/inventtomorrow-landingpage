@@ -7,7 +7,7 @@ const ICONS = {
   '24/7 Receptionist': Headset,
   'Missed Call Rescue': PhoneMissed,
   '60 Second Response': Zap,
-  'Always-On Chat': MessageCircle,
+  'Always On Chat': MessageCircle,
   'Instant Price & Book': CalendarCheck,
   'One Inbox': Inbox,
   'Quote Chaser': Send,
@@ -18,7 +18,7 @@ const ICONS = {
   '5 Star Engine': Star,
   'Recurring Booker': Repeat,
   'Busy Season Ready': CalendarRange,
-  'Win-Back': RotateCcw,
+  'Win Back': RotateCcw,
   'Referral Engine': UserRoundPlus,
 };
 

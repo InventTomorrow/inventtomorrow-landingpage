@@ -21,7 +21,7 @@ import {
   ServicesPage,
   ServicePage,
 } from '../pages/lazyPages';
-import { Footer } from './Footer';
+import { Footer, FooterBar } from './Footer';
 import { BrandLogoImage } from './BrandLogoImage';
 import { Navbar } from './Navbar';
 import { PageTransition } from './PageTransition';
@@ -61,9 +61,9 @@ export function SiteLayout() {
       <MotionConfig reducedMotion="user">
         <div ref={layoutRef} className={`w-full bg-paper text-body select-none ${isAuditPage ? styles.pinned : 'relative min-h-screen overflow-x-clip'}`}>
           {isAdsPage ? (
-            <header className="relative z-50 h-16 bg-header shadow-header sm:h-[5.625rem]" aria-label="Invent Tomorrow">
-              <div className="flex h-full w-full items-center px-4 sm:px-8 lg:px-12 xl:px-16">
-                <div className="relative flex h-full shrink-0 items-center rounded-br-[1.75rem] bg-paper pr-5 before:absolute before:right-[calc(100%-2px)] before:top-0 before:h-full before:w-screen before:bg-paper sm:rounded-br-[2.25rem] sm:pr-8">
+            <header className="relative z-50 h-16 border-b border-[var(--color-border)] bg-paper sm:h-[5.625rem] sm:border-b-0 sm:bg-header sm:shadow-header" aria-label="Invent Tomorrow">
+              <div className="flex h-full w-full items-center justify-center px-4 sm:justify-start sm:px-8 lg:px-12 xl:px-16">
+                <div className="relative flex h-full shrink-0 items-center bg-paper sm:rounded-br-[2.25rem] sm:pr-8 sm:before:absolute sm:before:right-[calc(100%-2px)] sm:before:top-0 sm:before:h-full sm:before:w-screen sm:before:bg-paper">
                   <BrandLogoImage className="h-10 sm:h-14" />
                 </div>
               </div>
@@ -102,6 +102,7 @@ export function SiteLayout() {
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </PageTransition>
+            {isAuditPage && <FooterBar className={`relative z-10 py-4 ${styles.footer}`} />}
           </main>
           {!isAuditPage && <Footer />}
           {!isAuditPage && <ScrollToTop />}

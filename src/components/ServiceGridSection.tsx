@@ -11,7 +11,7 @@ export function ServiceGridSection() {
       <SectionHeading
         eyebrow="What we set up"
         title="Every step covered." titleMuted="One less thing to chase."
-        subtitle="Seven core services, with optional add-ons for the way you work. We build them, write the messages and run them for you."
+        subtitle="Seven core services, with optional extras for the way you work. We build them, write the messages and run them for you."
       />
       <nav aria-label="Service categories" className="mt-8 flex flex-wrap justify-center gap-2">
         {SERVICE_GROUPS.map((group) => <Link key={group.id} to={`#${group.id}`} className="rounded-full border border-border px-4 py-2 text-sm font-medium text-primary transition-colors hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">{group.title}</Link>)}

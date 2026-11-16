@@ -15,6 +15,7 @@
     "test": "node --test scripts/chat-runtime.test.mjs scripts/n8n-audit-workflow.test.mjs scripts/n8n-live-contract.test.mjs && tsx --test src/utils/*.test.ts src/pages/*.test.tsx",
     "sync:audit-workflow": "node scripts/sync-audit-workflow.mjs",
     "patch:live-workflow": "node scripts/patch-live-workflow.mjs",
+    "check:qstash": "node scripts/check-qstash.mjs",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit && tsc --noEmit -p api/tsconfig.json"
   },

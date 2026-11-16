@@ -44,7 +44,7 @@ export function AuditModal({ isOpen, onClose, pagePath, initialValues, durationM
     >
       <div className={styles.modalHeader}>
         <div>
-          <h2 id={titleId}>Book your free {durationMinutes}-minute audit</h2>
+          <h2 id={titleId}>Book your free <span className={styles.nowrap}>{durationMinutes}-minute</span> audit</h2>
           <p>Tell us about your business and choose your preferred appointment time.</p>
         </div>
         <button type="button" onClick={onClose} className={styles.close} aria-label="Close audit form">

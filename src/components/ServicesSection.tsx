@@ -6,18 +6,18 @@ import { RoundArrowButton } from './RoundArrowButton';
 import { SectionHeading } from './SectionHeading';
 import { ServiceCard } from './ServiceCard';
 
-// Homepage summaries focus on booked cleans; detailed service copy stays on the services page.
+// Homepage summaries focus on booked jobs; detailed service copy stays on the services page.
 const HOME_FIXES = FIXES.map((fix, index) => ({
   ...fix,
   problemTitle: ['Cold quotes', 'Missed calls', 'Slow replies', 'Quotes nobody chased', 'Too few reviews', 'Seasonal rushes', 'No repeat bookings'][index],
   text: [
-    'Old quotes turned into booked cleans.',
+    'Old quotes turned into booked jobs.',
     'A text in seconds, before they call the next cleaner.',
-    'Website and late-night enquiries answered in under a minute.',
+    'Website and late night enquiries answered in under a minute.',
     "Every quote followed up until it's a yes or a no.",
     'A review request after every clean, so more people pick you on Google.',
-    'Past clients book first, before the spring and move-out rush.',
-    'One-time cleans turned into regulars, weekly or every two weeks.',
+    'Past clients book first, before the spring and move out rush.',
+    'One time cleans turned into regulars, weekly or every two weeks.',
   ][index],
 }));
 
@@ -31,7 +31,7 @@ export function ServicesSection() {
         <SectionHeading
           eyebrow="Where jobs slip away"
           size="compact"
-          title="7 places your booked cleans" titleMuted="are slipping away"
+          title="7 places your booked jobs" titleMuted="are slipping away"
           subtitle="Each one is a job you've already paid to win. We close all seven."
         />
 

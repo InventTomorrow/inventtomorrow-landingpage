@@ -7,11 +7,11 @@ import { SectionHeading } from './SectionHeading';
 import { SiteImage } from './SiteImage';
 
 const POINTS = [
-  "Results, not software. We're measured on booked cleans.",
-  'Done for you. We set it up, write the messages and run it.',
-  'You stay in control. Nothing goes out until you approve it.',
-  'Keep your tools: Jobber, Housecall Pro, your business line.',
-  'No long-term contract. You stay because it works.',
+  'More Cleaning Jobs Booked',
+  'Fully Done for You',
+  'You Approve Every Message',
+  'Works With Existing Tools',
+  'No Long Term Contracts',
 ];
 
 // Who we are: two illustrations with a guarantee badge on the left, the short story and a checklist on the right.
@@ -29,7 +29,7 @@ export function AboutIntroSection() {
             <SiteImage
               src="/images/about-systems-team-v3.webp"
               alt="3D illustration of a technology team building connected email, messaging, and booking workflows."
-              label="Your follow-up, handled for you"
+              label="Your follow up, handled for you"
               width={400}
               height={520}
               className="h-full! object-top"
@@ -39,7 +39,7 @@ export function AboutIntroSection() {
             <SiteImage
               src="/images/about-business-owner-v2.jpg"
               alt="3D illustration of a cleaning business owner using a phone while an AI assistant manages messages and bookings."
-              label="More booked cleans from your leads"
+              label="More booked jobs from your leads"
               width={400}
               height={560}
               className="h-full! object-top"
@@ -57,13 +57,18 @@ export function AboutIntroSection() {
             align="left"
             size="compact"
             eyebrow="The jobs you're missing"
-            title="You already paid for these jobs." titleMuted="They just never got booked."
-            subtitle="Ads, Google and referrals make your phone ring. Then a call comes in while you're mid-clean, a quote goes quiet, or a happy client never hears from you again. That's work you paid to win, lost at the last step. We win it back."
+            title="You Paid for the Leads." titleMuted="Let's Turn Them Into Booked Jobs."
+            subtitle={
+              <>
+                You worked hard to get those leads. But missed calls, forgotten quotes, and past clients mean lost revenue.{' '}
+                <strong className="font-semibold text-primary">We follow up and win those jobs back for you.</strong>
+              </>
+            }
           />
 
           <Reveal variant="right" distance={32} delay={0.15}>
-            <h3 className="mt-8 font-display text-xl font-semibold text-primary">Why owners choose us</h3>
-            <ul className="mt-4 space-y-3 border-l-2 border-accent pl-5">
+            <h3 className="mt-8 font-display text-xl font-semibold text-primary">Why Cleaning Business Owners Choose Us</h3>
+            <ul className="mt-4 grid gap-x-8 gap-y-3 border-l-2 border-accent pl-5 sm:grid-flow-col sm:grid-cols-2 sm:grid-rows-3">
               {POINTS.map((point) => (
                 <li key={point} className="flex min-w-0 items-start gap-3 font-display text-base font-medium text-primary">
                   <span className="mt-[0.5625rem] size-2.5 shrink-0 rounded-full bg-accent" aria-hidden="true" />

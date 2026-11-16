@@ -27,7 +27,7 @@ export function BlogPreviewSection() {
         <SectionHeading
           eyebrow="From the blog"
           size="compact"
-          title="Practical ways" titleMuted="to book more cleans"
+          title="Practical ways" titleMuted="to book more jobs"
           subtitle="Short guides on calls, quotes, reviews and repeat bookings. Things you can use this week."
         />
 

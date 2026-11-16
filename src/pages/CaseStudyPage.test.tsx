@@ -117,7 +117,7 @@ test('breadcrumbs, audit, scheduling and the final back link use existing intern
   assert.ok(html.includes(`href="${AUDIT_PATH}"`));
   assert.ok(html.includes(`href="${BOOKING_PATH}"`));
   assert.match(html, /Run My Free Audit/);
-  assert.match(html, /Schedule a Call/);
+  assert.match(html, /Book a 15 minute call/);
   assert.ok(html.indexOf('Where Are Your Leads Getting Stuck?') < html.indexOf('Back to all work'));
   assert.equal(study.details?.seoTitle, 'Just About Cleaning CRM Rebuild | Invent Tomorrow');
 });

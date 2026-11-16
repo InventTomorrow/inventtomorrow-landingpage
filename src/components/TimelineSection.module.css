@@ -52,12 +52,20 @@
   opacity: 0;
 }
 
+/* A plain, empty inline (not inline-block): an atomic inline would add a line-break opportunity
+   mid-word, so the text re-wrapped as the caret moved and the section changed height. The bar is
+   drawn by an absolutely positioned pseudo-element, so the caret takes no space at all. */
 .caret {
-  display: inline-block;
+  position: relative;
+}
+
+.caret::after {
+  content: '';
+  position: absolute;
+  bottom: 0.15em;
+  left: 0;
   width: 2px;
   height: 0.9em;
-  margin-right: -2px;
-  vertical-align: -0.1em;
   background: var(--color-accent);
   animation: caret-blink 0.7s ease-in-out infinite;
 }

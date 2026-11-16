@@ -18,7 +18,7 @@ interface FinalCtaSectionProps {
 }
 
 // The closing strip: the message on blue, the buttons on navy. It overlaps the top of the footer (see Footer's pt).
-export function FinalCtaSection({ title, titleAccent, body, smallLine, buttons = 'both', overlapFooter = true, auditLabel = 'Run My Audit', callLabel = 'Schedule a Call' }: FinalCtaSectionProps) {
+export function FinalCtaSection({ title, titleAccent, body, smallLine, buttons = 'both', overlapFooter = true, auditLabel = 'Run My Audit', callLabel = 'Book a 15 minute call' }: FinalCtaSectionProps) {
   return (
     <section className={`relative z-20 w-full px-4 sm:px-8 ${overlapFooter ? 'final-cta pt-8 [--cta-overlap:4rem] [background:linear-gradient(to_bottom,var(--color-stone)_calc(100%-var(--cta-overlap)),transparent_0)] sm:pt-12 sm:[--cta-overlap:5rem]' : 'bg-paper py-14 sm:py-16'}`}>
       <FadeUp y={20} className={`relative mx-auto grid max-w-7xl overflow-hidden rounded-2xl lg:grid-cols-[minmax(0,3fr)_minmax(19rem,2fr)] ${overlapFooter ? '-mb-[var(--cta-overlap)]' : ''}`}>
@@ -42,7 +42,7 @@ export function FinalCtaSection({ title, titleAccent, body, smallLine, buttons =
                 </CtaButton>
               )}
               {buttons !== 'audit' && (
-                <CtaButton variant={buttons === 'call' ? 'accent' : 'outline-light'} to={BOOKING_PATH} className="min-w-0 whitespace-normal! px-4">
+                <CtaButton variant="book" to={BOOKING_PATH} className="min-w-0 whitespace-normal! px-4">
                   {callLabel}
                 </CtaButton>
               )}

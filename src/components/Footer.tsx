@@ -47,7 +47,7 @@ export function Footer() {
             <AccentHeading>Invent Tomorrow</AccentHeading>
             <p className="mt-4 font-display text-lg font-semibold text-white">Win back the jobs you already earned.</p>
             <p className="mt-3 max-w-sm text-base text-white/70">
-              We book cleaning companies extra cleans from the calls, quotes and past clients they already have. Done for you, and guaranteed.
+              We book cleaning companies extra jobs from the calls, quotes and past clients they already have. Done for you, and guaranteed.
             </p>
             <SocialLinks isSquare className="mt-6" />
           </StaggerItem>
@@ -73,20 +73,27 @@ export function Footer() {
         </Stagger>
       </div>
 
-      <div className="relative bg-header px-6 py-5 text-on-primary">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-sm sm:flex-row sm:pr-20">
-          <p>© {new Date().getFullYear()} Invent Tomorrow. All rights reserved.</p>
-          <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2">
-            {LEGAL_LINKS.map((link) => (
-              <li key={link.to}>
-                <Link to={link.to} className="underline-offset-4 transition-colors hover:underline">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+      <FooterBar />
     </footer>
+  );
+}
+
+// The blue bottom strip: copyright and legal links. Also used on its own under the pinned audit pages.
+export function FooterBar({ className = '' }: { className?: string }) {
+  return (
+    <div className={`relative bg-header px-6 py-5 text-on-primary ${className}`}>
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-sm sm:flex-row sm:pr-20">
+        <p>© {new Date().getFullYear()} Invent Tomorrow. All rights reserved.</p>
+        <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+          {LEGAL_LINKS.map((link) => (
+            <li key={link.to}>
+              <Link to={link.to} className="underline-offset-4 transition-colors hover:underline">
+                {link.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
   );
 }

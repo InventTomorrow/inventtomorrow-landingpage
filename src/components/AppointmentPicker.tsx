@@ -1,10 +1,12 @@
 import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Clock3 } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
-import { APPOINTMENT_TIME_ZONES } from '../utils/appointment';
 import { appointmentDateLabel, appointmentNow, appointmentSlots, appointmentTimeLabel, calendarDays, moveCalendarDate, shiftCalendarMonth } from '../utils/appointmentPicker';
 import styles from './AppointmentPicker.module.css';
+import { TimeWheel } from './TimeWheel';
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+/** Phones: the picker is two steps (date, then time) instead of showing both at once. */
+const PHONE_QUERY = '(max-width: 39.999rem)';
 const CALENDAR_KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'];
 
 export function AppointmentPicker({ value, timeZone, onChange, invalid = false, durationMinutes = 30 }: {
@@ -16,6 +18,8 @@ export function AppointmentPicker({ value, timeZone, onChange, invalid = false, 
 }) {
   const id = useId();
   const [open, setOpen] = useState(false);
+  const [step, setStep] = useState<'date' | 'time'>('date');
+  const [phone, setPhone] = useState(() => typeof window !== 'undefined' && window.matchMedia(PHONE_QUERY).matches);
   const [clock, setClock] = useState('');
   const [selectedDate, setSelectedDate] = useState(value.slice(0, 10));
   const [month, setMonth] = useState(value.slice(0, 7));
@@ -24,14 +28,25 @@ export function AppointmentPicker({ value, timeZone, onChange, invalid = false, 
   const triggerRef = useRef<HTMLButtonElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
   const slotsRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const firstStep = useRef(true);
   const focusCalendar = useRef(false);
   const today = clock.slice(0, 10);
   const selectedTime = value.startsWith(`${selectedDate}T`) ? value.slice(11) : '';
-  const zoneLabel = APPOINTMENT_TIME_ZONES.find((zone) => zone.value === timeZone)?.label ?? '';
+  const showCalendar = !phone || step === 'date';
+  const showTimes = !phone || step === 'time';
   const times = appointmentSlots(selectedDate, clock);
   const days = month ? calendarDays(month) : [];
   const monthLabel = month ? new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'long', year: 'numeric' })
     .format(new Date(`${month}-01T00:00:00Z`)) : '';
+
+  useEffect(() => {
+    const query = window.matchMedia(PHONE_QUERY);
+    const update = () => setPhone(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
 
   useEffect(() => {
     const refresh = () => setClock(appointmentNow(timeZone));
@@ -55,16 +70,16 @@ export function AppointmentPicker({ value, timeZone, onChange, invalid = false, 
   }, [invalid]);
 
   useEffect(() => {
-    if (!open || !focusCalendar.current || !focusedDate) return;
+    if (!open || !showCalendar || !focusCalendar.current || !focusedDate) return;
     const button = calendarRef.current?.querySelector<HTMLButtonElement>(`[data-date="${focusedDate}"]`);
     if (button) {
       button.focus();
       focusCalendar.current = false;
     }
-  }, [open, focusedDate, month]);
+  }, [open, showCalendar, focusedDate, month]);
 
   useEffect(() => {
-    if (!open || !selectedDate) return;
+    if (!open || !showTimes || !selectedDate) return;
     const options = appointmentSlots(selectedDate, clock);
     const preferred = options.includes(selectedTime) ? selectedTime : options.includes(focusedTime) ? focusedTime
       : options.includes('09:00') ? '09:00' : options[0];
@@ -72,7 +87,13 @@ export function AppointmentPicker({ value, timeZone, onChange, invalid = false, 
     setFocusedTime(preferred);
     const button = slotsRef.current?.querySelector<HTMLButtonElement>(`[data-time="${preferred}"]`);
     if (button && slotsRef.current) slotsRef.current.scrollTop = Math.max(0, button.offsetTop - 4);
-  }, [open, selectedDate, selectedTime, clock]);
+  }, [open, showTimes, selectedDate, selectedTime, clock]);
+
+  // On a phone each step replaces the last, so bring the top of the panel back into view.
+  useEffect(() => {
+    if (firstStep.current) { firstStep.current = false; return; }
+    if (phone && open) panelRef.current?.scrollIntoView({ block: 'nearest' });
+  }, [step, phone, open]);
 
   const toggle = () => {
     if (!open) {
@@ -81,7 +102,20 @@ export function AppointmentPicker({ value, timeZone, onChange, invalid = false, 
       setFocusedDate(date);
       focusCalendar.current = true;
     }
+    setStep('date');
     setOpen(!open);
+  };
+
+  const chooseDate = (date: string) => {
+    setSelectedDate(date);
+    setFocusedDate(date);
+    onChange('');
+    if (phone) setStep('time');
+  };
+
+  const backToDates = () => {
+    focusCalendar.current = true;
+    setStep('date');
   };
 
   const navigateMonth = (amount: number) => {
@@ -122,7 +156,7 @@ export function AppointmentPicker({ value, timeZone, onChange, invalid = false, 
         triggerRef.current?.focus();
       }
     }}>
-      <label htmlFor={`${id}-trigger`} className={styles.label}>Appointment datetime</label>
+      <label htmlFor={`${id}-trigger`} className={styles.label}>Preferred date &amp; time</label>
       <input type="hidden" name="appointment datetime" value={value} />
       <input type="hidden" name="appointmentTimeZone" value={timeZone} />
       <button
@@ -140,23 +174,23 @@ export function AppointmentPicker({ value, timeZone, onChange, invalid = false, 
         <CalendarDays className={styles.calendarIcon} aria-hidden="true" />
         <span className={styles.triggerText}>
           <span>{value ? `${appointmentDateLabel(value.slice(0, 10))} at ${appointmentTimeLabel(value.slice(11))}` : 'Select a date & time'}</span>
-          <span>{zoneLabel} · {durationMinutes}-minute audit</span>
+          <span>{durationMinutes}-minute audit</span>
         </span>
         <ChevronDown className={styles.chevron} data-open={open} aria-hidden="true" />
       </button>
 
       {open && month && (
-        <div id={`${id}-panel`} className={styles.panel} role="region" aria-label="Choose a preferred appointment">
-          <div className={styles.panelHeading}>
+        <div id={`${id}-panel`} ref={panelRef} className={styles.panel} role="region" aria-label="Choose a preferred appointment">
+          {showCalendar && <div className={styles.panelHeading}>
             <div>
               <h3>Select a date & time</h3>
               <p>Choose your preferred time for a free audit.</p>
             </div>
-            <span className={styles.duration}><Clock3 aria-hidden="true" />30 min</span>
-          </div>
+            <span className={styles.duration}><Clock3 aria-hidden="true" />{durationMinutes} min</span>
+          </div>}
 
-          <div className={styles.scheduler}>
-            <div className={styles.calendar} ref={calendarRef}>
+          <div className={styles.scheduler} data-step={phone ? step : undefined}>
+            {showCalendar && <div className={styles.calendar} ref={calendarRef}>
               <div className={styles.monthHeading}>
                 <p id={`${id}-month`} aria-live="polite">{monthLabel}</p>
                 <div className={styles.monthControls}>
@@ -183,7 +217,7 @@ export function AppointmentPicker({ value, timeZone, onChange, invalid = false, 
                             tabIndex={date === focusedDate ? 0 : -1}
                             onFocus={() => setFocusedDate(date)}
                             onKeyDown={(event) => onDateKeyDown(event, date)}
-                            onClick={() => { setSelectedDate(date); onChange(''); }}
+                            onClick={() => chooseDate(date)}
                           >{Number(date.slice(8))}</button>
                         )}
                       </div>
@@ -191,11 +225,23 @@ export function AppointmentPicker({ value, timeZone, onChange, invalid = false, 
                   </div>
                 ))}
               </div>
-            </div>
+            </div>}
 
-            <div className={styles.timePane}>
+            {showTimes && <div className={styles.timePane}>
+              {phone && (
+                <button type="button" className={styles.backButton} onClick={backToDates}>
+                  <ChevronLeft aria-hidden="true" />Back to dates
+                </button>
+              )}
               <p className={styles.timeHeading}>{selectedDate ? appointmentDateLabel(selectedDate).replace(/, \d{4}$/, '') : 'Pick a day to get started'}</p>
-              {selectedDate && times.length > 0 ? (
+              {selectedDate && times.length > 0 && phone ? (
+                <TimeWheel
+                  key={selectedDate}
+                  times={times}
+                  initial={times.includes(selectedTime) ? selectedTime : times.includes('09:00') ? '09:00' : times[0]}
+                  onConfirm={(time) => { onChange(`${selectedDate}T${time}`); setOpen(false); triggerRef.current?.focus(); }}
+                />
+              ) : selectedDate && times.length > 0 ? (
                 <div ref={slotsRef} className={styles.slots} role="listbox" aria-label="Preferred appointment time">
                   {times.map((time, index) => (
                     <button
@@ -218,7 +264,7 @@ export function AppointmentPicker({ value, timeZone, onChange, invalid = false, 
                   <p>{selectedDate ? 'Please choose another date to see more times.' : 'Select a date on the calendar, then choose a time.'}</p>
                 </div>
               )}
-            </div>
+            </div>}
           </div>
 
         </div>

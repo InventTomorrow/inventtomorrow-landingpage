@@ -23,7 +23,7 @@ import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
 //   {
 //     title: 'Commercial cleaning',
 //     text: 'Keep client communication and team handoffs consistent.',
-//     tags: ['Site visit reminders', 'Quote follow-ups', 'Job and client updates'],
+//     tags: ['Site visit reminders', 'Quote follow ups', 'Job and client updates'],
 //     icon: Building2,
 //   },
 //   {

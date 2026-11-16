@@ -56,7 +56,7 @@ export function HeroSection() {
             transition={{ duration: 0.65, delay: 0.1, ease }}
             className="mt-4 max-w-full font-display text-[clamp(2.125rem,5vw,3.5rem)] font-bold leading-[1.08] tracking-display text-primary select-text sm:mt-5 sm:max-w-[19ch] sm:text-balance"
           >
-            More booked cleans{' '}
+            More booked jobs{' '}
             <span className="block text-accent">
               from the leads you already have.
             </span>
@@ -68,7 +68,7 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.22, ease }}
             className="mt-5 max-w-[52ch] text-pretty text-base leading-relaxed text-ink sm:text-lg"
           >
-            Every month, cleans slip away through missed calls, quotes nobody chased and one-time clients who never rebooked. We win them back for you, in your voice.
+            Missed calls, forgotten quotes, and past clients mean lost jobs. We follow up and win them back for you.
           </m.p>
 
           <p className="mt-5 flex max-w-full items-start gap-3 rounded-xl bg-accent-soft px-4 py-3 font-display text-base font-semibold leading-snug text-primary sm:text-lg">
@@ -92,7 +92,7 @@ export function HeroSection() {
               to={BOOKING_PATH}
               className="min-w-0 w-full whitespace-normal! bg-paper px-4"
             >
-              Book a 15-minute call
+              Book a 15 minute call
             </CtaButton>
           </m.div>
 

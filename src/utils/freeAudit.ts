@@ -1,4 +1,4 @@
-export const FOUNDING_SPOTS_LEFT = 3;
+export const FOUNDING_SPOTS_LEFT = 2;
 const SPOTS_IN_WORDS = ['None', 'One', 'Two', 'Three', 'Four', 'Five'][FOUNDING_SPOTS_LEFT] ?? String(FOUNDING_SPOTS_LEFT);
 export const AUDIT_PRICING_REPLY = `Founding clients pay $1,500 to set up and $345 a month, locked for life. ${SPOTS_IN_WORDS} of five founding spots are left, and it's guaranteed to pay for itself in 90 days. The audit is free either way. Want me to book it?`;
 export const MISSED_CALL_OPTIONS = ['0–5', '6–15', '16–30', 'More than 30', 'Not sure'] as const;
@@ -29,24 +29,110 @@ export interface GuidedAudit {
   tracking?: Record<string, string>;
 }
 
+// Short on purpose: owners read these on a phone between jobs. The live n8n
+// workflow finds answers by these phrases ("business called", "normal week",
+// "quotes … past year", "typical clean cost"), so keep them when editing.
 export const AUDIT_QUESTIONS = [
-  "Let's start with the basics. What's the name of your cleaning business?",
-  "In a normal week, how many calls or messages do you miss, or answer late, because you're on a job?",
-  'Roughly how many quotes have you sent in the past year that never turned into a booking?',
-  'What does a typical clean cost your customers?',
+  "What's your cleaning business called?",
+  'In a normal week, how many calls or messages do you miss?',
+  'How many quotes from the past year never got booked?',
+  'What does a typical clean cost?',
 ] as const;
 
+export const AUDIT_INTRO = "Great. Four quick questions, then you'll see your estimates.";
+
+export const auditNudge = (step: number) =>
+  `Tap one of the options below, or type a rough ${step === 3 ? 'price' : 'number'}.`;
+
 export const AUDIT_QUICK_REPLIES = {
-  'Book my free audit': `I'll ask you four questions about your cleaning business, missed calls, old quotes and typical clean price. Then we'll ask where to send your audit. You'll see your estimates here and receive an email copy after you submit your details. Your free 15-minute call will confirm the real numbers and the first fix.\n\n${AUDIT_QUESTIONS[0]}`,
-  "I'm missing calls": "When you're on a clean, answering every call can be difficult. Missed Call Rescue texts back missed callers in seconds, so they hear from your business before trying another cleaner. For website, Facebook, Instagram and Google enquiries, 60 Second Response replies in under a minute.\n\nWe set up and run the follow-up for you, and you approve the messages before they go live. Your free audit estimates what missed calls could be worth using your answers; the 15-minute call checks your actual numbers and which fix makes sense. Choose Book my free audit to start, or ask me anything first.",
-  'My quotes go quiet': "Quote Chaser follows up each new quote until you get a yes or a no, so interested customers don't get forgotten. Quote Revival reconnects with people who received a quote but never booked, to see whether they still need a clean. You approve the messages before they go live.\n\nOne Quote Revival campaign booked 18 jobs from old enquiries. That is a past result, not a promise for your business. Your free audit uses your old quote count and typical clean price to estimate the opportunity; the 15-minute call confirms the real numbers and what to tackle first. Choose Book my free audit when you're ready.",
-  'I want more repeat clients': "Recurring Booker helps turn one-time cleans into regular bookings by following up with past clients. Busy Season Ready offers past clients first pick of dates before the spring rush. We set up and run the follow-up, and you approve the messages before they go live.\n\nOn your free 15-minute call, we'll look at past clients alongside missed calls and open quotes to identify the first fix that could book the most cleans. The quick online audit estimates missed-call and old-quote opportunities; it doesn't calculate repeat-client revenue. Choose Book my free audit to begin, or tell me what you'd like to know about repeat bookings.",
+  'Book my free audit': `${AUDIT_INTRO}\n\n${AUDIT_QUESTIONS[0]}`,
+  "I'm missing calls": "Missed Call Rescue texts back anyone you miss within seconds, so they don't call another cleaner. You approve every message first.\n\nBook my free audit to see what your missed calls are worth.",
+  'My quotes go quiet': "Quote Chaser follows up new quotes until you get a yes or a no. Quote Revival contacts old quotes that never booked. You approve every message first.\n\nBook my free audit to see what your old quotes could be worth.",
+  'I want more repeat clients': "Recurring Booker follows up with past clients and invites them to book regular cleans. You approve every message first. On the free call we count your past clients.\n\nBook my free audit to get started.",
 } as const;
 
 export function predefinedAuditReply(message: string): string | undefined {
   const normalized = message.trim().toLowerCase().replace(/’/g, "'").replace(/[.!?]+$/, '').replace(/\s+/g, ' ');
   const entry = Object.entries(AUDIT_QUICK_REPLIES).find(([label]) => label.toLowerCase() === normalized);
   return entry?.[1];
+}
+
+// What a typed reply means while an audit question is waiting:
+// - answer: record it and move on;
+// - repeat: not an answer (a greeting, "yes", an unrecognised word), so ask again locally;
+// - ask: a real question or remark for the AI, after which the chat repeats the question.
+export type AuditTurn = { kind: 'answer'; value: string } | { kind: 'repeat' } | { kind: 'ask' };
+
+const tidy = (text: string) => text.trim().toLowerCase().replace(/[’‘]/g, "'").replace(/[–—−]/g, '-')
+  .replace(/\s+/g, ' ').replace(/[.!]+$/, '');
+const wordCount = (text: string) => text.split(' ').filter(Boolean).length;
+const ASKING = /\?|^(?:what|what's|whats|how|why|who|where|when|which|can|could|do|does|is|are|will|would|should|tell me)\b/;
+const NOT_SURE = /^(?:not sure|unsure|no idea|idk|dunno|no clue|hard to say|not certain|unknown|(?:i )?(?:don't|dont|do not) (?:know|track (?:it|that|them)|count (?:it|that|them)))$/;
+const START_OR_ACK = /^(?:hi|hello|hey|hiya|howdy|yo|good (?:morning|afternoon|evening)|thanks|thank you|yes|yeah|yep|yup|sure|ok|okay|ready|go|start|continue|next|sounds good|let's (?:go|start|do (?:it|this))|book my free audit|(?:start|run|continue) (?:my |the )?(?:free )?audit|(?:i'd like|i would like|i want) (?:a |my )?(?:free )?audit)(?: there| please| invo)?$/;
+const NAME_PREFIX = /^(?:(?:my|our|the) (?:cleaning )?(?:business|company)(?: name)?(?:'s| is)(?: called| named)?|(?:it's|it is|we're|we are)(?: called| named)?|(?:the )?name(?:'s| is)|called)\s+/i;
+const NUMBER_WORDS: Record<string, number> = {
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12,
+  fifteen: 15, twenty: 20, thirty: 30, forty: 40, fifty: 50,
+};
+
+// A rough number from a short reply: "about 10", "10-20", "over 30", "1.5k", "$150".
+export function roughNumber(text: string): number | null {
+  let t = tidy(text).replace(/(\d),(?=\d{3}\b)/g, '$1');
+  if (/^(?:none|zero|nothing|no|nil)$/.test(t)) return 0;
+  t = t.replace(/\b(?:a )?couple(?: of)?\b/g, '2').replace(/\ba few\b/g, '3')
+    .replace(/\b(?:a |one )?hundred\b/g, '100').replace(/\b(?:a |one )?thousand\b/g, '1000')
+    .replace(new RegExp(`\\b(${Object.keys(NUMBER_WORDS).join('|')})\\b`, 'g'), (word) => String(NUMBER_WORDS[word]));
+  const numbers = [...t.matchAll(/(\d+(?:\.\d+)?)\s*(k\b)?/g)].map((m) => Number(m[1]) * (m[2] ? 1000 : 1));
+  if (numbers.length === 2 && /\d\s*k?\s*(?:-|to|or)\s*\$?\s*\d/.test(t)) return (numbers[0] + numbers[1]) / 2;
+  if (numbers.length !== 1) return null;
+  if (/\b(?:more than|over|above)\b|\+/.test(t)) return numbers[0] + 1;
+  if (/\b(?:under|less than|below|fewer than)\b/.test(t)) return Math.max(0, numbers[0] - 1);
+  return numbers[0];
+}
+
+function rangeAnswer(step: 1 | 2 | 3, text: string): string | undefined {
+  const t = tidy(text);
+  if (wordCount(t) > 8) return;
+  let n = roughNumber(t);
+  if (n === null) return;
+  const per = (unit: string) => new RegExp(`\\b(?:a|per|each|every) ${unit}\\b|\\b${unit}ly\\b|/ ?${unit}\\b`).test(t);
+  if (step === 1) {
+    if (per('day') || /\bdaily\b/.test(t)) n *= 5;
+    else if (per('month')) n /= 4.3;
+    else if (per('year')) n /= 52;
+    return n <= 5 ? '0–5' : n <= 15 ? '6–15' : n <= 30 ? '16–30' : 'More than 30';
+  }
+  if (step === 2) {
+    if (per('month')) n *= 12;
+    else if (per('week')) n *= 52;
+    return n < 50 ? 'Under 50' : n < 200 ? '50–200' : n <= 500 ? '200–500' : 'More than 500';
+  }
+  if (/\b(?:hour|hr|hourly)\b/.test(t)) return; // an hourly rate is not the price of a clean
+  return n < 120 ? 'Under $120' : n <= 180 ? '$120–$180' : n <= 250 ? '$180–$250' : 'Over $250';
+}
+
+export function interpretAuditReply(step: 0 | 1 | 2 | 3, text: string): AuditTurn {
+  const t = tidy(text);
+  if (!t) return { kind: 'repeat' };
+  if (step === 0) {
+    if (START_OR_ACK.test(t)) return { kind: 'repeat' };
+    if (predefinedAuditReply(text) || ASKING.test(t) || /\b(?:pricing|price|cost|guarantee)\b/.test(t)) return { kind: 'ask' };
+    if (/@|\d[\d\s().-]{6,}\d/.test(t)) return { kind: 'repeat' }; // contact details come later, in the form
+    const name = text.trim().replace(/[’‘]/g, "'").replace(NAME_PREFIX, '').replace(/[.!,]+$/, '')
+      .replace(/^["“']+|["”']+$/g, '').trim();
+    if (!name) return { kind: 'repeat' };
+    return wordCount(name) > 8 ? { kind: 'ask' } : { kind: 'answer', value: name.slice(0, 160) };
+  }
+  const options: readonly string[] = [MISSED_CALL_OPTIONS, OLD_QUOTE_OPTIONS, CLEAN_PRICE_OPTIONS][step - 1];
+  const squash = (value: string) => tidy(value).replace(/\s/g, '');
+  const exact = options.find((option) => squash(option) === squash(text));
+  if (exact) return { kind: 'answer', value: exact };
+  if (START_OR_ACK.test(t)) return { kind: 'repeat' };
+  if (predefinedAuditReply(text) || ASKING.test(t)) return { kind: 'ask' };
+  if (NOT_SURE.test(t)) return options.includes('Not sure') ? { kind: 'answer', value: 'Not sure' } : { kind: 'repeat' };
+  const range = rangeAnswer(step, t);
+  if (range) return { kind: 'answer', value: range };
+  return wordCount(t) <= 4 ? { kind: 'repeat' } : { kind: 'ask' };
 }
 
 export function auditStep(answers: Partial<AuditAnswers>) {
@@ -97,6 +183,6 @@ export function auditResultMessage(businessName: string, result: AuditEstimates)
     ...(result.guaranteeStatus === 'qualifies' ? ['• You qualify for our Pays For Itself Guarantee.']
       : result.guaranteeStatus === 'close' ? ["• You're close to qualifying for our Pays For Itself Guarantee, which needs 200 past enquiries or quotes."] : []),
     '',
-    'These are rough estimates. Your free 15-minute call confirms the real numbers. Want to pick a time?',
+    'These are rough estimates. Your free 15 minute call confirms the real numbers. Want to pick a time?',
   ].join('\n');
 }

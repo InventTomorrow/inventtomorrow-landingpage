@@ -7,6 +7,7 @@ import { OPTIMIZED_IMAGES } from '../src/content/optimizedImages';
 import { SERVICE_IMAGES } from '../src/content/serviceImages';
 import { getPageKey } from '../src/utils/pageModules';
 import { AUDIT_ADS_PATH, AUDIT_PATH, BOOKING_PATH } from '../src/utils/navigation';
+import { LEGAL_DOCS } from '../src/content/legal';
 
 // Verify the actual production artifacts, not just a successful Vite compilation.
 const output = path.resolve('dist');
@@ -43,11 +44,14 @@ assert.ok(adsHeader, 'Ads page must have a header');
 assert.ok(adsHeader.includes('alt="Invent Tomorrow"'), 'Ads header must display the logo');
 assert.ok(!/<a\b|<button\b|<nav\b/.test(adsHeader), 'Ads header must contain only the logo');
 assert.ok(!/<nav\b|<footer\b|Run My Audit|Open menu/i.test(ads), 'Ads page must omit navigation, audit CTA and footer');
-assert.ok(!/<a\b[^>]*href="\/(?!\/)/.test(ads), 'Ads page must have no links to other site pages');
+// The legal strip (privacy, terms, SMS consent) is required next to SMS consent; nothing else may lead away.
+const legalPaths = new Set(LEGAL_DOCS.map((doc) => doc.path));
+const adsLinks = [...ads.matchAll(/<a\b[^>]*href="(\/(?!\/)[^"#?]*)/g)].map(([, href]) => href);
+assert.ok(adsLinks.every((href) => legalPaths.has(href)), `Ads page must link only to legal pages, found: ${adsLinks.join(', ')}`);
 assert.ok(ads.includes('content="noindex"'), 'Ads page must not be indexed');
 for (const html of [ads, audit]) {
   assert.ok(html.includes('Invent Tomorrow&#x27;s AI assistant'), 'Both audit pages must identify Invo as AI');
-  assert.ok(/<button[^>]*aria-haspopup="dialog"[^>]*>[\s\S]*?Book a 15-minute call/.test(html), 'Both audit pages must open the 15-minute booking form');
+  assert.ok(/<button[^>]*aria-haspopup="dialog"[^>]*>[\s\S]*?Book a 15[- ]minute call/.test(html), 'Both audit pages must open the 15-minute booking form');
   assert.ok(html.includes('id="audit-chat-input"'), 'Both audit pages must include the chat composer');
   for (const suggestion of ['Book my free audit', 'missing calls', 'My quotes go quiet', 'I want more repeat clients', 'What does it cost?', 'Talk to a person']) {
     assert.ok(html.includes(suggestion), `Missing chat suggestion: ${suggestion}`);

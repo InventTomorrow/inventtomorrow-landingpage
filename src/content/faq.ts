@@ -51,11 +51,11 @@ export const ALL_FAQS: Faq[] = [
   },
   {
     q: "What if it doesn't work?",
-    a: "You're covered by the Pays For Itself Guarantee. If the cleans we book you in 90 days don't add up to more than you've paid us, you pay no monthly fee until they do. The full terms are in your agreement.",
+    a: "You're covered by the Pays For Itself Guarantee. If the jobs we book you in 90 days don't add up to more than you've paid us, you pay no monthly fee until they do. The full terms are in your agreement.",
   },
   {
     q: 'Am I locked into a contract?',
-    a: "No. After setup it's month to month. You stay because it books you cleans.",
+    a: "No. After setup it's month to month. You stay because it books you jobs.",
   },
 ];
 

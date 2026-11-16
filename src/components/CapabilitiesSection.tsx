@@ -4,7 +4,7 @@ import { PhoneForwarded, MessageSquareCode, CalendarClock, ShieldCheck } from 'l
 const CAPABILITIES = [
   {
     icon: PhoneForwarded,
-    title: 'Missed Call Text-Back',
+    title: 'Missed Call Text Back',
     description:
       'The moment an incoming call goes unanswered, an intelligent conversational SMS initiates in under 5 seconds, answering questions and holding the caller’s attention.',
   },
