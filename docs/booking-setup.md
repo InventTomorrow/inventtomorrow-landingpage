@@ -29,6 +29,7 @@ After the existing Webhook node, add a Switch using `{{ $json.body.source }}`:
 | --- | --- |
 | `invo_chat` | Chat history and chat audit requests |
 | `form_data` | Audit form submissions |
+| `form-casestudy` | Case study unlock form (see below) |
 
 If a prior node has already unwrapped `body`, use `{{ $json.source }}` instead.
 
@@ -56,6 +57,32 @@ Form payload example:
   "leadCaptured": true
 }
 ```
+
+### Case study unlock (`source=form-casestudy`)
+
+The second half of each case study (`/our-work/:slug`) is hidden until the visitor submits a short form: name, business name, email and US phone. There is no appointment. The browser posts to `/api/audit` with `mode: "case_study_unlock"`; the server sends this to the same webhook:
+
+```json
+{
+  "source": "form-casestudy",
+  "event": "case_study_unlock",
+  "submissionId": "4ed9f3c8-e908-4f64-bfd4-5a67aebcfdb8",
+  "sessionId": "73026043-f4d5-4335-8f55-2d0b14f5f974",
+  "timestamp": "2026-11-16T12:00:00.000Z",
+  "pagePath": "/our-work/old-leads-revenue-recovery",
+  "caseStudySlug": "old-leads-revenue-recovery",
+  "lead": {
+    "name": "Alex Morgan",
+    "businessName": "Bright Home Cleaning",
+    "email": "alex@example.com",
+    "phone": "+12022345678",
+    "description": "Unlocked case study: old-leads-revenue-recovery"
+  },
+  "leadCaptured": true
+}
+```
+
+UTM and click-ID fields are included like the other forms. The ready-made n8n branch is in [n8n-casestudy-branch.json](n8n-casestudy-branch.json): copy the file, paste it onto the workflow canvas, then connect the Switch's `form-casestudy` output to "Structure Casestudy Fields". It saves the lead to a `Casestudy-Leads-sheet` sheet tab (matched on `Submission ID`, so a retry updates the same row), alerts Slack, emails the team, and responds `{ "success": true, "submission_id": "<same submissionId>" }`. The page only unlocks (after a 6 second "confirming your email" state, counted from the moment they submit) when that acknowledgement matches; otherwise the visitor sees an error and can retry. One successful unlock opens every case study in that browser (`localStorage` key `invo-casestudy-unlock:v1`).
 
 The combined field is named exactly `appointment datetime` at the top level, with a value in `YYYY-MM-DDTHH:mm` format (24-hour time). `appointmentTimeZone` stays separate (for example `America/New_York`). Interpret the datetime in that zone; it is not implicitly UTC. In n8n, access the combined value as `{{ $json.body['appointment datetime'] }}` and the zone as `{{ $json.body.appointmentTimeZone }}`. Separate `appointmentDate` and `appointmentTime` fields are no longer sent.
 

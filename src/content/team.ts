@@ -36,25 +36,25 @@ export const TEAM_TIERS: TeamTier[] = [
     label: 'Team',
     members: [
       {
-        name: 'Abdul Waheed',
-        role: 'Full Stack Developer',
-        image: '/images/team/abdul-waheed-portrait.png',
-        linkedin: 'https://www.linkedin.com/in/abdulwaheed16/',
-      },
-      {
         name: 'Rehan Shoukat',
-        role: 'AI Automations Specialist',
-        image: '/images/team/rehan-shoukat-portrait-v2.png',
+        role: 'Head of Client Acquisition',
+        image: '/images/team/rehan-shoukat-upscaled.png',
         linkedin: 'https://www.linkedin.com/in/malik-rehan-3a16973a6/',
       },
       {
         name: 'Dawood Shahid',
-        role: 'GHL Expert',
+        role: 'AI Automation Engineer',
         image: '/images/team/dawood-shahid-portrait.jpg',
       },
       {
+        name: 'Abdul Waheed',
+        role: 'Website Developer',
+        image: '/images/team/abdul-waheed-portrait.png',
+        linkedin: 'https://www.linkedin.com/in/abdulwaheed16/',
+      },
+      {
         name: 'Qaiser Nawaz',
-        role: 'Marketing Executive',
+        role: 'Meta Ads Expert',
         image: '/images/team/qaiser-nawaz-office.png',
         linkedin: 'https://www.linkedin.com/in/qaiser-nawaz-seo/',
       },

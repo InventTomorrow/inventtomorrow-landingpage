@@ -1,8 +1,8 @@
-import { CalendarDays, MessageCircle, Phone, RefreshCw, RotateCcw, Send, UserRound, DollarSign } from 'lucide-react';
+import { CalendarDays, MessageCircle, Phone, RefreshCw, RotateCcw, Send, DollarSign } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { CtaButton } from './CtaButton';
 import { AuditResultsModal } from './AuditResultsModal';
-import { AUDIT_INTRO, AUDIT_QUESTIONS, MISSED_CALL_OPTIONS, OLD_QUOTE_OPTIONS, CLEAN_PRICE_OPTIONS, auditNudge, auditStep, auditResultMessage, interpretAuditReply, parseAuditAnswers, type GuidedAudit, type AuditAnswers } from '../utils/freeAudit';
+import { AUDIT_INTRO, AUDIT_QUESTIONS, MISSED_CALL_OPTIONS, OLD_QUOTE_OPTIONS, CLEAN_PRICE_OPTIONS, auditInvalid, auditNudge, auditStep, auditResultMessage, interpretAuditReply, parseAuditAnswers, predefinedAuditReply, type GuidedAudit, type AuditAnswers } from '../utils/freeAudit';
 import type { AuditFormValues } from './AuditForm';
 import { companySizeFromChat } from '../utils/companySize';
 import { getBrowserSessionId, newSessionId, resetBrowserSessionId } from '../utils/sessionId';
@@ -15,16 +15,14 @@ import styles from './AuditChat.module.css';
 const GREETING: Message = {
   role: 'assistant',
   content:
-    "Hi, I'm Invo, Invent Tomorrow's AI assistant. I help cleaning business owners find the jobs they're missing. What would you like to sort out first?",
+    "Hi, I'm Invo. I help cleaning business owners find the jobs they're missing. What would you like to sort out first?",
 };
 
 const SUGGESTIONS = [
-  { label: 'Book my free audit', message: 'Book my free audit', icon: CalendarDays },
   { label: "I'm missing calls", message: "I'm missing calls", icon: Phone },
   { label: 'My quotes go quiet', message: 'My quotes go quiet', icon: MessageCircle },
   { label: 'I want more repeat clients', message: 'I want more repeat clients', icon: RefreshCw },
   { label: 'What does it cost?', message: 'What does it cost?', icon: DollarSign },
-  { label: 'Talk to a person', message: 'Talk to a person', icon: UserRound },
 ];
 
 const ERROR_TEXT = "I couldn't connect just now. Please try again, or choose Talk to a person.";
@@ -136,7 +134,7 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
     inputRef.current?.focus({ preventScroll: true });
   };
 
-  const startAudit = (said = 'Book my free audit') => {
+  const startAudit = (said = 'Book my free audit', lead: string | null = AUDIT_INTRO) => {
     if (sendingRef.current || !session.current) return;
     const current = session.current.audit || { started: false, answers: {} };
     const step = auditStep(current.answers);
@@ -148,7 +146,7 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
     // Resuming only re-asks the waiting question; it never replays the intro.
     updateAudit({ ...current, started: true }, current.started
       ? [{ role: 'assistant', content: AUDIT_QUESTIONS[step] }]
-      : [{ role: 'user', content: said }, { role: 'assistant', content: AUDIT_INTRO }, { role: 'assistant', content: AUDIT_QUESTIONS[step] }]);
+      : [{ role: 'user', content: said }, ...(lead ? [{ role: 'assistant' as const, content: lead }] : []), { role: 'assistant', content: AUDIT_QUESTIONS[step] }]);
     if (step === 0) inputRef.current?.focus({ preventScroll: true });
   };
 
@@ -211,6 +209,9 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
     const startIntent = /^(?:book my free audit|start (?:my |the )?audit|run (?:my |the )?(?:free )?audit|(?:i(?:'d| would) like|i want) (?:a |my )?(?:free )?audit)\.?$/i.test(content)
       || (/^(?:yes|yes please|yeah|yep|sure|ok(?:ay)?|let'?s do it)[.!]?$/i.test(content) && /\b(?:book|audit)\b[^\n]*\?\s*$/i.test(lastSaid));
     if (startIntent && (!audit.started || step === 4)) { startAudit(content); return; }
+    // A topic chip ("I'm missing calls") goes straight to the first audit question:
+    // no explainer card and no extra "Book my free audit" tap in between.
+    if (!audit.started && predefinedAuditReply(content)) { startAudit(content, null); return; }
     // While a question is waiting, the AI is asked only for real questions, and the
     // waiting question is repeated after its reply so the visitor knows what's next.
     let reask: number | null = null;
@@ -218,7 +219,7 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
       if (step === 4) { setResultsFormOpen(true); return; }
       const turn = interpretAuditReply(step as 0 | 1 | 2 | 3, content);
       if (turn.kind === 'repeat') {
-        updateAudit(audit, [{ role: 'user', content }, { role: 'assistant', content: step === 0 ? AUDIT_QUESTIONS[0] : auditNudge(step) }]);
+        updateAudit(audit, [{ role: 'user', content }, { role: 'assistant', content: turn.invalid ? auditInvalid(step) : step === 0 ? AUDIT_QUESTIONS[0] : auditNudge(step) }]);
         return;
       }
       if (turn.kind === 'ask') reask = step;
@@ -344,7 +345,7 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
   // (after a connection error or an old saved chat), never right under it.
   const lastMessage = messages.at(-1);
   const questionShowing = lastMessage?.role === 'assistant' && !lastMessage.localOnly
-    && (lastMessage.content === (AUDIT_QUESTIONS as readonly string[])[step] || lastMessage.content === auditNudge(step));
+    && (lastMessage.content === (AUDIT_QUESTIONS as readonly string[])[step] || lastMessage.content === auditNudge(step) || lastMessage.content === auditInvalid(step));
   const typingName = inProgress && step === 0;
   // A popup submission that finishes after Reset Invo belongs to the old chat and is ignored here.
   const modalGeneration = resetGeneration.current;
@@ -403,9 +404,9 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
         })}
 
         {(booking || directLink) && (
-          <div className="shrink-0 rounded-2xl border border-accent/40 bg-accent/10 p-5">
-            <p className="text-sm font-semibold text-white">{requestSent ? 'Audit request received' : 'Send your audit request'}</p>
-            <p className="mt-1 text-sm text-white/70">
+          <div className="shrink-0 rounded-2xl border border-border bg-paper p-5">
+            <p className="text-sm font-semibold text-primary">{requestSent ? 'Audit request received' : 'Send your audit request'}</p>
+            <p className="mt-1 text-sm text-ink">
               {requestSent ? 'Our team will contact you to arrange a time for your free audit.' : 'Open the form to send your details to our team.'}
             </p>
             {!requestSent && (
@@ -418,12 +419,12 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
 
         {showSuggestions && (
           <div className={`${styles.suggestions} ${styles.starters}`}>
-            {SUGGESTIONS.map(({ label, message, icon: Icon }, index) => (
+            {SUGGESTIONS.map(({ label, message, icon: Icon }) => (
               <button
                 key={label}
                 type="button"
                 onClick={() => void send(message)}
-                className={`${styles.suggestion} ${index === 0 ? styles.primaryChip : ''}`}
+                className={styles.suggestion}
               >
                 <Icon aria-hidden="true" />
                 <span>{label}</span>

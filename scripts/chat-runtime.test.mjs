@@ -440,6 +440,47 @@ test('form data uses the shared webhook without chat data or a model request', a
   assert.equal(globalThis.fetch.mock.callCount(), 1);
 });
 
+test('the case study unlock form sends source form-casestudy and no appointment', async () => {
+  process.env.N8N_WEBHOOK_TEST_URL = 'https://logging.test/webhook';
+  let payload;
+  globalThis.fetch.mock.mockImplementation(async (url, options) => {
+    assert.equal(url, process.env.N8N_WEBHOOK_TEST_URL);
+    payload = JSON.parse(options.body);
+    return Response.json({ success: true, submission_id: payload.submissionId });
+  });
+  const unlock = { name: 'Dana', businessName: 'Bright Home Cleaning', email: 'dana@example.com', phone: '(202) 234-5678' };
+  const response = await invokeForm({
+    ...unlock, mode: 'case_study_unlock', caseStudySlug: 'old-leads-revenue-recovery',
+    submissionId: 'unlock-request-12345678', sessionId: 'shared-browser-session', pagePath: '/our-work/ignored', source: 'invo_chat',
+  });
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(response.body, { success: true, submissionId: 'unlock-request-12345678' });
+  assert.equal(payload.source, 'form-casestudy', 'The server must assign the source');
+  assert.equal(payload.event, 'case_study_unlock');
+  assert.equal(payload.caseStudySlug, 'old-leads-revenue-recovery');
+  assert.equal(payload.pagePath, '/our-work/old-leads-revenue-recovery');
+  assert.deepEqual(payload.lead, { ...unlock, phone: '+12022345678', description: 'Unlocked case study: old-leads-revenue-recovery' });
+  assert.equal(payload.leadCaptured, true);
+  assert.equal('appointment datetime' in payload, false);
+  assert.equal(globalThis.fetch.mock.callCount(), 1);
+});
+
+test('the case study unlock rejects bad details and an unconfirmed webhook', async (t) => {
+  process.env.N8N_WEBHOOK_TEST_URL = 'https://logging.test/webhook';
+  const unlock = { mode: 'case_study_unlock', caseStudySlug: 'old-leads-revenue-recovery', name: 'Dana', businessName: 'Bright Home Cleaning', email: 'dana@example.com', phone: '(202) 234-5678' };
+  for (const body of [{ ...unlock, name: ' ' }, { ...unlock, businessName: '' }, { ...unlock, email: 'nope' },
+    { ...unlock, phone: '555-555-5555' }, { ...unlock, caseStudySlug: '../etc' }, { ...unlock, caseStudySlug: undefined }]) {
+    assert.equal((await invokeForm(body)).statusCode, 400);
+  }
+  assert.equal(globalThis.fetch.mock.callCount(), 0);
+  t.mock.method(console, 'warn', () => {});
+  // n8n answered 200 but did not confirm this submission: the page must stay locked.
+  globalThis.fetch.mock.mockImplementation(async () => Response.json({ success: true, submission_id: 'someone-elses-id' }));
+  const response = await invokeForm({ ...unlock, submissionId: 'unlock-request-12345678' });
+  assert.equal(response.statusCode, 502);
+  assert.notEqual(response.body.success, true);
+});
+
 test('invalid form fields are rejected before any webhook call', async () => {
   process.env.N8N_WEBHOOK_TEST_URL = 'https://logging.test/webhook';
   for (const body of [null, [], {}, { ...formDetails, name: ' ' }, { ...formDetails, businessName: '' },

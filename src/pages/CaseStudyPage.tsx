@@ -1,6 +1,7 @@
 import { ArrowDown, Check, Quote } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { CaseStudyCard } from '../components/CaseStudyCard';
+import { CaseStudyGate } from '../components/CaseStudyGate';
 import { FadeUp } from '../components/FadeUp';
 import { FinalCtaSection } from '../components/FinalCtaSection';
 import { PageHero } from '../components/PageHero';
@@ -163,7 +164,7 @@ function FlowSteps({ steps }: { steps: string[] }) {
   );
 }
 
-function DetailedStory({ study, details }: { study: CaseStudy; details: CaseStudyDetails }) {
+function DetailedStory({ study, details, forceUnlocked }: { study: CaseStudy; details: CaseStudyDetails; forceUnlocked: boolean }) {
   usePageMeta(getCaseStudyMeta(study));
   const others = CASE_STUDIES.filter((other) => other.slug !== study.slug && other.isPublished && other.isReal);
   const breadcrumbLinkClass = 'inline-flex min-h-11 items-center rounded-xs text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent';
@@ -263,6 +264,7 @@ function DetailedStory({ study, details }: { study: CaseStudy; details: CaseStud
             </section>
           )}
 
+          <CaseStudyGate slug={study.slug} forceUnlocked={forceUnlocked}>
           <section aria-labelledby="the-rebuild">
             <DetailHeading id="the-rebuild">{details.solution.title}</DetailHeading>
             <div className="mt-6 space-y-5">
@@ -321,6 +323,7 @@ function DetailedStory({ study, details }: { study: CaseStudy; details: CaseStud
             </dl>
             <p className={`mt-5 ${detailTextClass}`}>{details.tools.sources}</p>
           </section>
+          </CaseStudyGate>
         </article>
       </Section>
 
@@ -350,11 +353,12 @@ function DetailedStory({ study, details }: { study: CaseStudy; details: CaseStud
   );
 }
 
-export function CaseStudyPage() {
+// forceUnlocked is for tests that check the gated content; the live route never sets it.
+export function CaseStudyPage({ forceUnlocked = false }: { forceUnlocked?: boolean } = {}) {
   const { slug } = useParams();
   const study = CASE_STUDIES.find((s) => s.slug === slug);
   if (!study) return <NotFoundPage />;
-  if (study.details) return <DetailedStory key={study.slug} study={study} details={study.details} />;
+  if (study.details) return <DetailedStory key={study.slug} study={study} details={study.details} forceUnlocked={forceUnlocked} />;
   // key: a fresh page (and animations) when moving from one case study to another
   return <Story key={study.slug} study={study} />;
 }

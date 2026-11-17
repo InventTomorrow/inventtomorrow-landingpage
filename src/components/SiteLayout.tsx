@@ -102,7 +102,7 @@ export function SiteLayout() {
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </PageTransition>
-            {isAuditPage && <FooterBar className={`relative z-10 py-4 ${styles.footer}`} />}
+            {isAuditPage && <FooterBar className={`relative z-10 py-4 max-sm:hidden ${styles.footer}`} />}
           </main>
           {!isAuditPage && <Footer />}
           {!isAuditPage && <ScrollToTop />}

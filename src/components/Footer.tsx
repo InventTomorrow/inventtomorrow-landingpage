@@ -81,13 +81,13 @@ export function Footer() {
 // The blue bottom strip: copyright and legal links. Also used on its own under the pinned audit pages.
 export function FooterBar({ className = '' }: { className?: string }) {
   return (
-    <div className={`relative bg-header px-6 py-5 text-on-primary ${className}`}>
+    <div className={`relative bg-header px-4 py-5 text-on-primary sm:px-6 ${className}`}>
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-sm sm:flex-row sm:pr-20">
-        <p>© {new Date().getFullYear()} Invent Tomorrow. All rights reserved.</p>
-        <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+        <p className="text-center sm:text-left">© {new Date().getFullYear()} Invent Tomorrow. All rights reserved.</p>
+        <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 max-sm:gap-y-0">
           {LEGAL_LINKS.map((link) => (
             <li key={link.to}>
-              <Link to={link.to} className="underline-offset-4 transition-colors hover:underline">
+              <Link to={link.to} className="underline-offset-4 transition-colors hover:underline max-sm:inline-block max-sm:py-1.5">
                 {link.label}
               </Link>
             </li>

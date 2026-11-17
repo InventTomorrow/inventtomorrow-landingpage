@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { existsSync } from 'node:fs';
 import { LazyMotion, domAnimation } from 'motion/react';
-import { createElement, type ComponentType } from 'react';
+import { createElement, type ComponentType, type ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { CaseStudyCard } from '../components/CaseStudyCard';
@@ -16,15 +16,23 @@ const storyPath = `/our-work/${study.slug}`;
 const recoveryStudy = CASE_STUDIES.find((item) => item.slug === 'old-leads-revenue-recovery')!;
 const recoveryPath = `/our-work/${recoveryStudy.slug}`;
 
-function renderPage(url: string, path: string, Page: ComponentType) {
+function renderRoute(url: string, path: string, element: ReactElement) {
   return renderToStaticMarkup(
     <MemoryRouter initialEntries={[url]}>
       <LazyMotion features={domAnimation}>
-        <Routes><Route path={path} element={createElement(Page)} /></Routes>
+        <Routes><Route path={path} element={element} /></Routes>
       </LazyMotion>
     </MemoryRouter>,
   );
 }
+
+// Server rendering is always the locked page. Content checks use the unlocked variant.
+function renderPage(url: string, path: string, Page: ComponentType) {
+  return renderRoute(url, path, Page === CaseStudyPage ? <CaseStudyPage forceUnlocked /> : createElement(Page));
+}
+
+const escapeHtml = (text: string) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+const renderLockedPage =(url: string) => renderRoute(url, '/our-work/:slug', <CaseStudyPage />);
 
 function withStudies(extra: CaseStudy[], check: () => void) {
   const originalLength = CASE_STUDIES.length;
@@ -64,6 +72,39 @@ test('the approved preview uses scope labels, a 16:9 image and one real detail l
   assert.ok(html.includes(`href="${storyPath}"`));
   assert.doesNotMatch(html, /<dl|~2 weeks|Quote acceptance routes connected|Average first reply/);
   assert.match(renderPage('/our-work', '/our-work', OurWorkPage), /grid grid-cols-1 gap-5 md:grid-cols-2/);
+});
+
+test('the live case study route is locked: the second half is not in the HTML and the unlock form is', () => {
+  for (const item of [study, recoveryStudy]) {
+    const html = renderLockedPage(`/our-work/${item.slug}`);
+    const details = item.details!;
+    // The first half stays readable.
+    assert.match(html, /id="the-challenge"/);
+    assert.ok(html.includes(escapeHtml(details.challenge.title)));
+    assert.ok(details.facts.every((fact) => html.includes(escapeHtml(fact.value))));
+    // The gate and its form are present.
+    assert.match(html, /Unlock the full case study/);
+    assert.match(html, /aria-label="Unlock the full case study"/);
+    assert.match(html, /name="email"/);
+    assert.match(html, /name="phone"/);
+    assert.match(html, /Unlock Full Case Study/);
+    assert.doesNotMatch(html, /appointment/i);
+    // None of the gated text is rendered: not the headings, groups, workflow, outcomes or tools.
+    const gated = [
+      details.solution.title,
+      ...details.solution.groups.flatMap((group) => [group.title, ...group.paragraphs]),
+      details.workflow?.title,
+      details.outcomes.title, details.outcomes.intro,
+      ...details.outcomes.items.map((blurb) => blurb.title),
+      details.tools.title, details.tools.sources,
+      ...details.tools.items.map((tool) => tool.title),
+    ].filter((text): text is string => !!text)
+      // A tool name can also be mentioned in the open half, which is fine.
+      .filter((text) => !JSON.stringify([details.intro, details.facts, details.comparisons, details.challenge, details.diagnosis]).includes(text));
+    assert.ok(gated.length > 3);
+    for (const text of gated) assert.ok(!html.includes(escapeHtml(text)) && !html.includes(text), `locked page leaks: ${text}`);
+    assert.doesNotMatch(html, /id="the-rebuild"|id="follow-up-process"|id="operational-changes"|id="tools-and-scope"/);
+  }
 });
 
 test('the detail route has one H1 and the approved section order without empty evidence blocks', () => {
@@ -152,11 +193,11 @@ test('the recovery story displays the supplied campaign outcome without borrowin
   const html = renderPage(recoveryPath, '/our-work/:slug', CaseStudyPage);
   const story = html.slice(0, html.indexOf('See More of Our Work'));
   assert.equal((html.match(/<h1\b/g) ?? []).length, 1);
-  assert.match(story, /How 200 Old Leads Became 18 Closed Jobs/);
+  assert.match(story, /How 200 Old Leads Became 12 Closed Jobs/);
   assert.match(story, /aria-label="Campaign snapshot"/);
   assert.match(story, /Old leads worked/);
   assert.match(story, /Jobs closed/);
-  assert.match(story, /9%/);
+  assert.match(story, /6%/);
   assert.match(story, /automated email follow ups/i);
   assert.match(story, /Run My Free Audit/);
   assert.doesNotMatch(story, /process-changes|audit-findings|follow-up-process|Historical campaign context|GoHighLevel|Xero|\$1,000|<blockquote|undefined|Illustrative image/);

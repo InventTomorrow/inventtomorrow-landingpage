@@ -59,6 +59,28 @@ test('a typed business name is recorded, while greetings, "yes" and contact deta
   }
 });
 
+test('keyboard mash and impossible numbers are rejected instead of recorded', () => {
+  const invalid = { kind: 'repeat', invalid: true };
+  for (const text of ['asdasd', 'qwerty', 'aaaaaa', 'sdfghj', 'hahahaha', 'asd asd asd asd asd', '12345', '???', 'x']) {
+    assert.deepEqual(interpretAuditReply(0, text), invalid, `0: ${text}`);
+  }
+  for (const step of [1, 2, 3] as const) for (const text of ['???', '!!!', '...']) {
+    assert.deepEqual(interpretAuditReply(step, text), invalid, `${step}: ${text}`);
+  }
+  for (const text of ['Property Cleaning', 'Afghan Maids', 'Bonbon Cleaning', 'HVAC Pros', 'A1 Cleaning', 'JB Cleaning Co', 'Sparkle & Shine']) {
+    assert.equal(interpretAuditReply(0, text).kind, 'answer', text);
+  }
+  for (const [step, text] of [
+    [1, 'asdasd'], [1, 'asdf 10'], [1, 'asd asd asd asd asd'], [1, '-5'], [1, '99999999'],
+    [2, 'qwerty'], [2, '-100'], [2, '9999999999'], [2, 'jkl'],
+    [3, 'asdasd'], [3, '0'], [3, '$0'], [3, '$3'], [3, '-150'], [3, '$900000'],
+  ] as const) {
+    assert.deepEqual(interpretAuditReply(step, text), invalid, `${step}: ${text}`);
+  }
+  assert.equal(parseAuditAnswers({ ...example, businessName: 'asdasd' }), null);
+  assert.equal(parseAuditAnswers({ ...example, businessName: '12345' }), null);
+});
+
 test('typed numbers map to the same ranges as the buttons, without asking the AI', () => {
   const cases: [1 | 2 | 3, string, string][] = [
     [1, '6–15', '6–15'], [1, '6-15', '6–15'], [1, 'about 10', '6–15'], [1, 'ten', '6–15'], [1, '10-20', '6–15'], [1, '3', '0–5'],

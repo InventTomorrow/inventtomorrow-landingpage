@@ -19,9 +19,9 @@ export const OPTIMIZED_IMAGES: Record<string, { src: string; srcSet: string; wid
     "width": 640,
     "height": 800
   },
-  "/images/team/rehan-shoukat-portrait-v2.png": {
-    "src": "/images/optimized/rehan-shoukat-portrait-v2-640-668916eba986.webp",
-    "srcSet": "/images/optimized/rehan-shoukat-portrait-v2-320-03e4c4358345.webp 320w, /images/optimized/rehan-shoukat-portrait-v2-640-668916eba986.webp 640w, /images/optimized/rehan-shoukat-portrait-v2-960-f67bc57a4bf7.webp 960w",
+  "/images/team/rehan-shoukat-upscaled.png": {
+    "src": "/images/optimized/rehan-shoukat-upscaled-640-b86e5a2172f0.webp",
+    "srcSet": "/images/optimized/rehan-shoukat-upscaled-320-9bb9d67532e3.webp 320w, /images/optimized/rehan-shoukat-upscaled-640-b86e5a2172f0.webp 640w, /images/optimized/rehan-shoukat-upscaled-960-8ebaef47ffbb.webp 960w",
     "width": 640,
     "height": 800
   },
