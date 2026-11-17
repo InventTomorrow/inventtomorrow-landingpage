@@ -43,7 +43,11 @@
   outline-offset: 4px;
 }
 
+/* Navy header band over a pale conversation area. --pad is the inner spacing the panel used to
+   have as padding; it now sits on each part so the header can run edge to edge. */
 .panel {
+  --pad: 1rem;
+  --invo-bright: #0181f5;
   display: flex;
   width: 100%;
   min-width: 0;
@@ -51,12 +55,11 @@
   min-height: 0;
   flex-direction: column;
   overflow: hidden;
+  border: 1px solid var(--color-border);
   border-radius: 1.25rem;
-  padding: 1rem;
-  background:
-    linear-gradient(155deg, color-mix(in srgb, var(--color-accent) 32%, var(--color-primary)), var(--color-primary));
-  box-shadow: 0 16px 36px rgb(1 15 52 / 0.14);
-  color: var(--color-on-primary);
+  background: var(--color-stone);
+  box-shadow: 0 8px 24px rgb(1 15 52 / 0.08);
+  color: var(--color-primary);
 }
 
 .header {
@@ -64,9 +67,9 @@
   flex-shrink: 0;
   align-items: center;
   gap: 0.875rem;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid rgb(255 255 255 / 0.3);
-  padding-bottom: 0.875rem;
+  padding: 0.875rem var(--pad);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
 .avatar {
@@ -142,12 +145,13 @@
   min-height: 0;
   flex: 1;
   flex-direction: column;
-  gap: 0.875rem;
+  gap: 0.75rem;
+  padding: var(--pad) var(--pad) 0.25rem;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior-y: contain;
   scrollbar-width: thin;
-  scrollbar-color: rgb(255 255 255 / 0.25) transparent;
+  scrollbar-color: var(--color-border) transparent;
 }
 
 .messages::-webkit-scrollbar {
@@ -160,7 +164,7 @@
 
 .messages::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: rgb(255 255 255 / 0.25);
+  background: var(--color-border);
 }
 
 .messageRow {
@@ -175,42 +179,42 @@
 
 .message {
   min-width: 0;
-  max-width: 92%;
+  max-width: 88%;
   border-radius: 1.125rem;
-  padding: 0.875rem 1rem;
+  padding: 0.75rem 1rem;
   font-size: 1rem;
-  line-height: 1.55;
+  line-height: 1.5;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
   user-select: text;
 }
 
+/* White with navy text for Invo; header blue with white text for the visitor. */
 .assistantMessage {
-  background: rgb(255 255 255 / 0.12);
-  color: rgb(255 255 255 / 0.95);
+  border: 1px solid var(--color-border);
+  border-bottom-left-radius: 0.25rem;
+  background: var(--color-paper);
+  color: var(--color-primary);
 }
 
 .userMessage {
   border-bottom-right-radius: 0.25rem;
-  background: var(--color-accent);
+  background: var(--color-header);
   color: var(--color-on-primary);
 }
 
 .greeting {
-  max-width: 100%;
   font-weight: 600;
 }
 
 /* An audit question: marked so it reads as "answer this", not as more text. */
 .questionMessage {
-  border-left: 3px solid var(--color-accent);
+  border-left: 3px solid var(--invo-bright);
   border-top-left-radius: 0.375rem;
   border-bottom-left-radius: 0.375rem;
-  background: rgb(255 255 255 / 0.17);
-  color: var(--color-on-primary);
-  font-size: 1.0625rem;
-  font-weight: 700;
-  line-height: 1.45;
+  background: var(--color-paper);
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
 .questionLabel {
@@ -218,8 +222,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  margin-bottom: 0.25rem;
-  color: color-mix(in srgb, var(--color-accent) 35%, white);
+  margin-bottom: 0.375rem;
+  color: var(--color-ink);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -237,11 +241,11 @@
   width: 1.125rem;
   height: 0.25rem;
   border-radius: 999px;
-  background: rgb(255 255 255 / 0.22);
+  background: var(--color-border);
 }
 
 .pips > span[data-on='true'] {
-  background: color-mix(in srgb, var(--color-accent) 40%, white);
+  background: var(--invo-bright);
 }
 
 .suggestions {
@@ -259,15 +263,17 @@
   min-height: 2.5rem;
   align-items: center;
   gap: 0.4375rem;
-  border: 1px solid rgb(255 255 255 / 0.3);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
   padding: 0.4375rem 0.875rem;
-  background: color-mix(in srgb, var(--color-accent) 20%, transparent);
-  color: var(--color-on-primary);
-  font-size: 0.875rem;
+  background: var(--color-paper);
+  color: var(--color-primary);
+  font-size: 0.9375rem;
   font-weight: 600;
   line-height: 1.3;
   text-align: left;
+  text-wrap: balance;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
   cursor: pointer;
   overflow-wrap: break-word;
   white-space: normal;
@@ -284,13 +290,15 @@
 }
 
 .suggestion:hover {
-  border-color: rgb(255 255 255 / 0.65);
-  background: color-mix(in srgb, var(--color-accent) 38%, transparent);
+  border-color: var(--invo-bright);
+  background: var(--color-accent-soft);
 }
 
+/* The one main action keeps the site's solid blue: white text on it passes contrast. */
 .primaryChip {
   border-color: transparent;
   background: var(--color-accent);
+  color: var(--color-on-primary);
   font-weight: 700;
 }
 
@@ -322,7 +330,7 @@
   .starters .suggestion {
     border-radius: 0.875rem;
     padding: 0.4375rem 0.625rem;
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
   }
 }
 
@@ -332,8 +340,8 @@
 }
 
 .suggestion:focus-visible {
-  outline: 2px solid var(--color-paper);
-  outline-offset: -4px;
+  outline: 2px solid var(--invo-bright);
+  outline-offset: 2px;
 }
 
 .composer {
@@ -342,22 +350,25 @@
   flex-shrink: 0;
   align-items: flex-end;
   gap: 0.5rem;
-  margin-top: 1.25rem;
-  border: 1px solid rgb(255 255 255 / 0.2);
+  margin: 0.875rem var(--pad) 0;
+  scroll-margin-bottom: 1rem;
+  border: 1px solid var(--color-border);
   border-radius: 1.625rem;
   padding: 0.4375rem;
   background: var(--color-paper);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .composer:focus-within {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
+  border-color: var(--invo-bright);
+  outline: 2px solid var(--invo-bright);
+  outline-offset: 2px;
 }
 
 /* Invo is waiting for a typed answer (the business name). */
 .composer[data-highlight='true'] {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 55%, transparent);
+  border-color: var(--invo-bright);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--invo-bright) 25%, transparent);
 }
 
 .input {
@@ -379,7 +390,8 @@
 }
 
 .input::placeholder {
-  color: var(--color-body);
+  color: var(--color-ink);
+  opacity: 0.8;
 }
 
 .input:focus {
@@ -395,13 +407,18 @@
   justify-content: center;
   border: 0;
   border-radius: 50%;
-  background: var(--color-accent);
+  background: var(--invo-bright);
   color: var(--color-on-primary);
   cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
 .sendButton:hover:not(:disabled) {
-  background: var(--color-accent-hover);
+  background: color-mix(in srgb, var(--invo-bright) 85%, var(--color-primary));
+}
+
+.sendButton:active:not(:disabled) {
+  transform: scale(0.94);
 }
 
 .sendButton:focus-visible {
@@ -409,9 +426,23 @@
   outline-offset: 2px;
 }
 
+/* Greyed out, not just faded, so it clearly reads as unavailable. */
 .sendButton:disabled {
-  opacity: 0.6;
+  background: var(--color-border);
+  color: var(--color-body);
   cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sendButton,
+  .composer,
+  .suggestion {
+    transition: none;
+  }
+
+  .sendButton:active:not(:disabled) {
+    transform: none;
+  }
 }
 
 .sendButton[data-sending='true'] {
@@ -420,16 +451,17 @@
 
 .footer {
   flex-shrink: 0;
-  margin-top: 1rem;
-  color: rgb(255 255 255 / 0.72);
+  margin: 0.75rem var(--pad) var(--pad);
+  color: var(--color-ink);
   font-size: 0.8125rem;
   line-height: 1.5;
   text-align: center;
 }
 
+/* The accent shade the site already uses for links on light backgrounds (passes contrast). */
 .bookingLink,
 .bookingLink:hover {
-  color: var(--color-on-primary);
+  color: var(--color-accent-hover);
   text-decoration-color: currentColor;
 }
 
@@ -441,14 +473,14 @@
 }
 
 .bookingLink:focus-visible {
-  outline: 2px solid var(--color-paper);
+  outline: 2px solid var(--invo-bright);
   outline-offset: 4px;
 }
 
 @media (min-width: 40rem) {
   .panel {
+    --pad: 1.75rem;
     border-radius: 1.75rem;
-    padding: 1.75rem;
   }
 
   .avatar {
@@ -460,49 +492,171 @@
     font-size: 1.25rem;
   }
 
-  .subtitle,
-  .footer {
-    font-size: 1rem;
+  .subtitle {
+    font-size: 0.9375rem;
   }
 
-  .greeting {
-    max-width: 85%;
-    padding: 1rem 1.25rem;
-    font-size: 1.125rem;
+  .footer {
+    font-size: 0.875rem;
   }
 
   .suggestion {
     padding: 0.5rem 1rem;
-    font-size: 0.9375rem;
-  }
-
-  .questionMessage {
-    font-size: 1.125rem;
   }
 }
 
 @media (min-width: 64rem) and (max-width: 74.999rem) {
   .panel {
-    padding: 1.375rem;
+    --pad: 1.375rem;
   }
 
   .suggestion {
     padding: 0.4375rem 0.875rem;
-    font-size: 0.875rem;
   }
 }
 
 @media (min-width: 80rem) {
   .panel {
-    padding: 1.875rem;
+    --pad: 1.875rem;
   }
 
   .name {
     font-size: 1.375rem;
   }
+}
+
+
+/* Phones (under 640px): a compact, chat-app style panel. Desktop and tablet are unchanged. The input
+   stays 16px so iOS does not zoom in when it is focused. */
+@media (max-width: 39.999rem) {
+  .panel {
+    --pad: 0.875rem;
+  }
+
+  .header {
+    gap: 0.625rem;
+    padding: 0.625rem var(--pad);
+  }
+
+  .avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.375rem;
+  }
+
+  .name {
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+
+  .subtitle {
+    font-size: 0.75rem;
+    line-height: 1.35;
+    text-wrap: balance;
+  }
+
+  .resetButton {
+    min-height: 2.25rem;
+    padding: 0.4375rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  /* The chat fills whatever height the page gives it, so the page itself does not scroll: the
+     conversation scrolls inside the panel and the input stays pinned at the bottom. When the chat
+     reaches its end, a swipe carries on to the page instead of getting stuck. */
+  .shell,
+  .panel {
+    height: auto;
+    min-height: 0;
+    flex: 1 1 0;
+  }
+
+  .shell {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .messages {
+    gap: 0.625rem;
+    padding: 0.875rem var(--pad) 0.25rem;
+    flex: 1 1 0;
+    min-height: 6rem;
+    max-height: none;
+    overscroll-behavior-y: auto;
+  }
+
+  .message {
+    max-width: 94%;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
 
   .greeting {
-    font-size: 1.25rem;
+    font-weight: 500;
+  }
+
+  .questionMessage {
+    font-weight: 600;
+  }
+
+  .suggestions,
+  .starters {
+    gap: 0.5rem;
+  }
+
+  .suggestion,
+  .starters .suggestion {
+    min-height: 2.75rem;
+    justify-content: flex-start;
+  }
+
+  .composer {
+    margin-top: 0.75rem;
+  }
+
+  .footer {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+  }
+
+  /* A larger tap area for the link without changing how it looks. */
+  .bookingLink {
+    display: inline-block;
+    margin: -0.5rem -0.25rem;
+    padding: 0.5rem 0.25rem;
   }
 }
 
+/* Most phones: Reset Invo becomes a compact round button (its label stays for screen readers). */
+@media (max-width: 26.25rem) {
+  .resetButton {
+    position: relative;
+    width: 2.5rem;
+    height: 2.5rem;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .resetButton svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .resetButton span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* Very narrow phones: one chip per row so none wraps to three lines. */
+@media (max-width: 21.25rem) {
+  .starters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+}

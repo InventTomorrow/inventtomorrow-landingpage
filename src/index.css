@@ -187,6 +187,25 @@ body {
   to { transform: translateX(100%); }
 }
 
+/* Case study unlock: the progress bar while the story unlocks, then the fade-in of the revealed half. */
+@utility animate-unlock-fill {
+  animation: unlock-fill var(--unlock-ms, 4500ms) linear forwards;
+}
+@utility animate-unlock-reveal {
+  animation: unlock-reveal 600ms ease-out both;
+}
+@keyframes unlock-fill {
+  to { width: 100%; }
+}
+@keyframes unlock-reveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-unlock-fill { animation-duration: 1ms; }
+  .animate-unlock-reveal { animation: none; }
+}
+
 /* Tool slider: advance exactly one measured copy from the centered starting tool. */
 @utility animate-marquee {
   animation: marquee var(--tools-duration, 60s) linear infinite;

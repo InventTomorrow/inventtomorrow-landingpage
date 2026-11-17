@@ -148,6 +148,44 @@ async function submitQuickAudit(raw: Record<string, unknown>, env: WebhookEnv): 
   return { status: 200, body: { success: true, submissionId, results: confirmed } };
 }
 
+// Short "unlock the case study" form: no appointment, and n8n routes on source 'form-casestudy'.
+async function submitCaseStudyUnlock(raw: Record<string, unknown>, env: WebhookEnv): Promise<AuditResult> {
+  const limits = { name: 120, businessName: 160, email: 254, phone: 40 };
+  const lead = { name: '', businessName: '', email: '', phone: '' };
+  for (const key of Object.keys(limits) as (keyof typeof limits)[]) {
+    const value = raw[key];
+    if ((value !== undefined && typeof value !== 'string') || (typeof value === 'string' && value.length > limits[key])) {
+      return { status: 400, body: { error: 'Please check your details and try again.' } };
+    }
+    lead[key] = typeof value === 'string' ? value.trim() : '';
+  }
+  if (!lead.name || !lead.businessName || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email)) {
+    return { status: 400, body: { error: 'Please enter your name, business name and a valid email address.' } };
+  }
+  const phone = normalizeUsPhone(lead.phone);
+  if (!phone) return { status: 400, body: { error: 'Please enter a valid US phone number, including the area code.' } };
+  const caseStudySlug = typeof raw.caseStudySlug === 'string' && /^[a-z0-9-]{1,100}$/.test(raw.caseStudySlug) ? raw.caseStudySlug : null;
+  if (!caseStudySlug) return { status: 400, body: { error: 'Please check your details and try again.' } };
+  const url = webhookUrl(env);
+  if (!url) return { status: 503, body: { error: 'The form is temporarily unavailable. Please try again later.' } };
+  const submissionId = typeof raw.submissionId === 'string' && /^[a-zA-Z0-9-]{16,64}$/.test(raw.submissionId)
+    ? raw.submissionId : randomUUID();
+  const sent = await sendToWebhook(url, {
+    source: 'form-casestudy',
+    event: 'case_study_unlock',
+    submissionId,
+    sessionId: validSessionId(raw.sessionId) || randomUUID(),
+    timestamp: new Date().toISOString(),
+    pagePath: `/our-work/${caseStudySlug}`,
+    caseStudySlug,
+    ...trackingFields(raw.tracking),
+    lead: { ...lead, phone, description: `Unlocked case study: ${caseStudySlug}` },
+    leadCaptured: true,
+  });
+  if (!sent.ok || !acknowledged(sent.data, submissionId)) return deliveryError(sent, submissionId, 'case_study_unlock', env);
+  return { status: 200, body: { success: true, submissionId } };
+}
+
 export async function handleAudit(input: unknown, ip: string, env: WebhookEnv): Promise<AuditResult> {
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
     return { status: 400, body: { error: 'Please check your details and try again.' } };
@@ -155,6 +193,7 @@ export async function handleAudit(input: unknown, ip: string, env: WebhookEnv): 
   if (rateLimited(ip)) return { status: 429, body: { error: 'Too many requests. Please try again shortly.' } };
   const raw = input as Record<string, unknown>;
   if (raw.mode === 'quick_audit') return submitQuickAudit(raw, env);
+  if (raw.mode === 'case_study_unlock') return submitCaseStudyUnlock(raw, env);
   const limits = { name: 120, businessName: 160, email: 254, phone: 40, description: 1000 };
   const lead = { name: '', businessName: '', email: '', phone: '', description: '' };
   for (const key of Object.keys(limits) as (keyof typeof limits)[]) {

@@ -53,7 +53,7 @@ for (const html of [ads, audit]) {
   assert.ok(html.includes('Invent Tomorrow&#x27;s AI assistant'), 'Both audit pages must identify Invo as AI');
   assert.ok(/<button[^>]*aria-haspopup="dialog"[^>]*>[\s\S]*?Book a 15[- ]minute call/.test(html), 'Both audit pages must open the 15-minute booking form');
   assert.ok(html.includes('id="audit-chat-input"'), 'Both audit pages must include the chat composer');
-  for (const suggestion of ['Book my free audit', 'missing calls', 'My quotes go quiet', 'I want more repeat clients', 'What does it cost?', 'Talk to a person']) {
+  for (const suggestion of ['missing calls', 'My quotes go quiet', 'I want more repeat clients', 'What does it cost?']) {
     assert.ok(html.includes(suggestion), `Missing chat suggestion: ${suggestion}`);
   }
 }

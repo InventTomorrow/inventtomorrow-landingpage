@@ -44,6 +44,12 @@ export const AUDIT_INTRO = "Great. Four quick questions, then you'll see your es
 export const auditNudge = (step: number) =>
   `Tap one of the options below, or type a rough ${step === 3 ? 'price' : 'number'}.`;
 
+// Shown instead of the plain nudge when the visitor typed keyboard mash ("asdasd") or a
+// number that cannot be real ("-5", "99999999"), so they know why it was not accepted.
+export const auditInvalid = (step: number) => step === 0
+  ? `That doesn't look like a business name. ${AUDIT_QUESTIONS[0]}`
+  : `That doesn't look like a real ${step === 3 ? 'price' : 'number'}. Tap one of the options below, or type something like ${step === 1 ? '10' : step === 2 ? '100' : '$150'}.`;
+
 export const AUDIT_QUICK_REPLIES = {
   'Book my free audit': `${AUDIT_INTRO}\n\n${AUDIT_QUESTIONS[0]}`,
   "I'm missing calls": "Missed Call Rescue texts back anyone you miss within seconds, so they don't call another cleaner. You approve every message first.\n\nBook my free audit to see what your missed calls are worth.",
@@ -61,7 +67,36 @@ export function predefinedAuditReply(message: string): string | undefined {
 // - answer: record it and move on;
 // - repeat: not an answer (a greeting, "yes", an unrecognised word), so ask again locally;
 // - ask: a real question or remark for the AI, after which the chat repeats the question.
-export type AuditTurn = { kind: 'answer'; value: string } | { kind: 'repeat' } | { kind: 'ask' };
+// A repeat marked `invalid` was keyboard mash or an impossible number, not just an unrecognised reply.
+export type AuditTurn = { kind: 'answer'; value: string } | { kind: 'repeat'; invalid?: true } | { kind: 'ask' };
+
+const INVALID: AuditTurn = { kind: 'repeat', invalid: true };
+const KEYBOARD_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
+const nextToEachOther = (a: string, b: string) => KEYBOARD_ROWS.some((row) => {
+  const i = row.indexOf(a), j = row.indexOf(b);
+  return i >= 0 && j >= 0 && Math.abs(i - j) === 1;
+});
+
+// Keyboard mash, not a word: "asdasd", "qwerty", "aaaaa", "hahahaha", "sdfghj", "xzzqtp".
+export function isGibberishWord(raw: string): boolean {
+  const w = raw.toLowerCase().replace(/[^a-z]/g, '');
+  if (w.length < 3) return false;
+  if (w.length === 3) return /^(?:asd|sdf|dfg|fgh|ghj|hjk|jkl|qwe|wer|ert|rty|tyu|yui|uio|iop|zxc|xcv|cvb|vbn|bnm)$/.test(w);
+  if (/(.)\1{3,}/.test(w) || /^(.{2,3})\1{2,}$/.test(w)) return true;
+  let neighbours = 0;
+  for (let i = 0; i < w.length - 1; i++) if (nextToEachOther(w[i], w[i + 1])) neighbours++;
+  const share = neighbours / (w.length - 1);
+  if (w.length === 4 ? share === 1 : share >= 0.7) return true;
+  // Five or more letters with no vowel at all (not an all-caps acronym like "HVAC").
+  return w.length >= 5 && !/[aeiouy]/.test(w) && raw !== raw.toUpperCase();
+}
+
+export const hasGibberish = (text: string) => text.split(/\s+/).some(isGibberishWord);
+
+export function isPlausibleBusinessName(name: string) {
+  const letters = name.match(/\p{L}/gu)?.length ?? 0;
+  return letters >= 2 && !hasGibberish(name);
+}
 
 const tidy = (text: string) => text.trim().toLowerCase().replace(/[’‘]/g, "'").replace(/[–—−]/g, '-')
   .replace(/\s+/g, ' ').replace(/[.!]+$/, '');
@@ -90,30 +125,37 @@ export function roughNumber(text: string): number | null {
   return numbers[0];
 }
 
-function rangeAnswer(step: 1 | 2 | 3, text: string): string | undefined {
+// undefined: no usable number in the reply. null: a number, but not a possible answer
+// (negative, or far outside what a cleaning business could really have).
+function rangeAnswer(step: 1 | 2 | 3, text: string): string | null | undefined {
   const t = tidy(text);
   if (wordCount(t) > 8) return;
   let n = roughNumber(t);
   if (n === null) return;
+  if (/(?:^|\s)-\s?\d/.test(t) && !/\d\s*-\s*\$?\d/.test(t)) return null; // "-5"
   const per = (unit: string) => new RegExp(`\\b(?:a|per|each|every) ${unit}\\b|\\b${unit}ly\\b|/ ?${unit}\\b`).test(t);
   if (step === 1) {
     if (per('day') || /\bdaily\b/.test(t)) n *= 5;
     else if (per('month')) n /= 4.3;
     else if (per('year')) n /= 52;
+    if (n > 1000) return null; // over 1,000 missed calls a week
     return n <= 5 ? '0–5' : n <= 15 ? '6–15' : n <= 30 ? '16–30' : 'More than 30';
   }
   if (step === 2) {
     if (per('month')) n *= 12;
     else if (per('week')) n *= 52;
+    if (n > 100_000) return null;
     return n < 50 ? 'Under 50' : n < 200 ? '50–200' : n <= 500 ? '200–500' : 'More than 500';
   }
   if (/\b(?:hour|hr|hourly)\b/.test(t)) return; // an hourly rate is not the price of a clean
+  if (n < 20 || n > 5000) return null; // "$0", "$3", "$900,000" are not the price of a clean
   return n < 120 ? 'Under $120' : n <= 180 ? '$120–$180' : n <= 250 ? '$180–$250' : 'Over $250';
 }
 
 export function interpretAuditReply(step: 0 | 1 | 2 | 3, text: string): AuditTurn {
   const t = tidy(text);
-  if (!t) return { kind: 'repeat' };
+  if (!text.trim()) return { kind: 'repeat' };
+  if (!/[\p{L}\p{N}]/u.test(text)) return INVALID; // "???", "!!!", "..."
   if (step === 0) {
     if (START_OR_ACK.test(t)) return { kind: 'repeat' };
     if (predefinedAuditReply(text) || ASKING.test(t) || /\b(?:pricing|price|cost|guarantee)\b/.test(t)) return { kind: 'ask' };
@@ -121,6 +163,7 @@ export function interpretAuditReply(step: 0 | 1 | 2 | 3, text: string): AuditTur
     const name = text.trim().replace(/[’‘]/g, "'").replace(NAME_PREFIX, '').replace(/[.!,]+$/, '')
       .replace(/^["“']+|["”']+$/g, '').trim();
     if (!name) return { kind: 'repeat' };
+    if (!isPlausibleBusinessName(name)) return INVALID;
     return wordCount(name) > 8 ? { kind: 'ask' } : { kind: 'answer', value: name.slice(0, 160) };
   }
   const options: readonly string[] = [MISSED_CALL_OPTIONS, OLD_QUOTE_OPTIONS, CLEAN_PRICE_OPTIONS][step - 1];
@@ -130,7 +173,9 @@ export function interpretAuditReply(step: 0 | 1 | 2 | 3, text: string): AuditTur
   if (START_OR_ACK.test(t)) return { kind: 'repeat' };
   if (predefinedAuditReply(text) || ASKING.test(t)) return { kind: 'ask' };
   if (NOT_SURE.test(t)) return options.includes('Not sure') ? { kind: 'answer', value: 'Not sure' } : { kind: 'repeat' };
+  if (hasGibberish(text)) return INVALID; // "asdasd", even beside a number
   const range = rangeAnswer(step, t);
+  if (range === null) return INVALID;
   if (range) return { kind: 'answer', value: range };
   return wordCount(t) <= 4 ? { kind: 'repeat' } : { kind: 'ask' };
 }
@@ -147,6 +192,7 @@ export function parseAuditAnswers(value: unknown): AuditAnswers | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
   const a = value as AuditAnswers;
   if (typeof a.businessName !== 'string' || !a.businessName.trim() || a.businessName.length > 160
+    || !isPlausibleBusinessName(a.businessName)
     || !MISSED_CALL_OPTIONS.includes(a.missedCalls) || !OLD_QUOTE_OPTIONS.includes(a.oldQuotes)
     || !CLEAN_PRICE_OPTIONS.includes(a.typicalClean)) return null;
   return { businessName: a.businessName.trim(), missedCalls: a.missedCalls, oldQuotes: a.oldQuotes, typicalClean: a.typicalClean };

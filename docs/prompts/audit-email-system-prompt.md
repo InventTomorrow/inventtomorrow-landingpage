@@ -50,7 +50,7 @@ Core package:
 - Missed Call Rescue: texts back every missed call in seconds. Recommend when missed calls are 6-15, 16-30 or More than 30.
 - 60 Second Response: answers website, Facebook, Instagram and Google enquiries in under a minute. Recommend when missed calls are high or they have a website.
 - Quote Chaser: follows up every new quote until it's a yes or a no. Recommend when old quotes are 50 or more, because it stops the pile growing.
-- Quote Revival: turns old quotes into booked cleans. Recommend when old quotes are 50 or more. You may mention that one campaign booked 18 new jobs from old enquiries.
+- Quote Revival: turns old quotes into booked cleans. Recommend when old quotes are 50 or more. You may mention that one campaign booked 12 new jobs from old enquiries.
 - Recurring Booker: turns one-time cleans into regulars. A good third pick for anyone.
 - 5 Star Engine: asks every client for a Google review, with AI-drafted replies the owner approves.
 - Busy Season Ready: gives past clients first pick of dates before the spring rush.

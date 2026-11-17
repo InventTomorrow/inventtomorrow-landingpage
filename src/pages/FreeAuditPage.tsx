@@ -1,4 +1,4 @@
-import { ArrowRight, CalendarDays, Check } from 'lucide-react';
+import { ArrowRight, CalendarDays, Check, ChevronDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { AuditChat } from '../components/AuditChat';
 import { FoundingCountdown } from '../components/FoundingCountdown';
@@ -8,6 +8,14 @@ import { PAGE_META } from '../content/pages';
 import { usePageMeta } from '../hooks/usePageMeta';
 import { FOUNDING_SPOTS_LEFT } from '../utils/freeAudit';
 import styles from './FreeAuditPage.module.css';
+
+const TAKEAWAYS = [
+  'How many calls, quotes and past clients are slipping away',
+  "Roughly what those jobs are worth each month",
+  'The first fix that would book you the most cleans',
+  'Whether you qualify for the Pays For Itself Guarantee',
+];
+const takeaway = (line: string) => <li key={line}><Check aria-hidden="true" /><span>{line}</span></li>;
 
 export function FreeAuditPage({ isAds = false }: { isAds?: boolean } = {}) {
   usePageMeta(isAds ? PAGE_META.freeAuditAds : PAGE_META.freeAudit);
@@ -36,20 +44,20 @@ export function FreeAuditPage({ isAds = false }: { isAds?: boolean } = {}) {
               Find the jobs you're missing.
             </h1>
             <p className={styles.description}>
-              In 15 minutes we'll count the missed calls, open quotes and past clients sitting in your business,
-              and show you roughly what they're worth. Chat with Invo, our AI assistant, to book your audit or ask anything first.
+              See what your missed calls, old quotes and past clients are worth in 15 minutes. Chat with Invo to start.
             </p>
             <div className={styles.takeaways}>
               <h2>You'll leave knowing:</h2>
-              <ul>
-                {[
-                  'How many calls, quotes and past clients are slipping away',
-                  "Roughly what those jobs are worth each month",
-                  'The first fix that would book you the most cleans',
-                  'Whether you qualify for the Pays For Itself Guarantee',
-                ].map((line) => <li key={line}><Check aria-hidden="true" /><span>{line}</span></li>)}
-              </ul>
+              <ul className={styles.takeList}>{TAKEAWAYS.map(takeaway)}</ul>
             </div>
+            {/* Phones: the same list, folded away so the chat stays the focus. */}
+            <details className={styles.takeawaysMobile}>
+              <summary>
+                <span>You'll leave knowing</span>
+                <ChevronDown aria-hidden="true" />
+              </summary>
+              <ul className={styles.takeList}>{TAKEAWAYS.map(takeaway)}</ul>
+            </details>
           </div>
 
           <section className={styles.chat} aria-label="Free audit with Invo">

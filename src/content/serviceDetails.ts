@@ -280,7 +280,7 @@ export const SERVICE_DETAILS: ServiceDetail[] = [
       body: "Your free 15 minute audit counts your old quotes and inquiries and estimates what they could book. Core package, backed by our Pays For Itself Guarantee.",
     },
     related: ["Quote Chaser", "Win Back"],
-    proof: "**18 new jobs booked from old inquiries in a single campaign.** [Read the case study](https://www.inventtomorrow.pro/our-work/old-leads-revenue-recovery)",
+    proof: "**12 new jobs booked from old inquiries in a single campaign.** [Read the case study](https://www.inventtomorrow.pro/our-work/old-leads-revenue-recovery)",
   },
   {
     path: "/services/appointment-reminders",

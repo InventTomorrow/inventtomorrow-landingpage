@@ -33,3 +33,13 @@
 .footer {
   flex-shrink: 0;
 }
+
+/* Phones: the audit page fits the screen exactly (the chat flexes to fill it) instead of growing
+   taller and scrolling. It only grows past the screen when there is genuinely no room, such as
+   with the keyboard open. */
+@media (max-width: 39.999rem) {
+  .page {
+    flex: 1 1 0;
+    min-height: min-content;
+  }
+}

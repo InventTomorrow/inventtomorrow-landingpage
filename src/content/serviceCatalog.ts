@@ -122,7 +122,7 @@ export const SERVICE_CATALOG: ServiceSummary[] = [
     "meta": {
       "path": "/services/quote-revival",
       "title": "Turn Old Cleaning Quotes Into Booked Jobs | Invent Tomorrow",
-      "description": "We contact the old quotes and inquiries sitting in your system and turn them into booked jobs. One campaign booked 18 new jobs from old inquiries."
+      "description": "We contact the old quotes and inquiries sitting in your system and turn them into booked jobs. One campaign booked 12 new jobs from old inquiries."
     }
   },
   {
