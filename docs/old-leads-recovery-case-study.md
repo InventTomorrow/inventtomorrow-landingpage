@@ -6,8 +6,8 @@ Added to the existing `/our-work` listing, with its detail page at `/our-work/ol
 
 ## Claims
 
-- The supplied brief reports 200 old leads worked and 12 closed jobs.
-- 12 / 200 is 6%.
+- The supplied brief reports 237 old leads worked and 13 closed jobs.
+- 13 / 237 is 5.5%.
 - The business is unnamed. No client identity, location, campaign dates, revenue amount, CRM brand, testimonial or time-saved figure has been invented.
 - The work consists of pipeline stages, automated email sequencing, lead/reply tracking, less manual chasing, and a repeatable recovery process.
 - The new story does not inherit Just About Cleaning's Xero handling, social intake logic, historical ad figures or specific follow-up cadence.

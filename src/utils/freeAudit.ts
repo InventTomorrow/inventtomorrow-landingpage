@@ -1,6 +1,6 @@
 export const FOUNDING_SPOTS_LEFT = 2;
 const SPOTS_IN_WORDS = ['None', 'One', 'Two', 'Three', 'Four', 'Five'][FOUNDING_SPOTS_LEFT] ?? String(FOUNDING_SPOTS_LEFT);
-export const AUDIT_PRICING_REPLY = `Founding clients pay $1,500 to set up and $345 a month, locked for life. ${SPOTS_IN_WORDS} of five founding spots are left, and it's guaranteed to pay for itself in 90 days. The audit is free either way. Want me to book it?`;
+export const AUDIT_PRICING_REPLY = `Founding clients pay $1,272 to set up and $345 a month, locked for life. ${SPOTS_IN_WORDS} of five founding spots are left, and it's guaranteed to pay for itself in 90 days. The audit is free either way. Want me to book it?`;
 export const MISSED_CALL_OPTIONS = ['0–5', '6–15', '16–30', 'More than 30', 'Not sure'] as const;
 export const OLD_QUOTE_OPTIONS = ['Under 50', '50–200', '200–500', 'More than 500', 'Not sure'] as const;
 export const CLEAN_PRICE_OPTIONS = ['Under $120', '$120–$180', '$180–$250', 'Over $250'] as const;

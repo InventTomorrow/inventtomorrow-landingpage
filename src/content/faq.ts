@@ -35,7 +35,7 @@ export const ALL_FAQS: Faq[] = [
   },
   {
     q: 'How much does it cost?',
-    a: 'Founding clients pay $1,500 to set up (or two payments of $750) and $345 a month, locked for life. There are 5 founding spots, closing on 15 January 2027 or when all 5 are taken.',
+    a: 'Founding clients pay $1,272 to set up (or two payments of $636) and $345 a month, locked for life. There are 5 founding spots, closing on 15 January 2027 or when all 5 are taken.',
   },
   {
     q: 'What happens if something stops working?',

@@ -238,7 +238,7 @@ These are rough estimates. With a small crew, calls get missed mid-clean and quo
 
 Here's what we'd do first:
 
-- Quote Revival: we'd contact your old quotes with real open dates. One campaign like this booked 12 new jobs from old enquiries.
+- Quote Revival: we'd contact your old quotes with real open dates. One campaign like this booked 13 new jobs from old enquiries.
 - Missed Call Rescue: every missed call gets a text from you within seconds, before they try the next cleaner.
 - Quote Chaser: every new quote gets followed up, so the pile stops growing.
 
