@@ -1,4 +1,4 @@
-import { Award, CalendarDays, Check, ShieldCheck } from 'lucide-react';
+import { Award, Check, ShieldCheck } from 'lucide-react';
 import { AUDIT_PATH } from '../utils/navigation';
 import { FOUNDING_SPOTS_LEFT } from '../utils/freeAudit';
 import { CtaButton } from './CtaButton';
@@ -62,27 +62,20 @@ export function FoundingOfferSection() {
           <FadeUp y={18} className="min-w-0 rounded-2xl border border-border bg-stone p-6 sm:p-8 lg:sticky lg:top-28 xl:p-10">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm font-semibold uppercase text-accent">Founding clients</p>
-              <span className="rounded-full bg-paper px-3 py-1 text-sm font-semibold text-primary">
-                {REMAINING_SPOTS}/{TOTAL_SPOTS} spots left
-              </span>
             </div>
-            <h3 className="mt-5 font-display text-2xl font-semibold leading-snug text-primary">5 founding spots.</h3>
-            <p className="mt-2 flex items-start gap-2 text-sm font-medium text-primary">
-              <CalendarDays className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden="true" />
-              <span>Closing <time dateTime="2027-01-15">15 January 2027</time>, or when all 5 are taken.</span>
-            </p>
+            <h3 className="mt-5 font-display text-2xl font-semibold leading-snug text-primary">{REMAINING_SPOTS}/{TOTAL_SPOTS} founding spots.</h3>
             <FoundingCountdown className="mt-5" />
 
             <div className="mt-6 border-y border-border py-6">
               <p className="flex flex-wrap items-baseline gap-x-2 font-display text-primary">
-                <span className="text-4xl font-semibold tracking-display sm:text-5xl">$1,500</span>
+                <span className="text-4xl font-semibold tracking-display sm:text-5xl">$1,272</span>
                 <span className="text-base">setup</span>
               </p>
               <p className="mt-3 flex flex-wrap items-baseline gap-x-2 font-display text-primary">
                 <span className="text-2xl font-semibold">+ $345</span>
                 <span className="text-base">a month</span>
               </p>
-              <p className="mt-3 text-sm leading-relaxed">Split setup into two payments of $750. Month to month after setup.</p>
+              <p className="mt-3 text-sm leading-relaxed">Split setup into two payments of $636. Month to month after setup.</p>
             </div>
 
             <ul className="mt-6 space-y-3">

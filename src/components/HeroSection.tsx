@@ -110,7 +110,7 @@ export function HeroSection() {
             ))}
           </m.ul>
           <p className="mt-6 max-w-full border-l-2 border-accent pl-3 text-sm leading-relaxed text-primary">
-            <TextLink to="/our-work/old-leads-revenue-recovery">12 new jobs booked from 200 old enquiries</TextLink>
+            <TextLink to="/our-work/old-leads-revenue-recovery">13 new jobs booked from 237 old enquiries</TextLink>
           </p>
         </div>
       </div>

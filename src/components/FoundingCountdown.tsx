@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { FOUNDING_CLOSES_AT, timeLeft } from '../utils/countdown';
+import { closesAt, FOUNDING_CLOSES_AT, timeLeft } from '../utils/countdown';
 
-const pad = (value: number) => String(value).padStart(2, '0');
+const HARDCODED_DAYS = 13;
+
+const pad =(value: number) => String(value).padStart(2, '0');
 
 /**
  * Live countdown to the real close date of the founding offer. Renders nothing after it closes.
@@ -10,15 +12,19 @@ const pad = (value: number) => String(value).padStart(2, '0');
  */
 export function FoundingCountdown({ variant = 'boxes', className = '' }: { variant?: 'boxes' | 'inline'; className?: string }) {
   const [now, setNow] = useState<number | null>(null);
+  const [target, setTarget] = useState(FOUNDING_CLOSES_AT);
 
   useEffect(() => {
-    setNow(Date.now());
+    const mountedAt = Date.now();
+    // TEMPORARY: hardcoded to 13 days from page load (restarts on each load) in all builds.
+    setTarget(closesAt(mountedAt, HARDCODED_DAYS));
+    setNow(mountedAt);
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, []);
 
   const isMounted = now !== null;
-  const left = isMounted ? timeLeft(FOUNDING_CLOSES_AT, now) : null;
+  const left = isMounted ? timeLeft(target, now) : null;
   if (isMounted && !left) return null;
 
   if (variant === 'inline') {

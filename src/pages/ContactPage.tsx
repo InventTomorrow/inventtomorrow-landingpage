@@ -15,7 +15,7 @@ export function ContactPage() {
     <>
       <PageHero
         eyebrow="Schedule a call"
-        title="Let's talk about your working day"
+        title="Let's talk business"
         description="The tasks taking too long. The details you keep chasing. See where a system could help."
       >
         <CtaButton size="lg" variant="accent" to={BOOKING_PATH}>

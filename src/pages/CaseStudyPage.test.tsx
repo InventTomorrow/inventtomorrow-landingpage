@@ -193,11 +193,11 @@ test('the recovery story displays the supplied campaign outcome without borrowin
   const html = renderPage(recoveryPath, '/our-work/:slug', CaseStudyPage);
   const story = html.slice(0, html.indexOf('See More of Our Work'));
   assert.equal((html.match(/<h1\b/g) ?? []).length, 1);
-  assert.match(story, /How 200 Old Leads Became 12 Closed Jobs/);
+  assert.match(story, /How 237 Old Leads Became 13 Closed Jobs/);
   assert.match(story, /aria-label="Campaign snapshot"/);
   assert.match(story, /Old leads worked/);
   assert.match(story, /Jobs closed/);
-  assert.match(story, /6%/);
+  assert.match(story, /5.5%/);
   assert.match(story, /automated email follow ups/i);
   assert.match(story, /Run My Free Audit/);
   assert.doesNotMatch(story, /process-changes|audit-findings|follow-up-process|Historical campaign context|GoHighLevel|Xero|\$1,000|<blockquote|undefined|Illustrative image/);

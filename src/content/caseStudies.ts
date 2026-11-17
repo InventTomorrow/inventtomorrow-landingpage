@@ -229,10 +229,10 @@ const JUST_ABOUT_CLEANING_DETAILS: CaseStudyDetails = {
 };
 
 const OLD_LEADS_RECOVERY_DETAILS: CaseStudyDetails = {
-  seoTitle: 'Old Leads Recovery: 12 Jobs from 200 Leads | Invent Tomorrow',
-  seoDescription: 'How CRM pipelines and automated email follow ups helped a cleaning business close 12 jobs from 200 old leads, a 6% conversion rate.',
-  title: 'How 200 Old Leads Became 12 Closed Jobs',
-  intro: 'Old enquiries sat untouched. We built a clear CRM pipeline and automated email follow ups to help a cleaning business restart conversations and close 12 jobs.',
+  seoTitle: 'Old Leads Recovery: 13 Jobs from 237 Leads | Invent Tomorrow',
+  seoDescription: 'How CRM pipelines and automated email follow ups helped a cleaning business close 13 jobs from 237 old leads, a 5.5% conversion rate.',
+  title: 'How 237 Old Leads Became 13 Closed Jobs',
+  intro: 'Old enquiries sat untouched. We built a clear CRM pipeline and automated email follow ups to help a cleaning business restart conversations and close 13 jobs.',
   facts: [
     { label: 'Industry', value: 'Cleaning services' },
     { label: 'Focus', value: 'Lead reactivation & revenue recovery' },
@@ -241,7 +241,7 @@ const OLD_LEADS_RECOVERY_DETAILS: CaseStudyDetails = {
   challenge: {
     title: 'An Old Lead List. No Clear Next Step.',
     paragraphs: [
-      'Around 200 old leads sat in the database with little to no active follow up. These were people who had already shown interest, but there was no structured way to restart the conversation.',
+      'Around 237 old leads sat in the database with little to no active follow up. These were people who had already shown interest, but there was no structured way to restart the conversation.',
       'Follow up relied on manual effort and scattered notes. The team could not easily separate contacted leads, engaged leads, warm opportunities, and closed jobs, or see where each enquiry stood.',
     ],
   },
@@ -271,8 +271,8 @@ const OLD_LEADS_RECOVERY_DETAILS: CaseStudyDetails = {
     ],
   },
   outcomes: {
-    title: '12 Closed Jobs from Leads Already in the Database',
-    intro: 'The campaign closed 12 jobs from 200 old leads: a 6% conversion rate. The value came from existing opportunities, alongside a clearer process for future follow up.',
+    title: '13 Closed Jobs from Leads Already in the Database',
+    intro: 'The campaign closed 13 jobs from 237 old leads: a 5.5% conversion rate. The value came from existing opportunities, alongside a clearer process for future follow up.',
     items: [
       {
         title: 'New work from old enquiries.',
@@ -347,14 +347,14 @@ export const CASE_STUDIES: CaseStudy[] = [
   },
   {
     slug: 'old-leads-revenue-recovery',
-    title: 'Turning 200 Old Leads into 12 Closed Jobs',
-    summary: 'Old enquiries sat untouched. A clear pipeline and automated email follow ups helped a cleaning business close 12 jobs from 200 old leads.',
+    title: 'Turning 237 Old Leads into 13 Closed Jobs',
+    summary: 'Old enquiries sat untouched. A clear pipeline and automated email follow ups helped a cleaning business close 13 jobs from 237 old leads.',
     category: 'Lead reactivation',
     client: { name: 'Cleaning business', type: 'Cleaning services' },
     metrics: [
-      { value: '200', label: 'Old leads worked' },
-      { value: '12', label: 'Jobs closed' },
-      { value: '6%', label: 'Lead to job conversion' },
+      { value: '237', label: 'Old leads worked' },
+      { value: '13', label: 'Jobs closed' },
+      { value: '5.5%', label: 'Lead to job conversion' },
     ],
     tools: ['CRM pipeline', 'Automated email sequencing'],
     image: {

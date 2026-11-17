@@ -962,7 +962,7 @@ Structure and behaviour: a sticky, full-viewport "scroll story". It starts on Be
 
 ### 6.9 Contact `/contact`
 
-- Hero: eyebrow `Schedule a call`; heading `Let’s talk about your working day`; body `The tasks taking too long. The details you keep chasing. See where a system could help.`; button `Choose a Time` → `#book-or-message`.
+- Hero: eyebrow `Schedule a call`; heading `Let’s talk business`; body `The tasks taking too long. The details you keep chasing. See where a system could help.`; button `Choose a Time` → `#book-or-message`.
 - **Booking** (id `book-or-message`): heading `Pick a time that works for you`. An iframe of `https://calendly.com/abdulhaadi-businesschat/30min?hide_gdpr_banner=1` (title `Schedule a call with Invent Tomorrow`, lazy, min-height 760px, panel max width 1000px). Below it: `Can’t see the calendar? ` + link `Open the booking page` (new tab) + `.`
 - No shared closing CTA on this page.
 

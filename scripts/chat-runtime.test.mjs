@@ -928,7 +928,7 @@ test('pricing gives the complete founding offer specified for the audit page', a
   process.env.N8N_LOG_EVERY_MESSAGE = 'false';
   const response = await invoke({ experience: 'guided-audit', messages: [{ role: 'user', content: 'What does it cost?' }] });
   assert.equal(response.statusCode, 200);
-  assert.match(response.body.reply, /\$1,500/);
+  assert.match(response.body.reply, /\$1,272/);
   assert.match(response.body.reply, /\$345 a month/);
   assert.match(response.body.reply, /audit is free/);
   assert.match(response.body.reply, /locked for life/);
