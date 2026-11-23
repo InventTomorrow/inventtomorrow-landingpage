@@ -7,17 +7,14 @@ import { AUDIT_PRICING_REPLY, AUDIT_QUESTIONS, predefinedAuditReply } from '../s
 import { cannedReply, cannedText, stripGreeting } from '../src/utils/cannedAnswers.ts';
 import { randomUUID } from 'node:crypto';
 import { validSessionId } from '../src/utils/sessionId.ts';
-import { webhookUrl } from './webhook.ts';
-import { deliverChatLog, type ChatDeliveryEnv, type ChatLog } from './chatDelivery.ts';
+import { deliverForm } from './formDelivery.ts';
+import type { GmailEnv } from './gmail.ts';
 export { normalizeUsPhone } from './contact.ts';
-export { webhookTarget } from './webhook.ts';
 
-export interface ChatEnv extends ChatDeliveryEnv {
+export interface ChatEnv extends GmailEnv {
   KOBOILLM_API_KEY?: string;
   KOBOILLM_BASE_URL?: string;
   KOBOILLM_MODEL?: string;
-  // Enabled by default. Explicit 'false' opts out of partial conversation logs.
-  N8N_LOG_EVERY_MESSAGE?: string;
 }
 
 export interface BookingDetails {
@@ -30,9 +27,9 @@ export interface BookingDetails {
 
 export interface ChatResult {
   status: number;
-  // Milliseconds spent on each step (log1, model, log2), sent as a response header, never in the body.
+  // Model and total request time; no transcript delivery runs in the background.
   timings?: Record<string, number>;
-  body: { reply?: string; booking?: BookingDetails; directLink?: boolean; contact?: { email: string; phone: string }; requestSent?: boolean; error?: string; logSaved?: boolean; logDeferred?: boolean; loggingDisabled?: boolean };
+  body: { reply?: string; booking?: BookingDetails; directLink?: boolean; contact?: { email: string; phone: string }; requestSent?: boolean; error?: string; loggingDisabled?: boolean };
 }
 
 const MAX_MESSAGES = 200;
@@ -109,7 +106,7 @@ interface ChatMessage {
   content: string;
 }
 
-function parseMessages(input: unknown, logOnly = false): ChatMessage[] | null {
+function parseMessages(input: unknown): ChatMessage[] | null {
   const raw = (input as { messages?: unknown } | null)?.messages;
   if (!Array.isArray(raw) || raw.length === 0 || raw.length > MAX_MESSAGES) return null;
   const out: ChatMessage[] = [];
@@ -120,7 +117,7 @@ function parseMessages(input: unknown, logOnly = false): ChatMessage[] | null {
     const text = content.trim().slice(0, role === 'assistant' ? MAX_ASSISTANT_MESSAGE_CHARS : MAX_MESSAGE_CHARS);
     if (text) out.push({ role, content: text });
   }
-  return out.some((m) => m.role === 'user') && (logOnly || out[out.length - 1].role === 'user') ? out : null;
+  return out.some((m) => m.role === 'user') && out[out.length - 1].role === 'user' ? out : null;
 }
 
 const clean = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
@@ -140,17 +137,6 @@ function parseBooking(args: string): BookingDetails | null {
   } catch {
     return null;
   }
-}
-
-// Contact details from the quick-audit popup, already accepted by /api/audit. Used
-// only to label the chat history row, never to submit anything.
-function parseAuditLead(value: unknown): { businessName: string; email: string; phone: string } | null {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
-  const a = value as Record<string, unknown>;
-  const businessName = clean(a.businessName, 160);
-  const email = clean(a.email, 254);
-  const phone = normalizeUsPhone(clean(a.phone, 40));
-  return businessName && phone && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? { businessName, email, phone } : null;
 }
 
 // The model must never invent booking details: each one has to appear in what the visitor typed.
@@ -389,121 +375,40 @@ export function handleChat(
   env: ChatEnv,
   defer?: (task: Promise<void>) => void,
 ): Promise<ChatResult> {
-  const task = processChat(input, ip, env, defer);
-  // Retain the entire request, including first-message capture, if its browser
-  // disconnects while the model is running. This is not the durable retry queue.
+  const task = processChat(input, ip, env);
+  // Retain any in-flight model request and completed form notification after disconnect.
   defer?.(task.then(() => {}, () => {}));
   return task;
 }
 
-async function processChat(input: unknown, ip: string, env: ChatEnv, defer?: (task: Promise<void>) => void): Promise<ChatResult> {
-  const body = input as { mode?: unknown; sessionId?: unknown; pagePath?: unknown; state?: { lead?: unknown; askedDirect?: unknown; audit?: unknown } } | null;
-  const logOnly = body?.mode === 'log';
-  const messages = parseMessages(input, logOnly);
+async function processChat(input: unknown, ip: string, env: ChatEnv): Promise<ChatResult> {
+  // Old browser sessions can clear their retired delivery state without resending messages.
+  if ((input as { mode?: unknown } | null)?.mode === 'log') return { status: 200, body: { loggingDisabled: true } };
+  const messages = parseMessages(input);
   if (!messages) return { status: 400, body: { error: 'Invalid request.' } };
-  if (rateLimited(`${logOnly ? 'log' : 'chat'}:${ip}`)) {
-    return { status: 429, body: { error: 'Too many messages. Please try again shortly.' } };
-  }
-  const url = webhookUrl(env);
-  const logEnabled = env.N8N_LOG_EVERY_MESSAGE !== 'false';
-  const sessionId = validSessionId(body?.sessionId) || randomUUID();
-  const pagePath = body?.pagePath === '/free-audit-ads' ? '/free-audit-ads' : '/free-audit';
-  const earlier = body?.state?.lead ? parseBooking(JSON.stringify(body.state.lead)) : null;
-  const auditLead = parseAuditLead(body?.state?.audit);
-  const typedContact = lastTypedContact(messages);
-  const makeLog = (transcript: ChatMessage[], result?: ChatResult): ChatLog => {
-    const booking = result?.body.booking;
-    const lead = {
-      name: booking?.name || earlier?.name || '',
-      businessName: booking?.businessName || earlier?.businessName || auditLead?.businessName || '',
-      email: typedContact.email || booking?.email || earlier?.email || auditLead?.email || '',
-      phone: typedContact.phone || booking?.phone || normalizeUsPhone(earlier?.phone ?? '') || auditLead?.phone || '',
-      description: booking?.description || earlier?.description || '',
-    };
-    return {
-      event: result?.body.booking || result?.body.directLink ? 'audit_request' : 'message',
-      source: 'invo_chat', sessionId, pagePath, timestamp: new Date().toISOString(),
-      lead: Object.values(lead).some(Boolean) ? lead : null,
-      leadCaptured: !!(lead.email && lead.phone),
-      askedToBookDirectly: result?.body.directLink === true || body?.state?.askedDirect === true,
-      transcript,
-    };
-  };
-
-  if (logOnly && !logEnabled) return { status: 200, body: { loggingDisabled: true } };
-  // The visitor's words are captured BEFORE any model request. This also covers
-  // model timeouts, missing provider configuration and abandoned conversations.
+  if (rateLimited('chat:' + ip)) return { status: 429, body: { error: 'Too many messages. Please try again shortly.' } };
   const startedAt = performance.now();
-  const timings: Record<string, number> = {};
-  const timedLog = async (key: string, log: ChatLog) => {
-    const began = performance.now();
-    const ok = await deliverChatLog(env, log);
-    timings[key] = Math.round(performance.now() - began);
-    return ok;
-  };
-  const firstLog = logEnabled && url ? timedLog('log1', makeLog(messages)) : Promise.resolve(false);
-  // With a queue, acceptance takes milliseconds, so it stays strictly before the model. Without one
-  // it is a whole n8n run (a Sheets write), so the model starts at the same moment instead of
-  // waiting for it. The reply log below still waits for this one, so the two arrive in order.
-  const queued = !!env.QSTASH_TOKEN?.trim();
-  let captured = queued || logOnly ? await firstLog : false;
-  if (logOnly) {
-    return captured
-      ? { status: 200, body: { logSaved: true } }
-      : { status: 503, body: { logSaved: false, error: 'Chat history delivery is pending.' } };
-  }
-
-  // Extraction is only needed to complete an audit request. Ordinary history is
-  // saved verbatim without waiting for a second model to summarize it.
-  let extraction: Promise<Lead | null> | undefined;
-  const extract = () => {
-    extraction ??= url && messages ? extractLead(messages, env) : Promise.resolve(null);
-    return extraction;
-  };
   const modelStarted = performance.now();
   let result = await runChat(input, ip, env);
   if ((input as { experience?: string })?.experience !== 'guided-audit' && result.status === 200 && !result.body.booking && !result.body.directLink) {
-    result = (await completedHandoff(messages, extract)) ?? result;
+    result = (await completedHandoff(messages, () => extractLead(messages, env))) ?? result;
   }
-  timings.model = Math.round(performance.now() - modelStarted);
-  const isAuditRequest = !!(result.body.booking || result.body.directLink);
-  // Without a queue, saving means waiting for a whole n8n run (often 2-4s, retried after 3.5s), and the
-  // reply would wait for it twice. An ordinary message is therefore saved AFTER the reply goes out: the
-  // platform keeps this request alive for it (waitUntil), the reply snapshot still goes out after the first
-  // one so they stay in order, and every snapshot carries the full conversation, so the next message repairs
-  // any gap. The reply says logSaved:false + logDeferred, so the browser still double-checks the save itself.
-  // Audit requests keep waiting, because "request received" must mean it was saved.
-  const background = !queued && !!defer && logEnabled && !!url && !isAuditRequest && result.status === 200 && !!result.body.reply;
-  if (!queued && !background) captured = await firstLog;
-  // "Not confirmed yet": the browser keeps its own copy and double-checks shortly after, off the reply path.
-  if (logEnabled && url) result.body.logSaved = background ? false : captured;
-  if (background) result.body.logDeferred = true;
-  if (!logEnabled) result.body.loggingDisabled = true;
-  if (isAuditRequest) {
-    result.body.requestSent = false;
-    result.body.reply = "We couldn't send your audit request. Please try the form below.";
-  }
-  if (url && result.status === 200 && result.body.reply && (isAuditRequest || logEnabled)) {
-    const reply = isAuditRequest
-      ? 'Your audit request is received. Our team will contact you to arrange a time.'
-      : result.body.reply;
-    const replyLog = makeLog([...messages, { role: 'assistant', content: reply }], result);
-    if (background) {
-      defer!((async () => {
-        await firstLog;
-        await timedLog('log2', replyLog);
-        console.info(`[chat] saved in the background: ${Object.entries(timings).map(([step, ms]) => `${step}=${ms}ms`).join(' ')}`);
-      })().catch(() => {}));
-    } else {
-      // Await queue acceptance before replying: FIFO then preserves user/reply order
-      // across turns. QStash delivers to n8n independently of the browser afterwards.
-      const sent = await timedLog('log2', replyLog);
-      result.body.logSaved = sent;
-      if (isAuditRequest && sent) {
-        result.body.requestSent = true;
-        result.body.reply = reply;
-      }
-    }
+  const timings = { model: Math.round(performance.now() - modelStarted), total: 0 };
+  if (result.status === 200 && (result.body.booking || result.body.directLink)) {
+    const body = input as { sessionId?: unknown; pagePath?: unknown; state?: { lead?: unknown } };
+    const earlier = body.state?.lead ? parseBooking(JSON.stringify(body.state.lead)) : null;
+    const contact = result.body.contact ?? lastTypedContact(messages);
+    const lead = result.body.booking ?? { name: earlier?.name || '', businessName: earlier?.businessName || '',
+      email: contact.email || '', phone: contact.phone || '', description: '' };
+    const delivery = await deliverForm({ subject: 'Chat audit request - Invent Tomorrow',
+      submissionId: validSessionId(body.sessionId) || randomUUID(), lead: { ...lead, phone: lead.phone || '', description: lead.description || '' },
+      pagePath: body.pagePath === '/free-audit-ads' ? '/free-audit-ads' : '/free-audit',
+      details: { conversation: messages.slice(-8).map(message => message.role + ': ' + message.content).join('\n').slice(-12_000) },
+    }, env);
+    result.body.requestSent = delivery.sent;
+    result.body.reply = delivery.sent ? 'Your audit request is received. Our team will contact you to arrange a time.'
+      : "We couldn't send your audit request. Please try the form below.";
+    if (!delivery.sent && 'code' in delivery) console.warn('[chat] Email notification unconfirmed', { code: delivery.code });
   }
   timings.total = Math.round(performance.now() - startedAt);
   result.timings = timings;

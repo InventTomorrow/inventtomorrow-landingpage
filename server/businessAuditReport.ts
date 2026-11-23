@@ -7,8 +7,6 @@ export interface AuditReportEnv {
   KOBOILLM_BASE_URL?: string;
   KOBOILLM_MODEL?: string;
   KOBOILLM_AUDIT_MODEL?: string;
-  // Enable only after importing the dedicated capture workflow.
-  N8N_BUSINESS_AUDIT_CAPTURE?: string;
 }
 
 export class AuditReportError extends Error {

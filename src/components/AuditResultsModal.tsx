@@ -97,7 +97,7 @@ export function AuditResultsModal({ open, onClose, answers, pagePath, sessionId,
         body: JSON.stringify({ mode: 'quick_audit', answers, email, phone, noWebsite: fields.noWebsite,
           website: fields.website.trim(), companySize,
           pagePath, sessionId, submissionId: submissionId.current, tracking }),
-        signal: AbortSignal.timeout(15_000),
+        signal: AbortSignal.timeout(25_000),
       });
       const data = await response.json();
       if (!response.ok || data.success !== true || !data.results) throw new Error(data.error || "We couldn't send your details. Please try again.");

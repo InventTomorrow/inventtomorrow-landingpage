@@ -29,9 +29,7 @@ export interface GuidedAudit {
   tracking?: Record<string, string>;
 }
 
-// Short on purpose: owners read these on a phone between jobs. The live n8n
-// workflow finds answers by these phrases ("business called", "normal week",
-// "quotes … past year", "typical clean cost"), so keep them when editing.
+// Short questions for owners reading on a phone between jobs.
 export const AUDIT_QUESTIONS = [
   "What's your cleaning business called?",
   'In a normal week, how many calls or messages do you miss?',
@@ -198,9 +196,8 @@ export function parseAuditAnswers(value: unknown): AuditAnswers | null {
   return { businessName: a.businessName.trim(), missedCalls: a.missedCalls, oldQuotes: a.oldQuotes, typicalClean: a.typicalClean };
 }
 
-// These are estimates, not promised bookings. Calculate on the server after lead capture.
-// Must stay identical to the live n8n "Structure Fields2" node (docs/n8n-live-workflow.json):
-// whole-number monthly calls, then dollar values from that number rounded to $50.
+// Shared legacy estimates, not promised bookings. Round monthly calls first,
+// then round the resulting dollar estimates to $50.
 export function calculateAudit(answers: AuditAnswers): AuditEstimates {
   const weekly = [3, 10, 23, 35, 10][MISSED_CALL_OPTIONS.indexOf(answers.missedCalls)];
   const oldQuotesNumber = [30, 125, 350, 600, null][OLD_QUOTE_OPTIONS.indexOf(answers.oldQuotes)];

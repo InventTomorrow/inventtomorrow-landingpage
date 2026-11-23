@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import test from 'node:test';
 import { parse } from 'dotenv';
-import { sendAuditReportEmail } from '../server/gmail.ts';
+import { sendAuditReportEmail, sendFormNotification } from '../server/gmail.ts';
 import { callbackCode, createAuthorization, GMAIL_SCOPE, REDIRECT_URI, updateRefreshToken } from './connect-gmail.mjs';
 
 const env = {
@@ -107,4 +107,13 @@ test('Google failures, malformed acknowledgements and timeouts never report sent
   t.mock.method(globalThis, 'fetch', async (url) => { calls++; return url.includes('oauth2') ? token() : Response.json({ id: 'retried' }); });
   assert.equal((await sendAuditReportEmail(input('failure-0'), env)).sent, true, 'failed attempts can be retried');
   assert.equal(calls, 2);
+});
+
+test('form notifications have an independent off switch and reject unsafe reply headers', async (t) => {
+  const calls = t.mock.method(globalThis, 'fetch', async () => { throw new Error('Unexpected request'); });
+  const notification = { subject: 'New audit request', text: 'Contact details', submissionId: 'safe-form-test', replyTo: 'lead@example.com' };
+  assert.equal((await sendFormNotification(notification, { ...env, GMAIL_FORM_NOTIFICATIONS_ENABLED: 'false' })).sent, false);
+  assert.equal((await sendFormNotification({ ...notification, replyTo: 'lead@example.com\r\nBcc: victim@example.com' }, env)).sent, false);
+  assert.equal((await sendFormNotification({ ...notification, subject: 'Subject\r\nBcc: victim@example.com' }, env)).sent, false);
+  assert.equal(calls.mock.callCount(), 0);
 });

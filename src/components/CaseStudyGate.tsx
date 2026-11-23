@@ -70,7 +70,7 @@ function UnlockForm({ slug }: { slug: string }) {
     const data = new FormData(event.currentTarget);
     const details = Object.fromEntries(['name', 'businessName', 'email', 'phone']
       .map((key) => [key, String(data.get(key) ?? '').trim()]));
-    // Reused on retry so n8n can deduplicate an interrupted submission.
+    // Reused on retry so the email sender can deduplicate an interrupted submission.
     submissionId.current ??= typeof crypto.randomUUID === 'function'
       ? crypto.randomUUID() : `form-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
     submitting.current = true;
@@ -87,7 +87,7 @@ function UnlockForm({ slug }: { slug: string }) {
           ...details, mode: 'case_study_unlock', caseStudySlug: slug, submissionId: submissionId.current,
           sessionId: getBrowserSessionId(), pagePath: `/our-work/${slug}`, tracking: browserAttribution(),
         }),
-        signal: AbortSignal.timeout(15_000),
+        signal: AbortSignal.timeout(25_000),
       });
       const result = await response.json().catch(() => ({})) as { success?: boolean; error?: string };
       if (!response.ok || result.success !== true) throw new Error(result.error || "We couldn't send your details. Please try again.");

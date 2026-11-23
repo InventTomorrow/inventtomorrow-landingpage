@@ -8,6 +8,8 @@ export interface GmailEnv {
   GOOGLE_CLIENT_SECRET?: string;
   GMAIL_REFRESH_TOKEN?: string;
   GMAIL_SENDER_EMAIL?: string;
+  GMAIL_FORM_NOTIFICATIONS_ENABLED?: string;
+  GMAIL_NOTIFICATION_EMAIL?: string;
 }
 
 type Delivery = { sent: true } | { sent: false; code: string };
@@ -21,10 +23,32 @@ export function gmailAuditEnabled(env: GmailEnv) {
   return env.GMAIL_AUDIT_REPORTS_ENABLED === 'true';
 }
 
-// Deliberately server-only, with no public arbitrary-message endpoint.
-// Cache/coalescing prevents repeat sends within this process, not across deployments.
-export async function sendAuditReportEmail(input: { to: string; submissionId: string; text: string; html?: string }, env: GmailEnv): Promise<Delivery> {
+interface GmailMessage {
+  to: string;
+  submissionId: string;
+  text: string;
+  html?: string;
+  subject: string;
+  replyTo?: string;
+}
+
+export async function sendAuditReportEmail(input: Omit<GmailMessage, 'subject'> & { subject?: string }, env: GmailEnv): Promise<Delivery> {
   if (!gmailAuditEnabled(env)) return { sent: false, code: 'GMAIL_DISABLED' };
+  return sendGmailMessage({ ...input, subject: input.subject ?? 'Your cleaning business audit - Invent Tomorrow' }, env);
+}
+
+export function gmailFormsEnabled(env: GmailEnv) {
+  return (env.GMAIL_FORM_NOTIFICATIONS_ENABLED ?? env.GMAIL_AUDIT_REPORTS_ENABLED) === 'true';
+}
+
+// The recipient is server-configured, never selected by the public form.
+export async function sendFormNotification(input: Omit<GmailMessage, 'to' | 'html'>, env: GmailEnv): Promise<Delivery> {
+  if (!gmailFormsEnabled(env)) return { sent: false, code: 'GMAIL_DISABLED' };
+  return sendGmailMessage({ ...input, to: env.GMAIL_NOTIFICATION_EMAIL?.trim() || env.GMAIL_SENDER_EMAIL?.trim() || '' }, env);
+}
+
+// Server-only; there is no public arbitrary-message endpoint. Coalescing is per process.
+async function sendGmailMessage(input: GmailMessage, env: GmailEnv): Promise<Delivery> {
   const from = env.GMAIL_SENDER_EMAIL?.trim() || '';
   const clientId = env.GOOGLE_CLIENT_ID?.trim();
   const clientSecret = env.GOOGLE_CLIENT_SECRET?.trim();
@@ -33,11 +57,12 @@ export async function sendAuditReportEmail(input: { to: string; submissionId: st
     return { sent: false, code: 'GMAIL_NOT_CONFIGURED' };
   }
   if (input.to.length > 254 || !mailbox.test(input.to) || !input.text.trim() || input.text.length > 30_000
+    || !/^[\x20-\x7e]{1,150}$/.test(input.subject) || (input.replyTo !== undefined && (input.replyTo.length > 254 || !mailbox.test(input.replyTo)))
     || (input.html !== undefined && (!input.html.trim() || Buffer.byteLength(input.html, 'utf8') > 100_000))) {
     return { sent: false, code: 'GMAIL_INVALID_MESSAGE' };
   }
   const key = createHash('sha256').update(JSON.stringify([
-    clientId, clientSecret, refreshToken, from, input.to.toLowerCase(), input.submissionId, input.text, input.html,
+    clientId, clientSecret, refreshToken, from, input.to.toLowerCase(), input.submissionId, input.text, input.html, input.subject, input.replyTo,
   ])).digest('hex');
   for (const [id, expires] of sent) if (expires <= Date.now()) sent.delete(id);
   if (sent.has(key)) return { sent: true };
@@ -77,7 +102,7 @@ export async function sendAuditReportEmail(input: { to: string; submissionId: st
       ].join('\r\n') : plainPart;
       const mime = [
         `From: Invent Tomorrow <${from}>`, `To: ${input.to}`,
-        'Subject: Your cleaning business audit - Invent Tomorrow', `Date: ${new Date().toUTCString()}`,
+        `Subject: ${input.subject}`, ...(input.replyTo ? [`Reply-To: ${input.replyTo}`] : []), `Date: ${new Date().toUTCString()}`,
         `Message-ID: <audit-${key}@inventtomorrow.pro>`,
         'MIME-Version: 1.0', content,
       ].join('\r\n');

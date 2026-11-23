@@ -67,75 +67,32 @@ const request = () => ({
   businessName: 'Example Team', role: 'Owner', companySize: '1 to 10', pagePath: '/free-audit',
   submissionId: 'scorecard-test-123456789', sessionId: 'scorecard-session-123456789', tracking: { utm_source: 'test' },
 });
-const env = { N8N_WEBHOOK_TEST_URL: 'https://webhook.example.test/audit' };
+const env = { GMAIL_AUDIT_REPORTS_ENABLED: 'true', GOOGLE_CLIENT_ID: 'test-client', GOOGLE_CLIENT_SECRET: 'test-secret', GMAIL_REFRESH_TOKEN: 'test-refresh', GMAIL_SENDER_EMAIL: 'reports@example.com' };
 let requestNumber = 0;
 
-test('the scorecard API saves all answers and scores before revealing server-calculated results', async (t) => {
-  for (const pagePath of ['/free-audit', '/free-audit-ads']) {
-    let payload: any;
-    t.mock.method(globalThis, 'fetch', async (_url: string | URL | Request, options?: RequestInit) => {
-      payload = JSON.parse(String(options?.body));
-      return Response.json({ success: true, submission_id: payload.submissionId });
+
+test('readiness scores unlock only after Gmail accepts the scorecard email', async (t) => {
+  for (const accepted of [true, false]) {
+    let calls = 0;
+    t.mock.method(globalThis, 'fetch', async (url: string | URL | Request) => {
+      calls++;
+      if (String(url).includes('oauth2.googleapis.com')) return Response.json({ access_token: 'mock-access', token_type: 'Bearer' });
+      return accepted ? Response.json({ id: 'accepted' }) : new Response('', { status: 500 });
     });
-    const result = await handleAudit({ ...request(), pagePath, scorecard: { overall: 100 } }, `scorecard-${++requestNumber}`, env);
-    assert.equal(result.status, 200);
-    assert.equal(result.body.scorecard?.overall, 67);
-    assert.equal(result.body.reportEmailSent, false, 'lead capture alone does not confirm an email');
-    assert.equal(payload.event, 'readiness_scorecard_completed');
-    assert.equal(payload.source, 'form_data');
-    assert.equal(payload.pagePath, pagePath);
-    assert.equal(payload.lead.role, 'Owner');
-    assert.equal(payload.lead.companySize, '1 to 10');
-    assert.equal(payload.utm_source, 'test');
-    assert.equal(Object.keys(payload.scorecard.answers).length, 6);
-    assert.match(payload.lead.description, /Overall score: 67\/100/);
-    assert.match(payload.scorecardEmail.text, /Your priorities/);
-    assert.equal(payload.smsConsent.granted, false);
-    assert.equal(payload['appointment datetime'], undefined);
+    const result = await handleAudit({ ...request(), submissionId: 'readiness-gmail-test-' + accepted }, 'scorecard-' + ++requestNumber, env);
+    assert.equal(result.status, accepted ? 200 : 502);
+    assert.equal(result.body.scorecard?.overall, accepted ? 67 : undefined);
+    assert.equal(result.body.reportEmailSent, accepted ? true : undefined);
+    assert.equal(calls, 2);
     t.mock.restoreAll();
   }
 });
 
-test('the sent message requires an explicit email confirmation for this recipient and submission', async (t) => {
-  for (const [emailSent, recipient, expected] of [
-    [true, 'dana@example.com', true], [true, 'DANA@example.com', true], [true, 'other@example.com', false],
-    [false, 'dana@example.com', false], ['true', 'dana@example.com', false],
-  ] as const) {
-    t.mock.method(globalThis, 'fetch', async () => Response.json({
-      success: true, submission_id: request().submissionId, scorecard_email_sent: emailSent, scorecard_email_to: recipient,
-    }));
-    const result = await handleAudit(request(), `scorecard-${++requestNumber}`, env);
-    assert.equal(result.status, 200);
-    assert.equal(result.body.reportEmailSent, expected);
-    t.mock.restoreAll();
-  }
-});
-
-test('invalid answers and contact details never reach the webhook', async (t) => {
-  const mock = t.mock.method(globalThis, 'fetch', async () => { throw new Error('Unexpected network request'); });
-  for (const changes of [
-    { answers: {} }, { email: 'invalid' }, { name: '  ' }, { role: '' }, { businessName: 'x'.repeat(161) },
-    { companySize: 'other' }, { pagePath: '/unrelated' },
-  ]) {
-    const result = await handleAudit({ ...request(), ...changes }, `scorecard-${++requestNumber}`, env);
-    assert.equal(result.status, 400);
-    assert.equal(result.body.scorecard, undefined);
+test('invalid readiness answers and contact fields are rejected before contacting Google', async (t) => {
+  const mock = t.mock.method(globalThis, 'fetch', async () => { throw new Error('Unexpected network'); });
+  for (const changes of [{ answers: {} }, { email: 'invalid' }, { name: ' ' }, { role: '' }, { companySize: 'other' }, { pagePath: '/unrelated' }]) {
+    assert.equal((await handleAudit({ ...request(), ...changes }, 'scorecard-' + ++requestNumber, env)).status, 400);
   }
   assert.equal(mock.mock.callCount(), 0);
-  assert.equal((await handleAudit(request(), `scorecard-${++requestNumber}`, {})).status, 503);
-});
-
-test('unconfirmed saves and webhook failures keep scorecard results locked for retry', async (t) => {
-  for (const response of [
-    () => Response.json({ success: true, submission_id: 'different-submission' }),
-    () => Response.json({ success: false }),
-    () => new Response('', { status: 200 }),
-    () => new Response('unavailable', { status: 500 }),
-  ]) {
-    t.mock.method(globalThis, 'fetch', async () => response());
-    const result = await handleAudit(request(), `scorecard-${++requestNumber}`, env);
-    assert.equal(result.status, 502);
-    assert.equal(result.body.scorecard, undefined);
-    t.mock.restoreAll();
-  }
+  assert.equal((await handleAudit(request(), 'scorecard-' + ++requestNumber, {})).status, 503);
 });

@@ -17,7 +17,7 @@ Company size comes from A1 instead of being requested again. The final button is
 **Get My Business Audit**. The previous Never/Sometimes/Usually/Always scoring is
 not applied to these answers; no replacement scoring rubric has been supplied.
 
-## Submission and capture
+## Submission and delivery
 
 The form posts `mode: cleaning_business_audit` to `/api/audit`. The server
 validates all 16 answers and the contact fields, then calls KobiLLM with the supplied
@@ -33,7 +33,7 @@ method has been provided. Caller-supplied scores, instructions, or internal
 summaries cannot override the system prompt.
 
 On success the API returns `success`, matching `submissionId`, the complete
-`report`, `leadSaved`, and `reportEmailSent`. The form displays the big picture,
+`report` and `reportEmailSent`. The form displays the big picture,
 business profile, and first two findings. The remaining finding and final report
 sections appear in a blurred, clipped preview that is inert and excluded from the
 accessibility tree. The full-report email notice shows the submitted recipient.
@@ -48,55 +48,22 @@ a bounded per-process cache. The cache is not durable across server restarts or
 shared across serverless instances. The model request times out after 75 seconds;
 the browser allows 115 seconds and the Vercel function allows 120 seconds.
 
-## Optional n8n capture
+## Direct Gmail delivery
 
-Full reports can also be emailed directly by the server through Gmail, without
-n8n. See [Gmail setup](gmail-setup.md) for one-time owner authorization, server-only
-credentials and deployment settings. When direct Gmail and capture are both
-enabled, the updated export uses `businessAuditEmail.delivery: server_gmail` to
-save the lead without sending a second n8n email. Import the updated workflow
-before enabling both integrations.
+The server sends the complete report directly to the submitted lead using
+`sendAuditReportEmail`. See [Gmail setup](gmail-setup.md) for owner authorization,
+server-only credentials, the email template and production environment settings.
+The email includes a plain-text alternative and the unchanged original hero
+image as an inline MIME part. Every generated report section is included.
 
-On-page reports work without n8n. Enable `N8N_BUSINESS_AUDIT_CAPTURE=true` only
-after importing the dedicated capture workflow. Capture then sends the existing
-webhook a `source: form_data`, `event: cleaning_business_audit_completed` record
-after report generation. The payload includes:
+`reportEmailSent` is true only after Google accepts the message and returns a
+message ID. An unconfigured or failed send leaves the report preview available
+and its email notice awaiting confirmation. No CRM save is claimed. Browser
+contact details and answers remain available for retry.
 
-- `lead`: contact details, company size from A1, and all questions and selected
-  answers and the generated report in `description`, which the existing sheet
-  maps to its message column.
-- `businessAudit`: questionnaire version 1, answers keyed by the original IDs,
-  and ordered responses containing question number, ID, wording, and answer.
-- `auditReportInput`: business name and those ordered audit responses, ready for
-  the report agent, plus the generated structured report in `auditReport`.
-- `businessAuditEmail`: a fixed subject and the complete plain-text report for
-  delivery to the submitted lead email.
-- Existing submission/session IDs and allowlisted campaign attribution.
-
-The API requires `success: true`, the matching `submission_id`, and
-`business_audit_saved: true` before setting `leadSaved: true`. A generic response
-from an older workflow does not confirm capture. Failed capture leaves
-`leadSaved: false` and the report preview still displays. Capture/email has a
-30-second timeout. The API sets `reportEmailSent: true` only when the response also
-has `report_email_sent: true` and `report_email_to` matching the submitted email.
-Unchanged retries keep the same submission ID while mounted. No SMS is sent.
-
-Import the inactive [`n8n-business-audit-workflow.json`](n8n-business-audit-workflow.json)
-into n8n and verify the inherited sheet connections before activation. It saves
-the complete questionnaire in the existing lead message column, then routes these
-submissions to the dedicated full-report email branch. It skips emails already
-marked `BUSINESS_AUDIT_SENT`, prepares the full report, sends it through the inherited
-Gmail connection, records that status, and returns the sent acknowledgement.
-Provider/status failures return saved-but-unconfirmed. They bypass the
-legacy estimates, appointment email, readiness report email, and SMS delivery.
-Other events retain their existing routes. This export has not been applied to
-the live account.
-
-To regenerate the export from the patched base workflow, run
-`node scripts/patch-business-audit-workflow.mjs`. Optional arguments are the base
-workflow export path and destination path. Start from
-`docs/n8n-live-workflow.patched.json`, which does not already contain the new
-readiness or cleaning-business branches.
+Gmail token refresh and sending share a 20-second deadline. Confirmed unchanged
+retries and concurrent requests share a bounded ten-minute process cache; this
+does not guarantee cross-instance exactly-once delivery. No SMS is sent.
 
 ## Provider configuration
 
@@ -123,18 +90,9 @@ no-reliable-estimate wording.
 
 ## Verification
 
-`src/utils/businessAudit.test.ts` checks every allowed option, required answers,
-the lead-source selection limit, API validation, and both page routes. It
-executes the exported n8n normalization, sheet mappings, routing condition, and
-response expression with mocked network delivery. It also checks that stale or
-failed acknowledgements cannot falsely confirm capture, reports work without
-n8n, provider failures retain retry, invalid reports are rejected, and concurrent
-requests share generation. No real emails or live workflow changes are part of
-these tests.
-
-Live generation verification used fictional answers through the configured KobiLLM
-model and the local `/api/audit` HTTP endpoint. Preview checks render the actual
-React component and verify that only two findings are outside the inert blurred
-wrapper, no download is offered, and email status reflects confirmed delivery.
-No live report email has been sent by these checks. Interactive browser/visual QA was
-unavailable because the browser host and native computer-use pipe were unavailable.
+`src/utils/businessAudit.test.ts` checks allowed options, required answers,
+the lead-source selection limit, API validation, both page routes, complete Gmail
+report content, failed-send status, malformed provider responses and concurrent
+generation. The email and runtime suites check safe MIME encoding, recipient
+routing, typed contact validation, and source/compiled API startup.
+All automated delivery checks mock the provider and Google; they send no real mail.
