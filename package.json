@@ -16,6 +16,7 @@
     "connect:gmail": "node scripts/connect-gmail.mjs",
     "connect:sheets": "node scripts/connect-gmail.mjs --sheets",
     "setup:sheets": "node scripts/setup-sheets.mjs",
+    "check:sheets:production": "node scripts/check-production-sheets.mjs",
     "preview:audit-email": "node scripts/preview-audit-email.mjs",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit && tsc --noEmit -p api/tsconfig.json"

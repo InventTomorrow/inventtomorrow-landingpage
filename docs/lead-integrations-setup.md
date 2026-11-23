@@ -127,6 +127,13 @@ writes can still fail). This exposes no credentials or lead details. Add the
 settings to the correct project's Production environment and redeploy; editing
 env values does not update an already running deployment.
 
+Run `npm run check:sheets:production` for a private, read-only live check. It
+authenticates with a short-lived HMAC signed using the Google client secret in
+`.env.production.local` (the secret is never sent), compares the deployed Sheets
+configuration, and checks Google access plus required headers. Unsigned, altered
+or expired requests receive HTTP 401 before any Google requests. The check does
+not send email or write rows.
+
 `npm run build:vercel` tests delivery using mocked services and sends no real
 mail, sheet rows or Slack messages. For a live verification, submit one report
 with an address you control and check the corresponding row, email status, full
