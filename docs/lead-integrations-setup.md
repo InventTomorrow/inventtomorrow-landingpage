@@ -119,6 +119,14 @@ and complete any Google verification required for its requested scopes.
 
 ## Verification and recovery
 
+`GET /api/audit` returns HTTP 405 with a safe `X-Sheets-Configuration` header:
+`disabled` means the deployed function has not received `GOOGLE_SHEETS_ENABLED=true`;
+`incomplete` means a required Google/Sheets setting is missing or the spreadsheet
+ID is invalid; `configured` means required settings are present (Google access and
+writes can still fail). This exposes no credentials or lead details. Add the
+settings to the correct project's Production environment and redeploy; editing
+env values does not update an already running deployment.
+
 `npm run build:vercel` tests delivery using mocked services and sends no real
 mail, sheet rows or Slack messages. For a live verification, submit one report
 with an address you control and check the corresponding row, email status, full

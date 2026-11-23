@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { parse } from 'dotenv';
-import { recordLead, SHEET_HEADERS, sheetTabs, syncLead } from '../server/leadIntegrations.ts';
+import { recordLead, SHEET_HEADERS, sheetTabs, sheetsConfigurationStatus, syncLead } from '../server/leadIntegrations.ts';
 import { deliverForm } from '../server/formDelivery.ts';
 import { handleAudit } from '../server/audit.ts';
 import { handleChat } from '../server/chat.ts';
@@ -92,6 +92,15 @@ test('disabled integrations make no external requests', async (t) => {
   assert.deepEqual(await syncLead(audit('disabled'), {}), { saved: false, alerted: false, code: 'SHEETS_DISABLED' });
   await recordLead(audit('disabled-background'), {}, () => assert.fail('Must not queue'));
   assert.equal(fetchMock.mock.callCount(), 0);
+});
+
+test('production configuration checks expose only readiness and do not treat partial settings as configured', () => {
+  assert.equal(sheetsConfigurationStatus({}), 'disabled');
+  assert.equal(sheetsConfigurationStatus({ ...env, GOOGLE_SHEETS_ENABLED: 'false' }), 'disabled');
+  for (const key of ['GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'GOOGLE_SHEETS_REFRESH_TOKEN', 'GOOGLE_SHEETS_SPREADSHEET_ID']) {
+    assert.equal(sheetsConfigurationStatus({ ...env, [key]: '' }), 'incomplete');
+  }
+  assert.equal(sheetsConfigurationStatus(env), 'configured');
 });
 
 test('new audit rows preserve report, answers and attribution as literal text; Slack follows the sheet write', async (t) => {
