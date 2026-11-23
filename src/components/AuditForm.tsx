@@ -62,7 +62,7 @@ export function AuditForm({ pagePath, initialValues = {}, autoFocus = false, dur
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...details, submissionId: submissionId.current, sessionId: getBrowserSessionId(), pagePath, tracking: browserAttribution() }),
-        signal: AbortSignal.timeout(15_000),
+        signal: AbortSignal.timeout(25_000),
       });
       const result = await response.json().catch(() => ({})) as { success?: boolean; error?: string };
       if (!response.ok || result.success !== true) throw new Error(result.error || "We couldn't send your request. Please try again.");

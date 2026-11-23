@@ -1,162 +1,111 @@
 # Invent Tomorrow
 
-React and Vite website with 35 prerendered pages, an audit chatbot at `/api/chat`, and an audit request form at `/api/audit`.
+React and Vite website with 35 prerendered pages, an AI assistant at `/api/chat`,
+and report and contact submissions at `/api/audit`. Gmail handles email directly.
 
-The ad landing page is available directly at `/free-audit-ads`. It shares the
-`/free-audit` questionnaire, request form and responsive layout, with a logo-only header.
-It has no site navigation or footer, is marked `noindex`, and is omitted
-from the sitemap and `llms.txt`.
+`/free-audit` and `/free-audit-ads` use the 16-question cleaning-business audit.
+KobiLLM generates the personalized report; two findings display on the page and
+the complete report is emailed to the submitted lead. The ads page has a logo-only
+header, no navigation/footer, and `noindex`; it is excluded from site discovery.
 
-Both audit pages now use the 16-question cleaning-business audit and a final
-contact form. KobiLLM generates a personalized report with two findings visible
-on-page and the remaining sections blurred; the full report is delivered by email
-through direct Gmail integration or the dedicated n8n email workflow. Connect the
-sending Google account with `npm run connect:gmail` and follow the
-[Gmail setup guide](docs/gmail-setup.md) for local and Vercel settings. The questions, report-agent
-prompt, submission contract, and optional
-n8n capture workflow are documented in the
-[cleaning-business audit guide](docs/cleaning-business-audit-agent.md).
-Legacy chat and quick-audit integration details remain in
-[free audit setup](docs/free-audit-setup.md).
+See the [report-agent guide](docs/cleaning-business-audit-agent.md) and
+[Gmail setup](docs/gmail-setup.md).
 
 ## Run locally
 
 1. Install Node.js 24 LTS and run `npm ci`.
-2. Copy `.env.example` to `.env.local` if you do not already have a local env file.
-3. Set `KOBOILLM_API_KEY` in `.env.local`.
-4. Run `npm run dev` and open `http://localhost:3000`.
+2. Copy `.env.example` to `.env.local` and set `KOBOILLM_API_KEY`.
+3. Configure Google OAuth credentials, then run `npm run connect:gmail`.
+4. Set the sending mailbox and enable Gmail reports and form notifications.
+5. Run `npm run dev` and open `http://localhost:3000`.
 
-The Vite development server serves both APIs locally. Gemini credentials and
-`APP_URL` are not used by this app.
+Vite serves both APIs during development. Credentials never enter the client
+bundle. Provider and report-model overrides are documented in `.env.example`.
+
+## Email and forms
+
+Full audit reports use the styled HTML email and a plain-text alternative.
+Run `npm run preview:audit-email` for standalone sample previews.
+
+Contact requests, case-study unlocks and completed chat booking handoffs notify
+the team through Gmail. `GMAIL_NOTIFICATION_EMAIL` selects the team inbox;
+otherwise notifications go to `GMAIL_SENDER_EMAIL`. The visitor email is the
+Reply-To address and cannot override the notification recipient. Forms report
+success only after Gmail accepts the message. Appointment times remain requests
+for the team to confirm.
+
+Chat history stays in the visitor's browser. Only a completed booking handoff
+emails the relevant details and recent context to the team. Invalid details and
+failed delivery retain retry.
+
+The business report preview remains available if email is disabled or delivery
+cannot be confirmed. Its email notice says sent only after Gmail accepts the
+message. The API does not claim that a separate CRM lead was saved.
 
 ## Deploy to Vercel
 
-Import this repository into Vercel, or use the existing Vercel project connected
-to it. Set the **Root Directory** to the repository root (`.`).
+Use the existing **inventtomorrow-cleaning** project in
+**abdulhadi806s-projects**, serving `www.inventtomorrow.pro`.
 
 | Setting | Value |
 | --- | --- |
+| Root Directory | `.` |
 | Framework Preset | Vite |
-| Node.js Version | 24.x, enforced by `package.json` |
+| Node.js | 24.x |
 | Install Command | `npm ci` |
 | Build Command | `npm run build:vercel` |
 | Output Directory | `dist` |
 
-The included `vercel.json` sets the install, build and output settings. The Vercel
-build runs both TypeScript checks, all tests, the Vite build, prerendering, and
-verification of the generated HTML and SEO files. It needs the development
-dependencies, so do not override installation with `npm ci --omit=dev`.
+Import private `.env.production.local` into the project's **Production**
+environment before deploying. Configure `KOBOILLM_API_KEY`, the Google client
+ID/secret, Gmail refresh token, sending mailbox, and the enabled email flags.
+See [Gmail setup](docs/gmail-setup.md). Local files do not update a hosted
+deployment. Redeploy after changing runtime values. Keep sending disabled in
+environments that should not email leads.
 
-Each public route has its own HTML in `dist`, including case studies and blog
-posts. Vercel serves these files directly; keep the current routing configuration
-so direct visits retain their page-specific metadata. There is deliberately no
-catch-all rewrite to `/index.html`. Unknown URLs use `404.html`; legacy audit and
-case-study URLs retain their permanent redirects.
+Retired workflow and queue variables can be removed from existing hosted
+environment settings; the app no longer reads them.
 
-`api/chat.ts` and `api/audit.ts` are the function entry points. Shared logic is in
-`server/`, outside the API route directory. Chat has a 60-second maximum duration;
-the audit endpoint allows 120 seconds for report generation. The cleaning-business
-report displays directly, with optional n8n capture. Legacy appointment forms
-still wait for n8n acceptance before reporting success.
-The TypeScript configuration uses Node's module rules and explicit file
-extensions. `scripts/chat-runtime.test.mjs` verifies both source and compiled
-function startup in plain Node.
+`api/chat.ts` allows 60 seconds and `api/audit.ts` allows 120 seconds. Shared
+server code lives in `server/`. The audit function includes the original hero
+JPEG for inline email delivery. Font headers allow supported email clients to
+fetch the same self-hosted fonts as the site.
 
-Both audit pages capture the first submitted visitor message before calling the
-AI, then save the assistant reply. The transcript and stable session ID survive
-reloads, and pending logs retry without repeating an AI call or audit submission.
-Vercel's `waitUntil` retains the whole request if the browser disconnects.
-With `QSTASH_TOKEN`, logs are accepted into a durable FIFO queue and delivered to
-n8n independently of the browser, with retries. Without it, the API waits for
-direct n8n acceptance; failures remain pending locally until the visitor returns.
-The chat waits for queue/direct acceptance, so direct n8n/Sheets latency affects
-reply time. Only audit completion may need an extra model extraction call.
-The `Server-Timing` response header reports chat response time.
+Both APIs require server functions; uploading only `dist` to a static host is
+insufficient. Each route has prerendered HTML; retain the routing settings and
+custom 404 instead of adding a catch-all rewrite to `/index.html`.
 
-Before deploying, open **Project Settings > Environment Variables** and import the
-private `.env.production.local` file into the **Production** environment, if that
-file has been prepared locally. Otherwise, enter the values below manually.
-Local env files are ignored by Git and do not configure Vercel's runtime by
-themselves.
+`.vercelignore` excludes credentials, local output, dependencies and generated
+build files. Keep real env files out of Git. Deploy the source and let Vercel run
+the build; do not use `npm ci --omit=dev` for the deployment build.
 
-| Variable | Production value |
-| --- | --- |
-| `KOBOILLM_API_KEY` | Your existing provider API key; required for chat. |
-| `KOBOILLM_BASE_URL` | `https://api.koboillm.com/v1`, unless using a provider override. |
-| `KOBOILLM_MODEL` | `gpt-6-luna`, unless using a model override. |
-| `N8N_WEBHOOK_URL` | The shared n8n production webhook for chat history and audit forms; required for audit submissions. |
-| `N8N_LOG_EVERY_MESSAGE` | Defaults to enabled; `false` explicitly disables partial chat logs. |
-| `QSTASH_TOKEN` | Enables durable chat delivery/retries after the browser closes; no separate database. |
-| `QSTASH_URL` | QStash API origin from your account; defaults to `https://qstash.upstash.io`. |
-| `N8N_USE_PRODUCTION` | `true` in the production import file to select the production webhook explicitly. |
+## Verification and assets
 
-Keep `N8N_WEBHOOK_TEST_URL` out of the Production environment. For **Preview** and
-**Development**, add the provider key separately, use `N8N_WEBHOOK_TEST_URL` only
-if testing logging, and set `N8N_USE_PRODUCTION=false`. Do not import the production
-env file into Preview or Development. Leave both webhook URLs empty to disable
-history logging; chat can answer questions without n8n, but audit requests cannot be submitted.
-The n8n workflow must be active for its production webhook to receive events.
+Release with `bash release-safe.sh` from Git Bash. The script safely commits,
+tests, pushes and merges the release, waits for the intended Vercel project, then
+checks the exact commit on `https://www.inventtomorrow.pro`. A green GitHub status
+alone is insufficient: both live audit routes must show the 16-question
+questionnaire and both API entry points must start correctly. If the live domain
+still points to an older build, the release stops instead of claiming success.
 
-All keys and webhook URLs stay on the server; do not prefix them with `VITE_`.
-Keep real env files out of Git. Deploy after importing the variables, or redeploy
-if updating variables on an existing deployment.
+Every build emits `release.json` and matching commit metadata in the page HTML.
+The home page, audit pages and release manifest use `no-store` so a new page load
+does not reuse an old document. Versioned assets keep their immutable caching.
+A tab already open before deployment can retain its loaded app until refreshed.
+To recheck a previously pushed release without creating a new commit, run
+`bash release-safe.sh --verify-production`.
 
-Before enabling the queue, update n8n to acknowledge after its Sheet write and
-apply the version guard described in [chat logging setup](docs/chat-logging.md).
-The local workflow export is provided for import; it does not update live n8n.
+Run `npm run build:vercel` for TypeScript checks, tests, the Vite build,
+prerendering and deployment-artifact verification. Tests mock Google and the AI
+provider and send no real emails. Runtime checks verify source and compiled API
+imports in plain Node.
 
-Both APIs need their Vercel Functions; uploading only `dist` to a static host will
-not run them. Webhook payloads and source routing are documented in
-[docs/booking-setup.md](docs/booking-setup.md).
+After deployment, load `/free-audit`, `/free-audit-ads`, `/contact` and a case-study
+URL directly. Unknown URLs should return 404 and `GET /api/chat` should return 405.
+Use an address you control for an explicitly authorized live email test.
 
-`.vercelignore` limits CLI source uploads to the application, tests, scripts,
-public assets and build configuration. Real env files, dependencies, generated
-output and local scratch files stay excluded. If adding a new top-level directory
-that the build needs, include it in that file.
-
-## Image delivery
-
-Team portraits and the large homepage/About illustrations use responsive WebP
-copies in `public/images/optimized`. Original photos stay unchanged. Run
-`npm run optimize:images` after replacing an original image; include the generated
-images and `src/content/optimizedImages.ts` in the same change. Filenames contain
-content hashes, so Vercel can cache them for a year without hiding photo updates.
-The deployment build checks that every referenced image variant exists.
-
-## Verify
-
-Production HTML shows the first screen immediately, without a forced loading
-overlay. Routes load on demand and are prefetched only when a visitor hovers or
-focuses a navigation link. The homepage's lower sections are a separate chunk,
-but all their text still appears in prerendered HTML. Each page preloads only its
-own route and static dependencies from Vite's build manifest.
-
-DM Sans and Outfit are self-hosted under `public/fonts`, with their licenses.
-Desktop scroll easing loads during idle time; touch devices keep native scrolling.
-The build checks these startup guarantees. See the
-[performance audit](docs/performance-audit.md) for measurements and verification limits.
-
-```sh
-npm run build:vercel
-```
-
-The individual `npm run lint`, `npm test` and `npm run build` commands are also
-available.
-
-After a Preview deployment, check `/about`, `/free-audit` and a case-study URL
-directly, then reload each. Confirm that an unknown URL returns HTTP 404.
-`GET /api/chat` should return HTTP 405, not 500; a 500 before any conversation
-indicates a function startup/configuration problem to inspect in Vercel's logs.
-Test the quick audit through business name, missed calls, old quotes and typical clean price,
-then submit the results form. Check closing/reopening the form and the locked results state.
-Use the [synced n8n export and setup guide](docs/n8n-free-audit-setup.md) alongside these API changes; forms now require a matching saved-submission acknowledgement. Configure the real email footer, Abdul Hadi's alert address and your existing SMS branch before activation.
-Submit the form on `/contact` and open it from both audit pages. In n8n, route
-`body.source === "invo_chat"` and `body.source === "form_data"` to their respective handlers.
-A deployment without the provider key returns a controlled 503 for chat requests.
-Local checks use mocked webhooks and do not verify the deployed API or live n8n
-delivery. Production must be redeployed after changing runtime environment values.
-
-References: [Vercel environment variables](https://vercel.com/docs/environment-variables/managing-environment-variables),
-[Node.js versions on Vercel](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions),
-[Vercel Functions](https://vercel.com/docs/functions/runtimes/node-js),
-[Vite environment variables](https://vite.dev/guide/env-and-mode).
+DM Sans and Outfit are self-hosted under `public/fonts` with their licenses.
+Responsive WebP copies of large images live in `public/images/optimized`.
+Run `npm run optimize:images` after replacing originals and include the generated
+assets and manifest changes. The build checks image references, page metadata,
+navigation, sitemap, `llms.txt` and startup guarantees.

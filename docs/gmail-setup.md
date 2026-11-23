@@ -32,8 +32,7 @@ a VML background fallback. There is no separate image row below the heading.
 Gmail attaches the original JPEG inline with a matching Content-ID, so the HTML does not depend
 on a hosted image URL or an unsupported data URI. The editable blue header,
 buttons and numbering use the website blue. Vercel explicitly packages the JPEG
-with the audit function. The n8n-only legacy delivery path retains its existing
-plain-text format.
+with the audit function.
 
 Run `npm run preview:audit-email` to generate standalone local previews in
 `output/audit-email/preview.html` and `preview-long.html`. These contain fictional
@@ -92,32 +91,31 @@ deployments; do not commit or upload them as application assets.
 | `GMAIL_SENDER_EMAIL` | Authorized mailbox or verified send-as alias |
 
 The existing `KOBOILLM_API_KEY` is still needed to generate audit reports. Gmail
-works without n8n. Leave sending disabled in Preview/Development unless you intend
+sends reports directly. Leave sending disabled in Preview/Development unless you intend
 those environments to email submitted addresses. Setting the enable flag to
 `false` turns off direct delivery. To revoke access, remove the app's Google
 account permission and remove its refresh token from the deployment settings.
 
-## Optional n8n lead capture
+## Contact and team notifications
 
-Leave `N8N_BUSINESS_AUDIT_CAPTURE=false` if you only need report delivery.
+Contact requests, case-study unlocks and completed chat booking handoffs notify
+the team directly through Gmail. Set `GMAIL_FORM_NOTIFICATIONS_ENABLED=true`
+to enable them. If the flag is omitted it follows
+`GMAIL_AUDIT_REPORTS_ENABLED`; an explicit `false` disables team notifications.
+The ignored production env file has team notifications enabled.
 
-If you also need n8n to save leads, import the updated inactive
-[`n8n-business-audit-workflow.json`](n8n-business-audit-workflow.json), verify its
-sheet connections, and activate it before enabling both integrations. The
-server marks `businessAuditEmail.delivery: server_gmail`; the new **Route Server
-Gmail Delivery** node then saves the lead and acknowledges capture without taking
-the n8n email branch. The server performs Gmail delivery independently of whether
-lead capture succeeds. Its shorter 15-second capture timeout leaves time for
-Google within the existing function/browser deadlines.
+`GMAIL_NOTIFICATION_EMAIL` optionally selects the team inbox and defaults to
+`GMAIL_SENDER_EMAIL`. It is never read from a public request. The submitted
+visitor email becomes the Reply-To header. Notifications contain contact details,
+submission ID, relevant form data and allowlisted campaign tags. Chat handoffs
+include recent conversation context; ordinary messages remain browser-local.
 
-With direct Gmail disabled, this workflow retains the existing n8n report-email
-behavior. Do not combine direct delivery with an older workflow that ignores the
-delivery marker: that workflow may send its own copy. If an older workflow
-explicitly confirms the report was already sent to the same recipient, the server
-skips its send, but updating the workflow is required for reliable routing.
+Forms acknowledge receipt only after Google accepts the notification. Appointment
+times remain requests for the team to confirm, not automatic calendar bookings.
+The legacy quick-audit and readiness modes email their results directly to leads.
 
-Regenerate the workflow export with `node scripts/patch-business-audit-workflow.mjs`.
-This only prepares a local inactive JSON export; it never edits live n8n.
+Old hosted workflow/queue settings are ignored by the application and can be
+deleted from Vercel. They have already been removed from the local env files.
 
 ## Delivery behavior and verification
 
@@ -125,11 +123,11 @@ Each send refreshes a Google access token and posts a UTF-8 multipart MIME messa
 (plain text, HTML and the related inline image) to
 [`users.messages.send`](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/send).
 Both calls share a 20-second deadline. `reportEmailSent` becomes true only after
-Google returns a message ID (or the legacy n8n flow explicitly confirms sending).
+Google returns a message ID.
 This means provider acceptance, not a guarantee of inbox placement. A failed or
 unconfigured send leaves the report preview available and the existing email
 notice awaiting confirmation; logs contain a safe error code, not credentials or
-recipient details. `leadSaved` continues to describe n8n capture independently.
+recipient details. There is no separate lead-storage acknowledgement.
 
 Unchanged concurrent requests and confirmed sends share a bounded ten-minute
 process cache keyed by sender, credentials, recipient, submission ID and report.
@@ -138,9 +136,9 @@ delivery: a restart, a different serverless instance, a new submission ID, or a
 timeout after Google accepts a message can cause a repeated send. No automatic
 retry is made after an ambiguous send failure.
 
-Run `npm run lint` and `npm test`. Tests mock Google and n8n, checking OAuth state,
+Run `npm run lint` and `npm test`. Tests mock Google and the AI provider, checking OAuth state,
 PKCE, secret-safe failures, MIME encoding, matching inline image bytes, safe dynamic
-HTML, full-report content, duplicate requests, and capture-only routing.
+HTML, full-report content, duplicate requests, and team-notification routing.
 For a live check after configuration, complete an audit
 using an address you control and verify the Gmail Sent folder and recipient inbox.
 Automated checks do not send live mail.

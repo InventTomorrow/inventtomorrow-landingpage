@@ -4,8 +4,8 @@
 # From main: makes a new feature/auto-* branch on every release.
 # From an unfinished feature/auto-* branch: resumes it, preserving your work.
 # Automatically fetches, commits, pushes, merges, tests, builds and pushes main.
-# A successful push triggers the existing Vercel Git integration; Vercel readiness
-# can only be verified automatically if GitHub CLI exposes a Vercel check.
+# A push triggers Vercel. Completion requires the live custom domain to serve
+# the exact released commit, the current questionnaire and working API entry points.
 set -Eeuo pipefail
 
 say()  { printf '\n==> %s\n' "$*"; }
@@ -25,6 +25,20 @@ command -v npm >/dev/null 2>&1 || stop 'Node.js/npm is missing.'
 ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || stop 'Run inside the Git repository.'
 cd "$ROOT"
 [[ -f package.json ]] || stop 'No package.json found at the repository root.'
+PRODUCTION_URL="${PRODUCTION_URL:-https://www.inventtomorrow.pro}"
+VERCEL_PROJECT="${VERCEL_PROJECT:-inventtomorrow-cleaning}"
+if [[ "${1:-}" == --help || "${1:-}" == -h ]]; then
+  printf 'Usage: bash release-safe.sh [--verify-production [commit-sha]]\n'
+  printf 'Production URL: %s\nVercel project: %s\n' "$PRODUCTION_URL" "$VERCEL_PROJECT"
+  exit 0
+fi
+
+# Read-only recovery after a previous push: no staging, commits or deployment.
+if [[ "${1:-}" == --verify-production ]]; then
+  node scripts/verify-live-deployment.mjs --base-url "$PRODUCTION_URL" --commit "${2:-$(git rev-parse HEAD)}" --attempts 24
+  exit 0
+fi
+[[ $# -eq 0 ]] || stop 'Usage: bash release-safe.sh [--verify-production [commit-sha]]'
 git remote get-url origin >/dev/null 2>&1 || stop 'Git remote origin is missing.'
 git show-ref --verify --quiet refs/heads/main || stop 'Local main branch does not exist.'
 [[ -z "$(git ls-files -u)" ]] || stop 'Resolve the unfinished merge first.'
@@ -127,12 +141,8 @@ checks() {
     say 'Installing npm dependencies'
     npm ci --no-audit --no-fund
   fi
-  say 'Running lint / TypeScript checks'
-  npm run lint
-  say 'Running all automated tests'
-  npm test
-  say 'Building website'
-  npm run build
+  say 'Running production checks, tests, build, prerendering and artifact verification'
+  npm run build:vercel
   git diff --quiet && git diff --cached --quiet || stop 'Tests/build modified tracked files. Review before deployment.'
 }
 checks
@@ -147,7 +157,7 @@ if ! git merge-base --is-ancestor origin/main HEAD; then
 fi
 
 # Optional, noninteractive Vercel signal through the GitHub checks API.
-# This is not a substitute for live n8n/email and API endpoint testing.
+# The live-domain check remains mandatory when GitHub status is unavailable.
 check_vercel() {
   local kind="$1" sha repo data i
   if ! command -v gh >/dev/null 2>&1 || ! gh auth status >/dev/null 2>&1; then
@@ -163,9 +173,9 @@ check_vercel() {
   say "Checking $kind Vercel status on GitHub (when published)"
   for ((i=1;i<=24;i++)); do
     # GitHub can expose Vercel as a legacy commit status and/or a check-run.
-    data="$(gh api "repos/$repo/commits/$sha/status" --jq '.statuses[] | select(.context | ascii_downcase | contains("vercel")) | .state' 2>/dev/null || true)"
+    data="$(gh api "repos/$repo/commits/$sha/status" --jq ".statuses[] | select((.context | ascii_downcase | contains(\"vercel\")) and (.target_url | contains(\"/$VERCEL_PROJECT/\"))) | .state" 2>/dev/null || true)"
     data+=$'\n'
-    data+="$(gh api "repos/$repo/commits/$sha/check-runs" --jq '.check_runs[] | select(.name | ascii_downcase | contains("vercel")) | (.conclusion // .status)' 2>/dev/null || true)"
+    data+="$(gh api "repos/$repo/commits/$sha/check-runs" --jq ".check_runs[] | select((.name | ascii_downcase | contains(\"vercel\")) and (.details_url | contains(\"/$VERCEL_PROJECT/\"))) | (.conclusion // .status)" 2>/dev/null || true)"
     if printf '%s\n' "$data" | grep -Eq '^(failure|error|cancelled|timed_out|action_required)$'; then
       stop "Vercel $kind check failed. Check Vercel build logs; main has not been force-pushed."
     fi
@@ -201,10 +211,12 @@ fi
 say 'Pushing production main to GitHub (triggers Vercel Git integration)'
 git push origin main
 check_vercel production
+say "Verifying the exact released commit on $PRODUCTION_URL"
+node scripts/verify-live-deployment.mjs --base-url "$PRODUCTION_URL" --commit "$(git rev-parse HEAD)" --attempts 24
 
-say 'FINISHED: GitHub main updated'
+say 'FINISHED: GitHub main and live production deployment verified'
 git log -1 --oneline
 printf '\nRelease branch: %s\n' "$RELEASE"
 printf 'Current branch: %s\n' "$(git branch --show-current)"
-printf '\nNOTE: The Git push is automatic. Vercel must be configured for Git deploys.\n'
-printf 'If Vercel checks were unavailable, inspect the production deployment and test live n8n/email.\n'
+printf '\nVerified production: %s\n' "$PRODUCTION_URL"
+printf 'A tab already open before deployment may still need one refresh to load the new app.\n'

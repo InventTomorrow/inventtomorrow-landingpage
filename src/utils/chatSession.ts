@@ -28,7 +28,6 @@ export interface ChatSession {
   directLink: boolean;
   contact: { email: string; phone: string } | null;
   requestSent: boolean;
-  pendingLog: boolean;
   audit?: GuidedAudit;
 }
 
@@ -119,7 +118,7 @@ function restoreAudit(value: unknown): GuidedAudit | undefined {
 }
 
 export function createChatSession(pagePath: ChatPagePath, sessionId = newSessionId()): ChatSession {
-  return { sessionId, pagePath, messages: [], booking: null, directLink: false, contact: null, requestSent: false, pendingLog: false };
+  return { sessionId, pagePath, messages: [], booking: null, directLink: false, contact: null, requestSent: false };
 }
 
 export function readChatSession(storage: ChatStorage, pagePath: ChatPagePath): ChatSession | null {
@@ -137,7 +136,7 @@ export function readChatSession(storage: ChatStorage, pagePath: ChatPagePath): C
       sessionId: value.sessionId, pagePath,
       messages: value.messages.map((m: Message) => ({ role: m.role, content: m.content, ...(m.localOnly === true ? { localOnly: true } : {}) })),
       booking: booking || null, contact: contact || null,
-      directLink: value.directLink === true, requestSent: value.requestSent === true, pendingLog: value.pendingLog === true,
+      directLink: value.directLink === true, requestSent: value.requestSent === true,
       ...(audit ? { audit } : {}),
     };
   } catch { return null; }
@@ -150,28 +149,23 @@ export function writeChatSession(storage: ChatStorage, session: ChatSession): bo
   } catch { return false; } // Storage restrictions must not prevent chatting.
 }
 
-export function chatRequest(session: ChatSession, logOnly = false) {
+export function chatRequest(session: ChatSession) {
   const audit = session.audit;
-  // After the popup is accepted, the chat log carries the same lead so the chat
-  // history row in n8n shows the business, email, phone and "Lead Captured".
-  const auditLead = audit?.results && audit.contact && audit.answers.businessName
-    ? { businessName: audit.answers.businessName, email: audit.contact.email, phone: audit.contact.phone } : null;
   // Tells the AI which audit question is waiting (1–4) or that results are shown,
   // so it answers briefly instead of restarting or re-running the audit itself.
   const step = audit ? auditStep(audit.answers) : 0;
   const auditProgress = !audit?.started ? null : audit.results ? 'done' : step < 4 ? step + 1 : null;
   return {
-    ...(logOnly ? { mode: 'log' } : {}),
     experience: 'guided-audit',
     messages: session.messages.filter((m) => !m.localOnly).map(({ role, content }) => ({ role, content })),
     sessionId: session.sessionId, pagePath: session.pagePath,
-    state: { lead: session.booking, askedDirect: session.directLink, ...(auditLead ? { audit: auditLead } : {}),
+    state: { lead: session.booking, askedDirect: session.directLink,
       ...(auditProgress !== null ? { auditProgress } : {}) },
   };
 }
 
 // Keepalive requests can continue during navigation/close, but have a 64 KiB
-// browser limit. Larger histories still use a normal request and local recovery.
+// browser limit. Larger histories still use a normal request and browser-local history.
 export function canKeepChatAlive(body: string): boolean {
   return new TextEncoder().encode(body).byteLength < 60_000;
 }

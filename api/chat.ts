@@ -25,10 +25,9 @@ export default async function handler(req: Req, res: Res) {
   const started = performance.now();
   const result = await handleChat(req.body, ip, process.env, waitUntil);
   res.setHeader('Server-Timing', `chat;dur=${(performance.now() - started).toFixed(1)}`);
-  // Where the time went, e.g. "log1=1400ms model=900ms log2=1300ms". Visible in the browser's Network tab.
   if (result.timings) {
     const timings = result.timings;
-    res.setHeader('X-Chat-Timing', ['log1', 'model', 'log2', 'total'].filter((step) => step in timings).map((step) => `${step}=${timings[step]}ms`).join(' '));
+    res.setHeader('X-Chat-Timing', ['model', 'total'].filter((step) => step in timings).map((step) => `${step}=${timings[step]}ms`).join(' '));
   }
   res.status(result.status).json(result.body);
 }

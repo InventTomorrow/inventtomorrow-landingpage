@@ -48,9 +48,6 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
   const [resultsFormOpen, setResultsFormOpen] = useState(false);
   const session = useRef<ChatSession | null>(null);
   const sendingRef = useRef(false);
-  // How long to wait before double-checking that the last messages were saved (longer while the server saves in the background).
-  const recoveryDelay = useRef(1_000);
-  const [revision, setRevision] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const unlockRef = useRef<HTMLButtonElement>(null);
@@ -58,7 +55,6 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
   const persist = (next: ChatSession) => {
     session.current = next;
     try { writeChatSession(window.localStorage, next); } catch { /* blocked storage */ }
-    setRevision((value) => value + 1);
   };
 
   // Load after hydration so both prerendered audit pages retain their greeting.
@@ -80,13 +76,12 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
     setContact(next.contact);
     setRequestSent(next.requestSent);
     setFailed(next.messages.at(-1)?.localOnly === true);
-    setRevision((value) => value + 1);
   }, [pagePath]);
 
   const updateAudit = (nextAudit: GuidedAudit, addedMessages: Message[] = []) => {
     if (!session.current) return;
     const next = { ...session.current, audit: nextAudit,
-      messages: [...session.current.messages.filter((m) => !m.localOnly), ...addedMessages], pendingLog: true };
+      messages: [...session.current.messages.filter((m) => !m.localOnly), ...addedMessages] };
     persist(next);
     setAudit(nextAudit);
     setMessages([GREETING, ...next.messages]);
@@ -94,7 +89,7 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
   };
 
   // "Reset Invo": one tap, any time. A new session ID and an empty chat, so the visitor can start over.
-  // Ad attribution is kept, and anything not yet logged is sent under the OLD ID first.
+  // Ad attribution is kept; history remains in this browser only.
   // A reply or audit submission still in flight for the old chat is dropped, never shown in the new one.
   const resetGeneration = useRef(0);
   const inFlight = useRef<AbortController | null>(null);
@@ -107,13 +102,6 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
     setSending(false);
     setReplyReady(false);
     setForcedStep(null);
-    const old = session.current;
-    if (old?.pendingLog) {
-      try {
-        const body = JSON.stringify(chatRequest(old, true));
-        void fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: canKeepChatAlive(body) }).catch(() => {});
-      } catch { /* the reset must still happen */ }
-    }
     let sessionId = newSessionId();
     try { clearChatStorage(window.localStorage); } catch { /* blocked storage */ }
     try { sessionId = resetBrowserSessionId(); } catch { /* blocked storage */ }
@@ -130,7 +118,6 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
     setFailed(false);
     setInput('');
     setResultsFormOpen(false);
-    setRevision((value) => value + 1);
     inputRef.current?.focus({ preventScroll: true });
   };
 
@@ -149,38 +136,6 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
       : [{ role: 'user', content: said }, ...(lead ? [{ role: 'assistant' as const, content: lead }] : []), { role: 'assistant', content: AUDIT_QUESTIONS[step] }]);
     if (step === 0) inputRef.current?.focus({ preventScroll: true });
   };
-
-  // Recover pending LOGS only: replaying an AI request could submit an audit twice.
-  // The server/queue handles already accepted messages even when this page closes.
-  useEffect(() => {
-    if (!session.current?.pendingLog || sending) return;
-    let stopped = false;
-    let recovering = false;
-    let retry: ReturnType<typeof setTimeout>;
-    const recover = async () => {
-      const snapshot = session.current;
-      if (stopped || recovering || sendingRef.current || !snapshot?.pendingLog) return;
-      recovering = true;
-      try {
-        const body = JSON.stringify(chatRequest(snapshot, true));
-        const response = await fetch('/api/chat', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body,
-          keepalive: canKeepChatAlive(body), signal: AbortSignal.timeout(20_000),
-        });
-        const data = await response.json();
-        if (!stopped && response.ok && (data.logSaved === true || data.loggingDisabled === true) && session.current === snapshot) {
-          persist({ ...snapshot, pendingLog: false });
-          return;
-        }
-      } catch { /* retain the pending snapshot for reconnect/reload */ }
-      finally { recovering = false; }
-      if (!stopped) retry = setTimeout(recover, 30_000);
-    };
-    retry = setTimeout(recover, recoveryDelay.current);
-    const onOnline = () => { clearTimeout(retry); void recover(); };
-    window.addEventListener('online', onOnline);
-    return () => { stopped = true; clearTimeout(retry); window.removeEventListener('online', onOnline); };
-  }, [revision, sending, pagePath]);
 
   // Keep the latest message in view without scrolling the whole page.
   useEffect(() => {
@@ -240,7 +195,7 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
     }
     sendingRef.current = true;
     const next: Message[] = [...current.messages.filter((m) => !m.localOnly), { role: 'user', content }];
-    const pending: ChatSession = { ...current, messages: next, pendingLog: true };
+    const pending: ChatSession = { ...current, messages: next };
     // Persist synchronously before starting the request, not in an effect that
     // might never run if the visitor immediately reloads or closes the page.
     persist(pending);
@@ -263,11 +218,9 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
         headers: { 'Content-Type': 'application/json' },
         body, keepalive: canKeepChatAlive(body), signal: AbortSignal.any([controller.signal, AbortSignal.timeout(58_000)]),
       });
-      const data = (await response.json().catch(() => ({}))) as { reply?: string; booking?: Booking; directLink?: boolean; contact?: { email: string; phone: string }; requestSent?: boolean; error?: string; logSaved?: boolean; logDeferred?: boolean; loggingDisabled?: boolean };
+      const data = (await response.json().catch(() => ({}))) as { reply?: string; booking?: Booking; directLink?: boolean; contact?: { email: string; phone: string }; requestSent?: boolean; error?: string };
       if (stale()) return;
       if (!response.ok || !data.reply) {
-        // A failed AI request may still have captured the visitor's message.
-        if (data.logSaved || data.loggingDisabled) persist({ ...pending, pendingLog: false });
         throw new Error(data.error || 'Request failed');
       }
       // Paced to the real wait: a reply that is already here flashes through the stages it
@@ -282,8 +235,6 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
       setReplyReady(true);
       await pause(plan.typingMs);
       if (stale()) return;
-      // The server is still saving this message in the background: check on it later, not straight away.
-      recoveryDelay.current = data.logDeferred ? 15_000 : 1_000;
       const repeated: Message[] = reask === null ? [] : [{ role: 'assistant', content: AUDIT_QUESTIONS[reask] }];
       const completed: ChatSession = {
         ...pending, messages: [...next, { role: 'assistant', content: data.reply }, ...repeated],
@@ -291,8 +242,6 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
         directLink: data.directLink || pending.directLink,
         contact: data.contact || pending.contact,
         requestSent: data.requestSent ?? pending.requestSent,
-        // The repeated question is only local so far, so log the transcript again.
-        pendingLog: data.loggingDisabled !== true && (repeated.length > 0 || data.logSaved !== true),
       };
       persist(completed);
       setMessages([GREETING, ...completed.messages]);
@@ -304,7 +253,6 @@ export function AuditChat({ onBookAudit, pagePath }: { onBookAudit: (values?: Pa
       }
     } catch {
       if (stale()) return;
-      recoveryDelay.current = 1_000;
       setFailed(true);
       const failedSession = { ...(session.current || pending), messages: [...next, { role: 'assistant' as const, content: ERROR_TEXT, localOnly: true }] };
       persist(failedSession);

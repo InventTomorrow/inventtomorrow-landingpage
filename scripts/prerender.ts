@@ -4,6 +4,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { createServer } from 'vite';
 import { PAGE_META, type PageMeta } from '../src/content/pages';
 import type { Post } from '../src/content/blog';
@@ -24,6 +25,13 @@ type RenderPage = typeof import('../src/entry-server').renderPage;
 
 const DIST = path.resolve('dist');
 const OG_IMAGE_PATH = '/og/default.jpg';
+const commitSha = (() => {
+  const configured = process.env.VERCEL_GIT_COMMIT_SHA?.trim();
+  if (configured && /^[a-f0-9]{40}$/i.test(configured)) return configured;
+  try { return execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); }
+  catch { return 'local'; }
+})();
+const release = { schemaVersion: 1, commitSha, auditExperience: 'cleaning-business-audit-v1', builtAt: new Date().toISOString() };
 
 interface ManifestEntry { file: string; imports?: string[]; dynamicImports?: string[]; css?: string[] }
 type BuildManifest = Record<string, ManifestEntry>;
@@ -89,6 +97,7 @@ function buildPageHtml(template: string, appHtml: string, meta: PageMeta, manife
   // A share image is added once public/og/default.jpg (1200 × 630 px) exists.
   const ogImageUrl = existsSync(path.join(DIST, OG_IMAGE_PATH)) ? absoluteUrl(OG_IMAGE_PATH) : undefined;
   const head = [
+    `<meta name="deployment-commit" content="${commitSha}" />`,
     pageResources(template, meta.path, manifest, appHtml),
     buildHeadTags(meta, { ogType: post ? 'article' : 'website', ogImageUrl }),
     serializeJsonLd(buildStructuredData(meta, post)),
@@ -110,6 +119,7 @@ async function prerenderSite(renderPage: RenderPage) {
   await writeDistFile('404.html', buildPageHtml(template, notFoundHtml, PAGE_META.notFound, manifest));
   await writeDistFile('sitemap.xml', buildSitemapXml(pages, new Date().toISOString().slice(0, 10)));
   await writeDistFile('llms.txt', buildLlmsTxt(pages));
+  await writeDistFile('release.json', JSON.stringify(release, null, 2) + '\n');
 
   return pages.length;
 }

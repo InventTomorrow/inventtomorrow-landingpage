@@ -13,11 +13,16 @@ import { LEGAL_DOCS } from '../src/content/legal';
 const output = path.resolve('dist');
 const pages = getSitePages();
 const manifest = JSON.parse(await readFile(path.join(output, '.vite', 'manifest.json'), 'utf8'));
+const release = JSON.parse(await readFile(path.join(output, 'release.json'), 'utf8'));
+assert.equal(release.schemaVersion, 1);
+assert.equal(release.auditExperience, 'cleaning-business-audit-v1');
+assert.ok(release.commitSha === 'local' || /^[a-f0-9]{40}$/i.test(release.commitSha));
 for (const { meta } of pages) {
   const html = await readFile(path.join(output, getOutputFile(meta.path)), 'utf8');
   assert.ok(html.includes(`<title>${escapeHtml(meta.title)}</title>`), `${meta.path}: incorrect title`);
   assert.ok(html.includes(`content="${escapeHtml(meta.description)}"`), `${meta.path}: missing description`);
   assert.ok(html.includes('id="root" data-prerendered'), `${meta.path}: missing prerendered content`);
+  assert.ok(html.includes(`<meta name="deployment-commit" content="${release.commitSha}"`), `${meta.path}: incorrect deployment commit`);
   assert.equal((html.match(/<h1\b/g) ?? []).length, 1, `${meta.path}: expected one main heading`);
   assert.ok(!html.includes('Loading the site'), `${meta.path}: blocking loading screen returned`);
   assert.ok(!html.includes('id="app-bootstrap"'), `${meta.path}: startup loader must not cover prerendered content`);

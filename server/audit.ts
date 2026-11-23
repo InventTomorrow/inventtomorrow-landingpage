@@ -1,79 +1,31 @@
 import { randomUUID } from 'node:crypto';
-import { validSessionId } from '../src/utils/sessionId.ts';
 import { DEFAULT_APPOINTMENT_TIME_ZONE, isUsAppointmentTimeZone } from '../src/utils/appointment.ts';
 import { normalizeUsPhone } from './contact.ts';
 // Same website rule as the audit form: "brighthome.com" becomes https://brighthome.com/.
 import { normalizeWebsite } from '../src/utils/contactChecks.ts';
-import { sendToWebhook, webhookTarget, webhookUrl, type WebhookEnv, type WebhookResult } from './webhook.ts';
-import { calculateAudit, COMPANY_SIZE_OPTIONS, FOUNDING_SPOTS_LEFT, parseAuditAnswers, type AuditEstimates } from '../src/utils/freeAudit.ts';
-import { AUDIT_EMAIL_SYSTEM_PROMPT } from './auditPrompts.ts';
-import { pickTracking, type Tracking } from '../src/utils/attribution.ts';
+import { deliverForm } from './formDelivery.ts';
+import { calculateAudit, COMPANY_SIZE_OPTIONS, parseAuditAnswers, type AuditEstimates } from '../src/utils/freeAudit.ts';
 import { calculateReadinessScore, parseReadinessAnswers, READINESS_COMPANY_SIZES, READINESS_QUESTION_COUNT, readinessReport, type ReadinessResults } from '../src/utils/readinessScorecard.ts';
-import { BUSINESS_AUDIT_QUESTION_COUNT, businessAuditResponses, businessAuditSubmissionText, businessAuditReportText, parseBusinessAuditAnswers, type BusinessAuditReport } from '../src/utils/businessAudit.ts';
+import { BUSINESS_AUDIT_QUESTION_COUNT, businessAuditReportText, parseBusinessAuditAnswers, type BusinessAuditReport } from '../src/utils/businessAudit.ts';
 import { AuditReportError, generateBusinessAuditReport, type AuditReportEnv } from './businessAuditReport.ts';
 import { gmailAuditEnabled, sendAuditReportEmail, type GmailEnv } from './gmail.ts';
 import { renderBusinessAuditEmail } from './auditEmail.ts';
 
-type AuditEnv = WebhookEnv & AuditReportEnv & GmailEnv;
-
-// Live n8n ("Structure Fields2") reads p.utm_source etc. at the top level, while the
-// maintained export reads p.tracking.*, so send both: the same allowlisted values.
-function trackingFields(raw: unknown): Record<string, string | Tracking> {
-  const tracking = pickTracking(raw);
-  return { ...tracking, tracking };
-}
+type AuditEnv = AuditReportEnv & GmailEnv;
 
 interface AuditResult {
   status: number;
-  body: { success?: boolean; submissionId?: string; results?: AuditEstimates; scorecard?: ReadinessResults; report?: BusinessAuditReport; leadSaved?: boolean; reportEmailSent?: boolean; error?: string; code?: string };
+  body: { success?: boolean; submissionId?: string; results?: AuditEstimates; scorecard?: ReadinessResults; report?: BusinessAuditReport; reportEmailSent?: boolean; error?: string; code?: string };
 }
 
 const hits = new Map<string, number[]>();
 const WINDOW_MS = 10 * 60 * 1000;
 const LIMIT = 10;
 
-function deliveryError(sent: WebhookResult, submissionId: string, event: string, env: WebhookEnv, resultMismatch = false): AuditResult {
-  const code = sent.failure === 'http_error' ? (sent.status === 404 ? 'WEBHOOK_NOT_REGISTERED' : 'WEBHOOK_HTTP_ERROR')
-    : sent.failure === 'timeout' ? 'WEBHOOK_TIMEOUT'
-    : sent.failure === 'network_error' ? 'WEBHOOK_NETWORK_ERROR'
-    : sent.failure ? 'WEBHOOK_INVALID_RESPONSE'
-    : resultMismatch ? 'WEBHOOK_AUDIT_MISMATCH' : 'WEBHOOK_ACK_MISMATCH';
-  const data = sent.data && typeof sent.data === 'object' && !Array.isArray(sent.data)
-    ? sent.data as Record<string, unknown> : null;
-  // No URLs, response bodies, credentials or contact details in logs/public errors.
-  console.warn('[audit] n8n submission failed', {
-    code, event, submissionId, target: webhookTarget(env), upstreamStatus: sent.status,
-    failure: sent.failure, success: data?.success === true,
-    hasSubmissionId: typeof data?.submission_id === 'string', idMatches: data?.submission_id === submissionId,
-  });
-  return { status: 502, body: {
-    error: event === 'quick_audit_completed'
-      ? "We couldn't confirm your audit was saved. Your details are still here; please try again."
-      : code === 'WEBHOOK_ACK_MISMATCH'
-        ? "We couldn't confirm your request was saved. Your details are still here; please try again."
-        : "We couldn't send your request. Please try again.",
-    code,
-  } };
-}
-
-function acknowledged(data: unknown, submissionId: string): data is Record<string, unknown> {
-  return !!data && typeof data === 'object' && !Array.isArray(data)
-    && (data as Record<string, unknown>).success === true
-    && (data as Record<string, unknown>).submission_id === submissionId;
-}
-
-function returnedEstimates(data: Record<string, unknown>, expected: AuditEstimates): AuditEstimates | null {
-  if (data.audit_complete !== true || !data.audit || typeof data.audit !== 'object' || Array.isArray(data.audit)) return null;
-  const audit = data.audit as Record<string, unknown>;
-  const result = {
-    missedCallsMonth: audit.missed_calls_month, missedCallValue: audit.missed_call_value,
-    oldQuotesNumber: audit.old_quotes_number, revivalValue: audit.revival_value,
-    guaranteeStatus: audit.guarantee_status,
-  };
-  // Reject stale/differently configured workflows rather than show different
-  // figures in the chat and email. Never fall back to revealing local results.
-  if (Object.entries(expected).some(([key, value]) => result[key as keyof typeof result] !== value)) return null;
-  return result as AuditEstimates;
+function mailError(code: string): AuditResult {
+  console.warn('[audit] Email delivery unconfirmed', { code });
+  return { status: code === 'GMAIL_DISABLED' || code === 'GMAIL_NOT_CONFIGURED' ? 503 : 502,
+    body: { code, error: "We couldn't send your request. Your details are still here; please try again." } };
 }
 
 function rateLimited(ip: string) {
@@ -111,7 +63,7 @@ function parseAppointment(raw: Record<string, unknown>) {
   return { 'appointment datetime': appointmentDateTime, appointmentTimeZone };
 }
 
-async function submitQuickAudit(raw: Record<string, unknown>, env: WebhookEnv): Promise<AuditResult> {
+async function submitQuickAudit(raw: Record<string, unknown>, env: GmailEnv): Promise<AuditResult> {
   const answers = parseAuditAnswers(raw.answers);
   const email = typeof raw.email === 'string' ? raw.email.trim() : '';
   const phone = typeof raw.phone === 'string' && raw.phone.length <= 40 ? normalizeUsPhone(raw.phone) : null;
@@ -125,38 +77,22 @@ async function submitQuickAudit(raw: Record<string, unknown>, env: WebhookEnv): 
     return { status: 400, body: { error: 'Please complete your audit, email, website and company size.' } };
   }
   if (!phone) return { status: 400, body: { error: 'Please enter a valid US phone number, including the area code.' } };
-  const url = webhookUrl(env);
-  if (!url) return { status: 503, body: { error: 'The form is temporarily unavailable. Please try again later.' } };
   const submissionId = typeof raw.submissionId === 'string' && /^[a-zA-Z0-9-]{16,64}$/.test(raw.submissionId) ? raw.submissionId : randomUUID();
   const results = calculateAudit(answers);
-  const sent = await sendToWebhook(url, {
-    source: 'form_data', event: 'quick_audit_completed', submissionId,
-    sessionId: validSessionId(raw.sessionId) || randomUUID(),
-    timestamp: new Date().toISOString(), pagePath, ...trackingFields(raw.tracking),
-    lead: { name: '', businessName: answers.businessName, email, phone, website, companySize, description: 'Completed the four-question quick audit' },
-    answers, estimates: results, leadCaptured: true,
-    smsConsent: { granted: true, text: 'By sharing your number you agree we can text you about your audit. Reply STOP to opt out.' },
-    auditEmail: {
-      systemPrompt: AUDIT_EMAIL_SYSTEM_PROMPT,
-      data: {
-        business_name: answers.businessName, company_size: companySize, website,
-        missed_calls_answer: answers.missedCalls, missed_calls_month: results.missedCallsMonth,
-        missed_call_value: results.missedCallValue, old_quotes_answer: answers.oldQuotes,
-        old_quotes_number: results.oldQuotesNumber, revival_value: results.revivalValue,
-        typical_clean_answer: answers.typicalClean, guarantee_status: results.guaranteeStatus,
-        founding_spots_left: FOUNDING_SPOTS_LEFT,
-        subject_opportunity: results.revivalValue !== null && results.revivalValue > results.missedCallValue ? 'old_quotes' : 'missed_calls',
-        booking_link: 'https://www.inventtomorrow.pro/free-audit?book=1',
-      },
-    },
-  });
-  const confirmed = sent.ok && acknowledged(sent.data, submissionId) ? returnedEstimates(sent.data, results) : null;
-  if (!confirmed) return deliveryError(sent, submissionId, 'quick_audit_completed', env, sent.ok && acknowledged(sent.data, submissionId));
-  return { status: 200, body: { success: true, submissionId, results: confirmed } };
+  const text = [
+    'Your quick audit - ' + answers.businessName, '', 'These figures are rough estimates from your answers.',
+    'Estimated missed calls per month: ' + results.missedCallsMonth,
+    'Estimated monthly missed-call value: $' + results.missedCallValue,
+    ...(results.revivalValue === null ? [] : ['Estimated one-off old-quote opportunity: $' + results.revivalValue]),
+    '', 'Book your free call: https://www.inventtomorrow.pro/free-audit?book=1',
+  ].join('\n');
+  const delivery = await sendAuditReportEmail({ to: email, submissionId, text, subject: 'Your quick audit - Invent Tomorrow' }, env);
+  if (!delivery.sent && 'code' in delivery) return mailError(delivery.code);
+  return { status: 200, body: { success: true, submissionId, results, reportEmailSent: true } };
 }
 
-// Short "unlock the case study" form: no appointment, and n8n routes on source 'form-casestudy'.
-async function submitCaseStudyUnlock(raw: Record<string, unknown>, env: WebhookEnv): Promise<AuditResult> {
+// Short case-study unlock form; notify the configured team mailbox before unlocking.
+async function submitCaseStudyUnlock(raw: Record<string, unknown>, env: GmailEnv): Promise<AuditResult> {
   const limits = { name: 120, businessName: 160, email: 254, phone: 40 };
   const lead = { name: '', businessName: '', email: '', phone: '' };
   for (const key of Object.keys(limits) as (keyof typeof limits)[]) {
@@ -173,23 +109,10 @@ async function submitCaseStudyUnlock(raw: Record<string, unknown>, env: WebhookE
   if (!phone) return { status: 400, body: { error: 'Please enter a valid US phone number, including the area code.' } };
   const caseStudySlug = typeof raw.caseStudySlug === 'string' && /^[a-z0-9-]{1,100}$/.test(raw.caseStudySlug) ? raw.caseStudySlug : null;
   if (!caseStudySlug) return { status: 400, body: { error: 'Please check your details and try again.' } };
-  const url = webhookUrl(env);
-  if (!url) return { status: 503, body: { error: 'The form is temporarily unavailable. Please try again later.' } };
-  const submissionId = typeof raw.submissionId === 'string' && /^[a-zA-Z0-9-]{16,64}$/.test(raw.submissionId)
-    ? raw.submissionId : randomUUID();
-  const sent = await sendToWebhook(url, {
-    source: 'form-casestudy',
-    event: 'case_study_unlock',
-    submissionId,
-    sessionId: validSessionId(raw.sessionId) || randomUUID(),
-    timestamp: new Date().toISOString(),
-    pagePath: `/our-work/${caseStudySlug}`,
-    caseStudySlug,
-    ...trackingFields(raw.tracking),
-    lead: { ...lead, phone, description: `Unlocked case study: ${caseStudySlug}` },
-    leadCaptured: true,
-  });
-  if (!sent.ok || !acknowledged(sent.data, submissionId)) return deliveryError(sent, submissionId, 'case_study_unlock', env);
+  const submissionId = typeof raw.submissionId === 'string' && /^[a-zA-Z0-9-]{16,64}$/.test(raw.submissionId) ? raw.submissionId : randomUUID();
+  const delivery = await deliverForm({ subject: 'Case study unlocked - Invent Tomorrow', submissionId,
+    lead: { ...lead, phone }, pagePath: '/our-work/' + caseStudySlug, details: { caseStudy: caseStudySlug }, tracking: raw.tracking }, env);
+  if (!delivery.sent && 'code' in delivery) return mailError(delivery.code);
   return { status: 200, body: { success: true, submissionId } };
 }
 
@@ -210,46 +133,22 @@ async function submitBusinessAudit(raw: Record<string, unknown>, env: AuditEnv):
     return { status: 400, body: { error: 'Please enter a valid work email and try again.' } };
   }
   const submissionId = typeof raw.submissionId === 'string' && /^[a-zA-Z0-9-]{16,64}$/.test(raw.submissionId) ? raw.submissionId : randomUUID();
-  const responses = businessAuditResponses(answers);
   let report: BusinessAuditReport;
   try { report = await generateBusinessAuditReport(lead.businessName, answers, env); }
   catch (error) {
     if (error instanceof AuditReportError) return { status: error.status, body: { code: error.code, error: error.message } };
     return { status: 502, body: { code: 'AUDIT_AI_UNAVAILABLE', error: "We couldn't prepare your report. Please try again; your answers are still here." } };
   }
-  const url = webhookUrl(env);
-  let leadSaved = false;
   let reportEmailSent = false;
-  const useGmail = gmailAuditEnabled(env);
-  if (url && env.N8N_BUSINESS_AUDIT_CAPTURE === 'true') {
-    const sent = await sendToWebhook(url, {
-    source: 'form_data', event: 'cleaning_business_audit_completed', submissionId,
-    sessionId: validSessionId(raw.sessionId) || randomUUID(), timestamp: new Date().toISOString(), pagePath,
-    ...trackingFields(raw.tracking),
-    lead: { ...lead, companySize: answers.A1, phone: '', description: `Role: ${lead.role}\n\n${businessAuditSubmissionText(lead.businessName, answers)}\n\n${businessAuditReportText(report)}` },
-    leadCaptured: true,
-    businessAudit: { version: 1, answers, responses },
-    auditReportInput: { businessName: lead.businessName, auditResponses: responses },
-    auditReport: report,
-    businessAuditEmail: { subject: 'Your cleaning business audit — Invent Tomorrow', text: businessAuditReportText(report), ...(useGmail ? { delivery: 'server_gmail' } : {}) },
-    smsConsent: { granted: false },
-    }, useGmail ? 15_000 : 30_000);
-    if (sent.ok && acknowledged(sent.data, submissionId)) {
-      leadSaved = sent.data.business_audit_saved === true;
-      reportEmailSent = leadSaved && sent.data.report_email_sent === true
-        && typeof sent.data.report_email_to === 'string'
-        && sent.data.report_email_to.trim().toLowerCase() === lead.email.toLowerCase();
-    }
-  }
-  if (useGmail && !reportEmailSent) {
+  if (gmailAuditEnabled(env)) {
     const delivery = await sendAuditReportEmail({ to: lead.email, submissionId, text: businessAuditReportText(report), html: renderBusinessAuditEmail(report) }, env);
     reportEmailSent = delivery.sent;
     if (!delivery.sent && 'code' in delivery) console.warn('[audit] Gmail report delivery unconfirmed', { code: delivery.code });
   }
-  return { status: 200, body: { success: true, submissionId, report, leadSaved, reportEmailSent } };
+  return { status: 200, body: { success: true, submissionId, report, reportEmailSent } };
 }
 
-async function submitReadinessScorecard(raw: Record<string, unknown>, env: WebhookEnv): Promise<AuditResult> {
+async function submitReadinessScorecard(raw: Record<string, unknown>, env: GmailEnv): Promise<AuditResult> {
   const answers = parseReadinessAnswers(raw.answers);
   if (!answers) return { status: 400, body: { error: `Please answer all ${READINESS_QUESTION_COUNT} audit questions.` } };
   const limits = { name: 120, businessName: 160, email: 254, role: 120 };
@@ -266,25 +165,12 @@ async function submitReadinessScorecard(raw: Record<string, unknown>, env: Webho
   if (!companySize || !pagePath || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email)) {
     return { status: 400, body: { error: 'Please enter a valid work email and company size.' } };
   }
-  const url = webhookUrl(env);
-  if (!url) return { status: 503, body: { error: 'The audit is temporarily unavailable. Your answers are still here; please try again later.' } };
   const submissionId = typeof raw.submissionId === 'string' && /^[a-zA-Z0-9-]{16,64}$/.test(raw.submissionId) ? raw.submissionId : randomUUID();
   const scorecard = calculateReadinessScore(answers);
-  const report = readinessReport(answers, scorecard);
-  const sent = await sendToWebhook(url, {
-    source: 'form_data', event: 'readiness_scorecard_completed', submissionId,
-    sessionId: validSessionId(raw.sessionId) || randomUUID(), timestamp: new Date().toISOString(), pagePath,
-    ...trackingFields(raw.tracking),
-    lead: { ...lead, companySize, phone: '', description: `Role: ${lead.role}\nCompany size: ${companySize}\n\n${report}` },
-    leadCaptured: true, scorecard: { version: 1, answers, ...scorecard },
-    scorecardEmail: { subject: `Your AI readiness scorecard: ${scorecard.overall}/100`, text: report },
-    smsConsent: { granted: false },
-  }, 30_000);
-  if (!sent.ok || !acknowledged(sent.data, submissionId)) return deliveryError(sent, submissionId, 'readiness_scorecard_completed', env);
-  const reportEmailSent = sent.data.scorecard_email_sent === true
-    && typeof sent.data.scorecard_email_to === 'string'
-    && sent.data.scorecard_email_to.trim().toLowerCase() === lead.email.toLowerCase();
-  return { status: 200, body: { success: true, submissionId, scorecard, reportEmailSent } };
+  const delivery = await sendAuditReportEmail({ to: lead.email, submissionId, text: readinessReport(answers, scorecard),
+    subject: 'Your AI readiness scorecard - Invent Tomorrow' }, env);
+  if (!delivery.sent && 'code' in delivery) return mailError(delivery.code);
+  return { status: 200, body: { success: true, submissionId, scorecard, reportEmailSent: true } };
 }
 
 export async function handleAudit(input: unknown, ip: string, env: AuditEnv): Promise<AuditResult> {
@@ -314,25 +200,10 @@ export async function handleAudit(input: unknown, ip: string, env: AuditEnv): Pr
   lead.phone = phone;
   const appointment = parseAppointment(raw);
   if (!appointment) return { status: 400, body: { error: 'Please choose a valid future appointment date, time and time zone.' } };
-  const url = webhookUrl(env);
-  if (!url) return { status: 503, body: { error: 'The form is temporarily unavailable. Please try again later.' } };
-  // A stable client id lets n8n deduplicate a retry after an interrupted response.
-  const submissionId = typeof raw.submissionId === 'string' && /^[a-zA-Z0-9-]{16,64}$/.test(raw.submissionId)
-    ? raw.submissionId : randomUUID();
-  const pagePath = typeof raw.pagePath === 'string' && ['/free-audit', '/free-audit-ads', '/contact'].includes(raw.pagePath)
-    ? raw.pagePath : null;
-  const sent = await sendToWebhook(url, {
-    source: 'form_data',
-    event: 'audit_request',
-    submissionId,
-    sessionId: validSessionId(raw.sessionId) || randomUUID(),
-    timestamp: new Date().toISOString(),
-    pagePath,
-    ...trackingFields(raw.tracking),
-    lead,
-    ...appointment,
-    leadCaptured: true,
-  });
-  if (!sent.ok || !acknowledged(sent.data, submissionId)) return deliveryError(sent, submissionId, 'audit_request', env);
+  const submissionId = typeof raw.submissionId === 'string' && /^[a-zA-Z0-9-]{16,64}$/.test(raw.submissionId) ? raw.submissionId : randomUUID();
+  const pagePath = typeof raw.pagePath === 'string' && ['/free-audit', '/free-audit-ads', '/contact'].includes(raw.pagePath) ? raw.pagePath : null;
+  const delivery = await deliverForm({ subject: 'New audit request - Invent Tomorrow', submissionId, lead,
+    pagePath, details: appointment, tracking: raw.tracking }, env);
+  if (!delivery.sent && 'code' in delivery) return mailError(delivery.code);
   return { status: 200, body: { success: true, submissionId } };
 }
