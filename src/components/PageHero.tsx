@@ -1,11 +1,12 @@
 import { ReactNode } from 'react';
 import { m } from 'motion/react';
 import { GraphicShape } from './GraphicShape';
+import { HeadingText } from './HeadingText';
 
 interface PageHeroProps {
   eyebrow: string;
   title: ReactNode;
-  // Second headline line, shown lighter
+  // Second headline phrase, emphasized in italic
   titleMuted?: ReactNode;
   description?: ReactNode;
   children?: ReactNode; // buttons
@@ -68,13 +69,7 @@ export function PageHero({ eyebrow, title, titleMuted, description, children, me
               size === 'compact' ? 'text-3xl sm:text-4xl' : 'text-3xl sm:text-4xl xl:text-5xl'
             }`}
           >
-            {title}
-            {titleMuted && (
-              <>
-                <br />
-                <span className="text-white/70">{titleMuted}</span>
-              </>
-            )}
+            <HeadingText accent={titleMuted} accentClassName={titleMuted ? 'block text-accent' : 'text-accent'}>{title}</HeadingText>
           </m.h1>
 
           {description && (

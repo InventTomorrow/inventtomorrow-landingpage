@@ -5,6 +5,7 @@ import { FadeUp } from './FadeUp';
 import { SiteImage } from './SiteImage';
 import { SectionHeading } from './SectionHeading';
 import { TextLink } from './TextLink';
+import { HeadingText } from './HeadingText';
 
 function FaqList({ faqs }: { faqs: Faq[] }) {
   // Native disclosures keep every answer in the HTML and work before JavaScript loads.
@@ -68,7 +69,7 @@ export function FaqSplitSection({ faqs }: { faqs: Faq[] }) {
         <FadeUp y={16} className="lg:sticky lg:top-32 lg:self-start">
           <span className="text-xs font-semibold text-accent">Before you start</span>
           <h2 className="mt-4 text-3xl sm:text-4xl font-bold leading-[1.12] text-primary text-balance">
-            What business owners ask
+            <HeadingText accent="owners ask">What business</HeadingText>
           </h2>
           <p className="mt-4 text-base sm:text-lg text-body">
             Clear answers about setup, tools, messages, support and what happens next.

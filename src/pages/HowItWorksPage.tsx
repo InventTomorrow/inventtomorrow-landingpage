@@ -29,7 +29,7 @@ export function HowItWorksPage() {
         <div className="mx-auto max-w-[68.75rem]">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="font-display text-3xl font-semibold leading-[1.2] tracking-display text-primary text-balance sm:text-4xl xl:text-5xl">
-              You Stay in Control. <span className="text-accent">We Handle the Rest.</span>
+              You Stay in Control. <em className="text-accent">We Handle the Rest.</em>
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-base text-body sm:text-lg">
               You make the important decisions. We take care of the everyday follow ups.

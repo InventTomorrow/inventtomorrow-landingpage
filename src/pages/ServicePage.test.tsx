@@ -67,7 +67,7 @@ test('the seven existing homepage cards open their matching detail page', () => 
 });
 
 test('unknown service paths show the existing not-found page', () => {
-  assert.match(render('/services/not-a-service'), /not found|find that page/i);
+  assert.match(render('/services/not-a-service').replace(/<\/?em\b[^>]*>/g, ''), /not found|find that page/i);
 });
 
 test('every service uses its own headline-matched image in the hero and dropdown', () => {

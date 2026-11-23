@@ -3,3 +3,9 @@ output/
 .aistudio/
 .vscode/
 website-text-copy.txt
+.env*
+!.env.example
+.git/
+.vercel/
+node_modules/
+dist/

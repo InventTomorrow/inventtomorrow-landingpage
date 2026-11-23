@@ -1,5 +1,7 @@
 import { handleAudit } from '../server/audit.ts';
 
+export const config = { maxDuration: 120 };
+
 interface Req {
   method?: string;
   body?: unknown;

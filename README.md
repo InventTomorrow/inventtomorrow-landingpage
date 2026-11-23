@@ -3,13 +3,21 @@
 React and Vite website with 35 prerendered pages, an audit chatbot at `/api/chat`, and an audit request form at `/api/audit`.
 
 The ad landing page is available directly at `/free-audit-ads`. It shares the
-`/free-audit` chat, request form and responsive layout, with a logo-only header.
+`/free-audit` questionnaire, request form and responsive layout, with a logo-only header.
 It has no site navigation or footer, is marked `noindex`, and is omitted
 from the sitemap and `llms.txt`.
 
-Both audit pages now use the four-question quick audit and a results form.
-Chat and email prompts, the new webhook event, and required email/SMS workflow
-wiring are documented in [free audit setup](docs/free-audit-setup.md).
+Both audit pages now use the 16-question cleaning-business audit and a final
+contact form. KobiLLM generates a personalized report with two findings visible
+on-page and the remaining sections blurred; the full report is delivered by email
+through direct Gmail integration or the dedicated n8n email workflow. Connect the
+sending Google account with `npm run connect:gmail` and follow the
+[Gmail setup guide](docs/gmail-setup.md) for local and Vercel settings. The questions, report-agent
+prompt, submission contract, and optional
+n8n capture workflow are documented in the
+[cleaning-business audit guide](docs/cleaning-business-audit-agent.md).
+Legacy chat and quick-audit integration details remain in
+[free audit setup](docs/free-audit-setup.md).
 
 ## Run locally
 
@@ -47,7 +55,9 @@ case-study URLs retain their permanent redirects.
 
 `api/chat.ts` and `api/audit.ts` are the function entry points. Shared logic is in
 `server/`, outside the API route directory. Chat has a 60-second maximum duration;
-the form has 15 seconds and waits for n8n acceptance before reporting success.
+the audit endpoint allows 120 seconds for report generation. The cleaning-business
+report displays directly, with optional n8n capture. Legacy appointment forms
+still wait for n8n acceptance before reporting success.
 The TypeScript configuration uses Node's module rules and explicit file
 extensions. `scripts/chat-runtime.test.mjs` verifies both source and compiled
 function startup in plain Node.

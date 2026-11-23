@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
 import { CtaButton } from './CtaButton';
 import { FadeUp } from './FadeUp';
+import { HeadingText } from './HeadingText';
 
 interface FinalCtaSectionProps {
   title: ReactNode;
@@ -26,7 +27,7 @@ export function FinalCtaSection({ title, titleAccent, body, smallLine, buttons =
           <ClipboardCheck className="hidden h-14 w-14 shrink-0 sm:block" strokeWidth={1.25} aria-hidden="true" />
           <div className="min-w-0">
             <h2 className="text-2xl font-semibold leading-tight tracking-display text-on-primary text-balance sm:text-3xl">
-              {title} {titleAccent && <span className="text-primary">{titleAccent}</span>}
+              <HeadingText accent={titleAccent} accentClassName="text-primary">{title}</HeadingText>
             </h2>
             <p className="mt-2 text-base text-on-primary/90">{body}</p>
           </div>

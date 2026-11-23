@@ -5,6 +5,7 @@ import { CaseStudyGate } from '../components/CaseStudyGate';
 import { FadeUp } from '../components/FadeUp';
 import { FinalCtaSection } from '../components/FinalCtaSection';
 import { PageHero } from '../components/PageHero';
+import { HeadingText } from '../components/HeadingText';
 import { Section } from '../components/Section';
 import { SiteImage } from '../components/SiteImage';
 import { TextLink } from '../components/TextLink';
@@ -14,7 +15,7 @@ import { getCaseStudyMeta } from '../utils/seo';
 import { NotFoundPage } from './NotFoundPage';
 
 function StoryHeading({ children }: { children: string }) {
-  return <h2 className="mt-12 text-2xl font-bold text-primary first:mt-0">{children}</h2>;
+  return <h2 className="mt-12 text-2xl font-bold text-primary first:mt-0"><HeadingText>{children}</HeadingText></h2>;
 }
 
 function Story({ study }: { study: CaseStudy }) {
@@ -113,7 +114,7 @@ function Story({ study }: { study: CaseStudy }) {
 
       {others.length > 0 && (
         <Section bg="paper">
-          <h2 className="text-center text-2xl font-bold text-primary sm:text-3xl">More case studies</h2>
+          <h2 className="text-center text-2xl font-bold text-primary sm:text-3xl"><HeadingText>More case studies</HeadingText></h2>
           <div className="mx-auto mt-10 grid max-w-4xl grid-cols-1 gap-5 md:grid-cols-2">
             {others.slice(0, 2).map((s, i) => (
               <CaseStudyCard key={s.slug} study={s} delay={0.06 + i * 0.07} />
@@ -134,7 +135,7 @@ function Story({ study }: { study: CaseStudy }) {
 const detailTextClass = 'text-base leading-relaxed text-primary/80';
 
 function DetailHeading({ id, children }: { id: string; children: string }) {
-  return <h2 id={id} className="text-2xl font-semibold leading-snug text-primary text-balance sm:text-3xl">{children}</h2>;
+  return <h2 id={id} className="text-2xl font-semibold leading-snug text-primary text-balance sm:text-3xl"><HeadingText>{children}</HeadingText></h2>;
 }
 
 function BlurbGrid({ items, showCheck = false }: { items: CaseStudyBlurb[]; showCheck?: boolean }) {
@@ -337,7 +338,7 @@ function DetailedStory({ study, details, forceUnlocked }: { study: CaseStudy; de
 
       {others.length > 0 && (
         <Section bg="paper" showDecoration={false}>
-          <h2 className="text-center text-2xl font-semibold text-primary sm:text-3xl">See More of Our Work</h2>
+          <h2 className="text-center text-2xl font-semibold text-primary sm:text-3xl"><HeadingText>See More of Our Work</HeadingText></h2>
           <div className="mx-auto mt-10 grid max-w-4xl grid-cols-1 gap-5 md:grid-cols-2">
             {others.slice(0, 2).map((other, i) => <CaseStudyCard key={other.slug} study={other} delay={0.06 + i * 0.07} />)}
           </div>

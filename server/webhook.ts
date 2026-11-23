@@ -24,13 +24,13 @@ export interface WebhookResult {
   failure: WebhookFailure | null;
 }
 
-export async function sendToWebhook(url: string, payload: unknown): Promise<WebhookResult> {
+export async function sendToWebhook(url: string, payload: unknown, timeoutMs = 8_000): Promise<WebhookResult> {
   try {
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(8_000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
     if (!response.ok) return { ok: false, data: null, status: response.status, failure: 'http_error' };
     // A 2xx can be n8n's empty/default response or an application-level failure.

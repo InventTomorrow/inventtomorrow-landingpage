@@ -1,4 +1,5 @@
 import { FadeUp } from './FadeUp';
+import { HeadingText } from './HeadingText';
 import { PhoneForwarded, MessageSquareCode, CalendarClock, ShieldCheck } from 'lucide-react';
 
 const CAPABILITIES = [
@@ -42,7 +43,7 @@ export function CapabilitiesSection() {
 
       <FadeUp delay={0.2} y={24}>
         <h2 className="mt-4 text-3xl sm:text-5xl font-bold text-white max-w-2xl leading-tight">
-          Autonomous Systems That Work While You Do.
+          <HeadingText accent="Work While You Do.">Autonomous Systems That</HeadingText>
         </h2>
       </FadeUp>
 

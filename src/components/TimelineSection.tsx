@@ -60,7 +60,7 @@ export function TimelineSection() {
         <SectionHeading
           eyebrow="From missed call to next clean"
           size="compact"
-          title={<>It's 2:14 pm. You're mid clean. <span className="text-accent">A new client is calling.</span></>}
+          title={<>It's 2:14 pm. You're mid clean. <em className="text-accent">A new client is calling.</em></>}
         />
 
         <ol ref={listRef} className={styles.timeline}>

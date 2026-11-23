@@ -1,5 +1,6 @@
 import { useParams } from 'react-router';
 import { PageHero } from '../components/PageHero';
+import { HeadingText } from '../components/HeadingText';
 import { Section } from '../components/Section';
 import { PostCard } from '../components/PostCard';
 import { SiteImage } from '../components/SiteImage';
@@ -13,7 +14,7 @@ import { NotFoundPage } from './NotFoundPage';
 function BlockView({ block }: { block: Block }) {
   switch (block.type) {
     case 'h2':
-      return <h2 className="mt-12 text-2xl font-bold text-primary">{block.text}</h2>;
+      return <h2 className="mt-12 text-2xl font-bold text-primary"><HeadingText>{block.text}</HeadingText></h2>;
     case 'p':
       return <p className="mt-5 text-base leading-[1.75] text-primary/80">{block.text}</p>;
     case 'ul':
@@ -87,7 +88,7 @@ function Article({ post }: { post: Post }) {
 
       {others.length > 0 && (
         <Section bg="stone">
-          <h2 className="text-center text-2xl font-bold text-primary sm:text-3xl">Keep reading</h2>
+          <h2 className="text-center text-2xl font-bold text-primary sm:text-3xl"><HeadingText>Keep reading</HeadingText></h2>
           <div className="mx-auto mt-10 grid max-w-4xl grid-cols-1 gap-5 md:grid-cols-2">
             {others.slice(0, 2).map((p, i) => (
               <PostCard key={p.slug} post={p} delay={0.06 + i * 0.07} />

@@ -57,9 +57,9 @@ export function HeroSection() {
             className="mt-4 max-w-full font-display text-[clamp(2.125rem,5vw,3.5rem)] font-bold leading-[1.08] tracking-display text-primary select-text sm:mt-5 sm:max-w-[19ch] sm:text-balance"
           >
             More booked jobs{' '}
-            <span className="block text-accent">
+            <em className="block text-accent">
               from the leads you already have.
-            </span>
+            </em>
           </m.h1>
 
           <m.p

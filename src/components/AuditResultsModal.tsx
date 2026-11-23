@@ -1,6 +1,7 @@
 import { X } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
+import { HeadingText } from './HeadingText';
 import { COMPANY_SIZE_OPTIONS, type AuditAnswers, type AuditEstimates } from '../utils/freeAudit';
 import type { CompanySize } from '../utils/companySize';
 import { auditAnswerKey, clearAuditDraft, newSessionId, readAuditDraft, writeAuditDraft, type AuditDraftFields, type ChatPagePath } from '../utils/chatSession';
@@ -124,7 +125,7 @@ export function AuditResultsModal({ open, onClose, answers, pagePath, sessionId,
       }}>
       <div className={styles.modalHeader}>
         <div>
-          <h2 id={`${id}-title`}>Your audit is ready</h2>
+          <h2 id={`${id}-title`}><HeadingText>Your audit is ready</HeadingText></h2>
           <p>Where should we send it? You'll see your results here straight away, and we'll email you a copy.</p>
         </div>
         <button type="button" onClick={onClose} disabled={pending} className={styles.close} aria-label="Close audit form"><X aria-hidden="true" /></button>

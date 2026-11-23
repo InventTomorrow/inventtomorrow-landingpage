@@ -1,6 +1,6 @@
 import { FreeAuditPage } from './FreeAuditPage';
 
-// Share the chat, request form and responsive layout between both audit pages.
+// Share the audit landing page and booking form between both audit routes.
 export function FreeAuditAdsPage() {
   return <FreeAuditPage isAds />;
 }

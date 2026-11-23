@@ -63,7 +63,7 @@ export function TeamSection() {
         <div className="text-center">
           <p className="font-display text-sm font-medium uppercase text-accent">Our Team</p>
           <h2 id="team-heading" className="mt-2 font-display text-3xl font-semibold leading-tight tracking-display text-white sm:text-4xl">
-            The people behind <span className="text-white/60">Invent Tomorrow</span>
+            The people behind <em className="text-accent">Invent Tomorrow</em>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-base text-white/75">
             Practical thinkers who combine technical skill and fresh ideas to build simple systems that work.

@@ -8,6 +8,13 @@ import { sendToWebhook, webhookTarget, webhookUrl, type WebhookEnv, type Webhook
 import { calculateAudit, COMPANY_SIZE_OPTIONS, FOUNDING_SPOTS_LEFT, parseAuditAnswers, type AuditEstimates } from '../src/utils/freeAudit.ts';
 import { AUDIT_EMAIL_SYSTEM_PROMPT } from './auditPrompts.ts';
 import { pickTracking, type Tracking } from '../src/utils/attribution.ts';
+import { calculateReadinessScore, parseReadinessAnswers, READINESS_COMPANY_SIZES, READINESS_QUESTION_COUNT, readinessReport, type ReadinessResults } from '../src/utils/readinessScorecard.ts';
+import { BUSINESS_AUDIT_QUESTION_COUNT, businessAuditResponses, businessAuditSubmissionText, businessAuditReportText, parseBusinessAuditAnswers, type BusinessAuditReport } from '../src/utils/businessAudit.ts';
+import { AuditReportError, generateBusinessAuditReport, type AuditReportEnv } from './businessAuditReport.ts';
+import { gmailAuditEnabled, sendAuditReportEmail, type GmailEnv } from './gmail.ts';
+import { renderBusinessAuditEmail } from './auditEmail.ts';
+
+type AuditEnv = WebhookEnv & AuditReportEnv & GmailEnv;
 
 // Live n8n ("Structure Fields2") reads p.utm_source etc. at the top level, while the
 // maintained export reads p.tracking.*, so send both: the same allowlisted values.
@@ -18,7 +25,7 @@ function trackingFields(raw: unknown): Record<string, string | Tracking> {
 
 interface AuditResult {
   status: number;
-  body: { success?: boolean; submissionId?: string; results?: AuditEstimates; error?: string; code?: string };
+  body: { success?: boolean; submissionId?: string; results?: AuditEstimates; scorecard?: ReadinessResults; report?: BusinessAuditReport; leadSaved?: boolean; reportEmailSent?: boolean; error?: string; code?: string };
 }
 
 const hits = new Map<string, number[]>();
@@ -186,12 +193,108 @@ async function submitCaseStudyUnlock(raw: Record<string, unknown>, env: WebhookE
   return { status: 200, body: { success: true, submissionId } };
 }
 
-export async function handleAudit(input: unknown, ip: string, env: WebhookEnv): Promise<AuditResult> {
+async function submitBusinessAudit(raw: Record<string, unknown>, env: AuditEnv): Promise<AuditResult> {
+  const answers = parseBusinessAuditAnswers(raw.answers);
+  if (!answers) return { status: 400, body: { error: `Please answer all ${BUSINESS_AUDIT_QUESTION_COUNT} audit questions and select up to two lead sources.` } };
+  const limits = { name: 120, businessName: 160, email: 254, role: 120 };
+  const lead = { name: '', businessName: '', email: '', role: '' };
+  for (const key of Object.keys(limits) as (keyof typeof limits)[]) {
+    const value = raw[key];
+    if (typeof value !== 'string' || !value.trim() || value.length > limits[key]) {
+      return { status: 400, body: { error: 'Please enter your name, work email, business name and role.' } };
+    }
+    lead[key] = value.trim();
+  }
+  const pagePath = raw.pagePath === '/free-audit' || raw.pagePath === '/free-audit-ads' ? raw.pagePath : null;
+  if (!pagePath || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email)) {
+    return { status: 400, body: { error: 'Please enter a valid work email and try again.' } };
+  }
+  const submissionId = typeof raw.submissionId === 'string' && /^[a-zA-Z0-9-]{16,64}$/.test(raw.submissionId) ? raw.submissionId : randomUUID();
+  const responses = businessAuditResponses(answers);
+  let report: BusinessAuditReport;
+  try { report = await generateBusinessAuditReport(lead.businessName, answers, env); }
+  catch (error) {
+    if (error instanceof AuditReportError) return { status: error.status, body: { code: error.code, error: error.message } };
+    return { status: 502, body: { code: 'AUDIT_AI_UNAVAILABLE', error: "We couldn't prepare your report. Please try again; your answers are still here." } };
+  }
+  const url = webhookUrl(env);
+  let leadSaved = false;
+  let reportEmailSent = false;
+  const useGmail = gmailAuditEnabled(env);
+  if (url && env.N8N_BUSINESS_AUDIT_CAPTURE === 'true') {
+    const sent = await sendToWebhook(url, {
+    source: 'form_data', event: 'cleaning_business_audit_completed', submissionId,
+    sessionId: validSessionId(raw.sessionId) || randomUUID(), timestamp: new Date().toISOString(), pagePath,
+    ...trackingFields(raw.tracking),
+    lead: { ...lead, companySize: answers.A1, phone: '', description: `Role: ${lead.role}\n\n${businessAuditSubmissionText(lead.businessName, answers)}\n\n${businessAuditReportText(report)}` },
+    leadCaptured: true,
+    businessAudit: { version: 1, answers, responses },
+    auditReportInput: { businessName: lead.businessName, auditResponses: responses },
+    auditReport: report,
+    businessAuditEmail: { subject: 'Your cleaning business audit — Invent Tomorrow', text: businessAuditReportText(report), ...(useGmail ? { delivery: 'server_gmail' } : {}) },
+    smsConsent: { granted: false },
+    }, useGmail ? 15_000 : 30_000);
+    if (sent.ok && acknowledged(sent.data, submissionId)) {
+      leadSaved = sent.data.business_audit_saved === true;
+      reportEmailSent = leadSaved && sent.data.report_email_sent === true
+        && typeof sent.data.report_email_to === 'string'
+        && sent.data.report_email_to.trim().toLowerCase() === lead.email.toLowerCase();
+    }
+  }
+  if (useGmail && !reportEmailSent) {
+    const delivery = await sendAuditReportEmail({ to: lead.email, submissionId, text: businessAuditReportText(report), html: renderBusinessAuditEmail(report) }, env);
+    reportEmailSent = delivery.sent;
+    if (!delivery.sent && 'code' in delivery) console.warn('[audit] Gmail report delivery unconfirmed', { code: delivery.code });
+  }
+  return { status: 200, body: { success: true, submissionId, report, leadSaved, reportEmailSent } };
+}
+
+async function submitReadinessScorecard(raw: Record<string, unknown>, env: WebhookEnv): Promise<AuditResult> {
+  const answers = parseReadinessAnswers(raw.answers);
+  if (!answers) return { status: 400, body: { error: `Please answer all ${READINESS_QUESTION_COUNT} audit questions.` } };
+  const limits = { name: 120, businessName: 160, email: 254, role: 120 };
+  const lead = { name: '', businessName: '', email: '', role: '' };
+  for (const key of Object.keys(limits) as (keyof typeof limits)[]) {
+    const value = raw[key];
+    if (typeof value !== 'string' || !value.trim() || value.length > limits[key]) {
+      return { status: 400, body: { error: 'Please enter your name, work email, company and role.' } };
+    }
+    lead[key] = value.trim();
+  }
+  const companySize = READINESS_COMPANY_SIZES.find((size) => size === raw.companySize);
+  const pagePath = raw.pagePath === '/free-audit' || raw.pagePath === '/free-audit-ads' ? raw.pagePath : null;
+  if (!companySize || !pagePath || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email)) {
+    return { status: 400, body: { error: 'Please enter a valid work email and company size.' } };
+  }
+  const url = webhookUrl(env);
+  if (!url) return { status: 503, body: { error: 'The audit is temporarily unavailable. Your answers are still here; please try again later.' } };
+  const submissionId = typeof raw.submissionId === 'string' && /^[a-zA-Z0-9-]{16,64}$/.test(raw.submissionId) ? raw.submissionId : randomUUID();
+  const scorecard = calculateReadinessScore(answers);
+  const report = readinessReport(answers, scorecard);
+  const sent = await sendToWebhook(url, {
+    source: 'form_data', event: 'readiness_scorecard_completed', submissionId,
+    sessionId: validSessionId(raw.sessionId) || randomUUID(), timestamp: new Date().toISOString(), pagePath,
+    ...trackingFields(raw.tracking),
+    lead: { ...lead, companySize, phone: '', description: `Role: ${lead.role}\nCompany size: ${companySize}\n\n${report}` },
+    leadCaptured: true, scorecard: { version: 1, answers, ...scorecard },
+    scorecardEmail: { subject: `Your AI readiness scorecard: ${scorecard.overall}/100`, text: report },
+    smsConsent: { granted: false },
+  }, 30_000);
+  if (!sent.ok || !acknowledged(sent.data, submissionId)) return deliveryError(sent, submissionId, 'readiness_scorecard_completed', env);
+  const reportEmailSent = sent.data.scorecard_email_sent === true
+    && typeof sent.data.scorecard_email_to === 'string'
+    && sent.data.scorecard_email_to.trim().toLowerCase() === lead.email.toLowerCase();
+  return { status: 200, body: { success: true, submissionId, scorecard, reportEmailSent } };
+}
+
+export async function handleAudit(input: unknown, ip: string, env: AuditEnv): Promise<AuditResult> {
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
     return { status: 400, body: { error: 'Please check your details and try again.' } };
   }
   if (rateLimited(ip)) return { status: 429, body: { error: 'Too many requests. Please try again shortly.' } };
   const raw = input as Record<string, unknown>;
+  if (raw.mode === 'cleaning_business_audit') return submitBusinessAudit(raw, env);
+  if (raw.mode === 'readiness_scorecard') return submitReadinessScorecard(raw, env);
   if (raw.mode === 'quick_audit') return submitQuickAudit(raw, env);
   if (raw.mode === 'case_study_unlock') return submitCaseStudyUnlock(raw, env);
   const limits = { name: 120, businessName: 160, email: 254, phone: 40, description: 1000 };

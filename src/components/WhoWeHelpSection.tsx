@@ -1,5 +1,6 @@
 import { Sparkles, CheckCircle2 } from 'lucide-react';
 import { FadeUp } from './FadeUp';
+import { HeadingText } from './HeadingText';
 
 const SECTORS = [
   {
@@ -49,7 +50,7 @@ export function WhoWeHelpSection() {
 
         <FadeUp delay={0.2} y={24}>
           <h2 className="mt-4 text-3xl sm:text-5xl font-bold text-white max-w-3xl">
-            Built For Operators Who Win By Doing, Not Sitting At A Desk.
+            <HeadingText accent="Not Sitting At A Desk.">Built For Operators Who Win By Doing,</HeadingText>
           </h2>
         </FadeUp>
 

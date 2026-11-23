@@ -169,7 +169,7 @@ export function CaseStudyGate({ slug, children, forceUnlocked = false }: { slug:
       <div className="absolute inset-0 flex items-start justify-center bg-linear-to-b from-paper/0 to-paper/95 to-90% pb-4">
         <section className="sticky top-22 mt-4 w-full max-w-xl rounded-3xl border border-border bg-paper p-5 text-primary shadow-float sm:p-6" aria-labelledby="unlock-case-study">
           <div className="mb-3 grid size-10 place-items-center rounded-full bg-stone text-accent"><Lock className="size-5" aria-hidden="true" /></div>
-          <h2 id="unlock-case-study" className="font-display text-xl font-bold leading-tight text-balance sm:text-2xl">Unlock the full case study</h2>
+          <h2 id="unlock-case-study" className="font-display text-xl font-bold leading-tight text-balance sm:text-2xl">Unlock the full <em className="text-accent">case study</em></h2>
           <p className="mb-5 mt-2 text-[0.9375rem] leading-relaxed text-ink">See the rebuild, the follow up workflow and the tools we used. Enter your details and it opens right here.</p>
           <UnlockForm slug={slug} />
         </section>
