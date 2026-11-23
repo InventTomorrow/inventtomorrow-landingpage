@@ -1,5 +1,6 @@
 import { handleAudit } from '../server/audit.ts';
 import { waitUntil } from '@vercel/functions';
+import { sheetsConfigurationStatus } from '../server/leadIntegrations.ts';
 
 export const config = { maxDuration: 120 };
 
@@ -17,6 +18,8 @@ interface Res {
 
 export default async function handler(req: Req, res: Res) {
   res.setHeader('Cache-Control', 'no-store');
+  // Safe deployment diagnostic: no tokens, workbook IDs or visitor details.
+  res.setHeader('X-Sheets-Configuration', sheetsConfigurationStatus(process.env));
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Method not allowed.' });

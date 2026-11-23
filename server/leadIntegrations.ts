@@ -28,6 +28,12 @@ export interface LeadRecord {
   answers?: string;
 }
 export type Defer = (task: Promise<void>) => void;
+export function sheetsConfigurationStatus(env: LeadIntegrationEnv): 'disabled' | 'incomplete' | 'configured' {
+  if (env.GOOGLE_SHEETS_ENABLED !== 'true') return 'disabled';
+  if (!env.GOOGLE_CLIENT_ID?.trim() || !env.GOOGLE_CLIENT_SECRET?.trim() || !env.GOOGLE_SHEETS_REFRESH_TOKEN?.trim()
+    || !/^[a-zA-Z0-9_-]{10,200}$/.test(env.GOOGLE_SHEETS_SPREADSHEET_ID?.trim() || '')) return 'incomplete';
+  return 'configured';
+}
 type Cells = Record<string, string>;
 type IntegrationResult = { saved: boolean; alerted: boolean; code?: string };
 const statusHeaders = ['Email Status', 'Email Content', 'Slack Status', 'Slack Message ID'];
