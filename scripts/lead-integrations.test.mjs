@@ -7,6 +7,7 @@ import { handleAudit } from '../server/audit.ts';
 import { handleChat } from '../server/chat.ts';
 import { BUSINESS_AUDIT_QUESTIONS } from '../src/utils/businessAudit.ts';
 import { createAuthorization, SHEETS_SCOPE, updateRefreshToken } from './connect-gmail.mjs';
+import { checkProductionSheets, sheetsConfigDigest, signSheetsCheck } from '../server/sheetsDiagnostic.ts';
 
 const env = {
   GOOGLE_CLIENT_ID: 'client', GOOGLE_CLIENT_SECRET: 'private-client-secret',
@@ -101,6 +102,31 @@ test('production configuration checks expose only readiness and do not treat par
     assert.equal(sheetsConfigurationStatus({ ...env, [key]: '' }), 'incomplete');
   }
   assert.equal(sheetsConfigurationStatus(env), 'configured');
+});
+
+test('production Google access checks reject missing, tampered and expired owner signatures before fetching', async (t) => {
+  const fetchMock = t.mock.method(globalThis, 'fetch', () => { throw new Error('Unauthorized check fetched'); });
+  const input = { timestamp: String(Date.now()), nonce: 'a'.repeat(32), expectedConfig: sheetsConfigDigest(env) };
+  const signature = signSheetsCheck(input, env.GOOGLE_CLIENT_SECRET);
+  for (const raw of [null, {}, { ...input, signature: '0'.repeat(64) }, { ...input, signature, nonce: 'b'.repeat(32) }]) {
+    assert.equal((await checkProductionSheets(raw, env)).status, 401);
+  }
+  assert.equal((await checkProductionSheets({ ...input, signature }, env, Date.now() + 120_000)).status, 401);
+  assert.equal(fetchMock.mock.callCount(), 0);
+});
+
+test('authenticated production checks validate deployed credentials and schemas without writes or secret disclosure', async (t) => {
+  const service = fakeServices(t);
+  service.fetchMock.mock.mockImplementation(async (url, options) => new URL(String(url)).searchParams.has('fields')
+    ? Response.json({ sheets: [] }) : service.implementation(url, options));
+  const input = { timestamp: String(Date.now()), nonce: 'c'.repeat(32), expectedConfig: sheetsConfigDigest(env) };
+  const result = await checkProductionSheets({ ...input, signature: signSheetsCheck(input, env.GOOGLE_CLIENT_SECRET) }, env);
+  assert.equal(result.status, 200);
+  assert.equal(result.body.googleAccess, true);
+  assert.equal(result.body.matchesExpected, true);
+  assert.ok(result.body.tabs.every(tab => tab.ready));
+  assert.doesNotMatch(JSON.stringify(result), /private-|mock-access|test-spreadsheet/);
+  assert.ok(service.calls.every(call => call.url.includes('oauth2') || !call.options.method || call.options.method === 'GET'));
 });
 
 test('new audit rows preserve report, answers and attribution as literal text; Slack follows the sheet write', async (t) => {

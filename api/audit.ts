@@ -1,6 +1,7 @@
 import { handleAudit } from '../server/audit.ts';
 import { waitUntil } from '@vercel/functions';
 import { sheetsConfigurationStatus } from '../server/leadIntegrations.ts';
+import { checkProductionSheets } from '../server/sheetsDiagnostic.ts';
 
 export const config = { maxDuration: 120 };
 
@@ -23,6 +24,11 @@ export default async function handler(req: Req, res: Res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Method not allowed.' });
+  }
+  if (req.body && typeof req.body === 'object' && !Array.isArray(req.body)
+    && (req.body as { mode?: unknown }).mode === 'sheets_connection_check') {
+    const result = await checkProductionSheets(req.body, process.env);
+    return res.status(result.status).json(result.body);
   }
   const forwarded = req.headers['x-forwarded-for'];
   const ip = (Array.isArray(forwarded) ? forwarded[0] : forwarded)?.split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
