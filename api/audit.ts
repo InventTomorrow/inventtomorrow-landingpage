@@ -1,4 +1,5 @@
 import { handleAudit } from '../server/audit.ts';
+import { waitUntil } from '@vercel/functions';
 
 export const config = { maxDuration: 120 };
 
@@ -22,6 +23,6 @@ export default async function handler(req: Req, res: Res) {
   }
   const forwarded = req.headers['x-forwarded-for'];
   const ip = (Array.isArray(forwarded) ? forwarded[0] : forwarded)?.split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
-  const result = await handleAudit(req.body, ip, process.env);
+  const result = await handleAudit(req.body, ip, process.env, waitUntil);
   res.status(result.status).json(result.body);
 }

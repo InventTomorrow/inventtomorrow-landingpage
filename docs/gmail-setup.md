@@ -1,5 +1,9 @@
 # Gmail delivery for full audit reports
 
+For spreadsheet logging and Slack alerts after Gmail, see
+[lead integrations setup](lead-integrations-setup.md). Sheets uses its own
+refresh token; reconnecting it does not replace the Gmail token.
+
 The cleaning-business audit can send its complete report directly through the
 Gmail API. Only the owner authorizes a sending mailbox; visitors do not sign in
 with Google. The existing `/api/audit` endpoint validates the questionnaire,

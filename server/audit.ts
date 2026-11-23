@@ -6,12 +6,14 @@ import { normalizeWebsite } from '../src/utils/contactChecks.ts';
 import { deliverForm } from './formDelivery.ts';
 import { calculateAudit, COMPANY_SIZE_OPTIONS, parseAuditAnswers, type AuditEstimates } from '../src/utils/freeAudit.ts';
 import { calculateReadinessScore, parseReadinessAnswers, READINESS_COMPANY_SIZES, READINESS_QUESTION_COUNT, readinessReport, type ReadinessResults } from '../src/utils/readinessScorecard.ts';
-import { BUSINESS_AUDIT_QUESTION_COUNT, businessAuditReportText, parseBusinessAuditAnswers, type BusinessAuditReport } from '../src/utils/businessAudit.ts';
+import { BUSINESS_AUDIT_QUESTION_COUNT, businessAuditReportText, businessAuditSubmissionText, parseBusinessAuditAnswers, type BusinessAuditReport } from '../src/utils/businessAudit.ts';
 import { AuditReportError, generateBusinessAuditReport, type AuditReportEnv } from './businessAuditReport.ts';
 import { gmailAuditEnabled, sendAuditReportEmail, type GmailEnv } from './gmail.ts';
 import { renderBusinessAuditEmail } from './auditEmail.ts';
+import { recordLead, type Defer, type LeadIntegrationEnv } from './leadIntegrations.ts';
 
-type AuditEnv = AuditReportEnv & GmailEnv;
+type DeliveryEnv = GmailEnv & LeadIntegrationEnv;
+type AuditEnv = AuditReportEnv & DeliveryEnv;
 
 interface AuditResult {
   status: number;
@@ -63,7 +65,7 @@ function parseAppointment(raw: Record<string, unknown>) {
   return { 'appointment datetime': appointmentDateTime, appointmentTimeZone };
 }
 
-async function submitQuickAudit(raw: Record<string, unknown>, env: GmailEnv): Promise<AuditResult> {
+async function submitQuickAudit(raw: Record<string, unknown>, env: DeliveryEnv, defer?: Defer): Promise<AuditResult> {
   const answers = parseAuditAnswers(raw.answers);
   const email = typeof raw.email === 'string' ? raw.email.trim() : '';
   const phone = typeof raw.phone === 'string' && raw.phone.length <= 40 ? normalizeUsPhone(raw.phone) : null;
@@ -87,12 +89,15 @@ async function submitQuickAudit(raw: Record<string, unknown>, env: GmailEnv): Pr
     '', 'Book your free call: https://www.inventtomorrow.pro/free-audit?book=1',
   ].join('\n');
   const delivery = await sendAuditReportEmail({ to: email, submissionId, text, subject: 'Your quick audit - Invent Tomorrow' }, env);
+  await recordLead({ kind: 'audit', submissionId, lead: { email, phone, businessName: answers.businessName }, pagePath,
+    details: { source: 'quick_audit' }, tracking: raw.tracking, answers: JSON.stringify({ ...answers, companySize, website }), report: text,
+    emailStatus: delivery.sent ? 'SENT' : delivery.code === 'GMAIL_DISABLED' ? 'DISABLED' : 'FAILED' }, env, defer);
   if (!delivery.sent && 'code' in delivery) return mailError(delivery.code);
   return { status: 200, body: { success: true, submissionId, results, reportEmailSent: true } };
 }
 
 // Short case-study unlock form; notify the configured team mailbox before unlocking.
-async function submitCaseStudyUnlock(raw: Record<string, unknown>, env: GmailEnv): Promise<AuditResult> {
+async function submitCaseStudyUnlock(raw: Record<string, unknown>, env: DeliveryEnv, defer?: Defer): Promise<AuditResult> {
   const limits = { name: 120, businessName: 160, email: 254, phone: 40 };
   const lead = { name: '', businessName: '', email: '', phone: '' };
   for (const key of Object.keys(limits) as (keyof typeof limits)[]) {
@@ -111,12 +116,12 @@ async function submitCaseStudyUnlock(raw: Record<string, unknown>, env: GmailEnv
   if (!caseStudySlug) return { status: 400, body: { error: 'Please check your details and try again.' } };
   const submissionId = typeof raw.submissionId === 'string' && /^[a-zA-Z0-9-]{16,64}$/.test(raw.submissionId) ? raw.submissionId : randomUUID();
   const delivery = await deliverForm({ subject: 'Case study unlocked - Invent Tomorrow', submissionId,
-    lead: { ...lead, phone }, pagePath: '/our-work/' + caseStudySlug, details: { caseStudy: caseStudySlug }, tracking: raw.tracking }, env);
+    lead: { ...lead, phone }, pagePath: '/our-work/' + caseStudySlug, details: { caseStudy: caseStudySlug }, tracking: raw.tracking }, env, defer);
   if (!delivery.sent && 'code' in delivery) return mailError(delivery.code);
   return { status: 200, body: { success: true, submissionId } };
 }
 
-async function submitBusinessAudit(raw: Record<string, unknown>, env: AuditEnv): Promise<AuditResult> {
+async function submitBusinessAudit(raw: Record<string, unknown>, env: AuditEnv, defer?: Defer): Promise<AuditResult> {
   const answers = parseBusinessAuditAnswers(raw.answers);
   if (!answers) return { status: 400, body: { error: `Please answer all ${BUSINESS_AUDIT_QUESTION_COUNT} audit questions and select up to two lead sources.` } };
   const limits = { name: 120, businessName: 160, email: 254, role: 120 };
@@ -136,6 +141,9 @@ async function submitBusinessAudit(raw: Record<string, unknown>, env: AuditEnv):
   let report: BusinessAuditReport;
   try { report = await generateBusinessAuditReport(lead.businessName, answers, env); }
   catch (error) {
+    await recordLead({ kind: 'audit', submissionId, lead, pagePath, tracking: raw.tracking,
+      details: { source: 'cleaning_business_audit' }, answers: businessAuditSubmissionText(lead.businessName, answers),
+      emailStatus: 'FAILED' }, env, defer);
     if (error instanceof AuditReportError) return { status: error.status, body: { code: error.code, error: error.message } };
     return { status: 502, body: { code: 'AUDIT_AI_UNAVAILABLE', error: "We couldn't prepare your report. Please try again; your answers are still here." } };
   }
@@ -145,10 +153,13 @@ async function submitBusinessAudit(raw: Record<string, unknown>, env: AuditEnv):
     reportEmailSent = delivery.sent;
     if (!delivery.sent && 'code' in delivery) console.warn('[audit] Gmail report delivery unconfirmed', { code: delivery.code });
   }
+  await recordLead({ kind: 'audit', submissionId, lead, pagePath, tracking: raw.tracking,
+    details: { source: 'cleaning_business_audit' }, answers: businessAuditSubmissionText(lead.businessName, answers),
+    report: businessAuditReportText(report), emailStatus: reportEmailSent ? 'SENT' : gmailAuditEnabled(env) ? 'FAILED' : 'DISABLED' }, env, defer);
   return { status: 200, body: { success: true, submissionId, report, reportEmailSent } };
 }
 
-async function submitReadinessScorecard(raw: Record<string, unknown>, env: GmailEnv): Promise<AuditResult> {
+async function submitReadinessScorecard(raw: Record<string, unknown>, env: DeliveryEnv, defer?: Defer): Promise<AuditResult> {
   const answers = parseReadinessAnswers(raw.answers);
   if (!answers) return { status: 400, body: { error: `Please answer all ${READINESS_QUESTION_COUNT} audit questions.` } };
   const limits = { name: 120, businessName: 160, email: 254, role: 120 };
@@ -169,20 +180,23 @@ async function submitReadinessScorecard(raw: Record<string, unknown>, env: Gmail
   const scorecard = calculateReadinessScore(answers);
   const delivery = await sendAuditReportEmail({ to: lead.email, submissionId, text: readinessReport(answers, scorecard),
     subject: 'Your AI readiness scorecard - Invent Tomorrow' }, env);
+  await recordLead({ kind: 'audit', submissionId, lead, pagePath, tracking: raw.tracking,
+    details: { source: 'readiness_scorecard' }, answers: JSON.stringify({ companySize, ...answers }), report: readinessReport(answers, scorecard),
+    emailStatus: delivery.sent ? 'SENT' : delivery.code === 'GMAIL_DISABLED' ? 'DISABLED' : 'FAILED' }, env, defer);
   if (!delivery.sent && 'code' in delivery) return mailError(delivery.code);
   return { status: 200, body: { success: true, submissionId, scorecard, reportEmailSent: true } };
 }
 
-export async function handleAudit(input: unknown, ip: string, env: AuditEnv): Promise<AuditResult> {
+export async function handleAudit(input: unknown, ip: string, env: AuditEnv, defer?: Defer): Promise<AuditResult> {
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
     return { status: 400, body: { error: 'Please check your details and try again.' } };
   }
   if (rateLimited(ip)) return { status: 429, body: { error: 'Too many requests. Please try again shortly.' } };
   const raw = input as Record<string, unknown>;
-  if (raw.mode === 'cleaning_business_audit') return submitBusinessAudit(raw, env);
-  if (raw.mode === 'readiness_scorecard') return submitReadinessScorecard(raw, env);
-  if (raw.mode === 'quick_audit') return submitQuickAudit(raw, env);
-  if (raw.mode === 'case_study_unlock') return submitCaseStudyUnlock(raw, env);
+  if (raw.mode === 'cleaning_business_audit') return submitBusinessAudit(raw, env, defer);
+  if (raw.mode === 'readiness_scorecard') return submitReadinessScorecard(raw, env, defer);
+  if (raw.mode === 'quick_audit') return submitQuickAudit(raw, env, defer);
+  if (raw.mode === 'case_study_unlock') return submitCaseStudyUnlock(raw, env, defer);
   const limits = { name: 120, businessName: 160, email: 254, phone: 40, description: 1000 };
   const lead = { name: '', businessName: '', email: '', phone: '', description: '' };
   for (const key of Object.keys(limits) as (keyof typeof limits)[]) {
@@ -203,7 +217,7 @@ export async function handleAudit(input: unknown, ip: string, env: AuditEnv): Pr
   const submissionId = typeof raw.submissionId === 'string' && /^[a-zA-Z0-9-]{16,64}$/.test(raw.submissionId) ? raw.submissionId : randomUUID();
   const pagePath = typeof raw.pagePath === 'string' && ['/free-audit', '/free-audit-ads', '/contact'].includes(raw.pagePath) ? raw.pagePath : null;
   const delivery = await deliverForm({ subject: 'New audit request - Invent Tomorrow', submissionId, lead,
-    pagePath, details: appointment, tracking: raw.tracking }, env);
+    pagePath, details: appointment, tracking: raw.tracking }, env, defer);
   if (!delivery.sent && 'code' in delivery) return mailError(delivery.code);
   return { status: 200, body: { success: true, submissionId } };
 }

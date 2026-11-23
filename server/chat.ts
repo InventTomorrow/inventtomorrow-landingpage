@@ -9,9 +9,10 @@ import { randomUUID } from 'node:crypto';
 import { validSessionId } from '../src/utils/sessionId.ts';
 import { deliverForm } from './formDelivery.ts';
 import type { GmailEnv } from './gmail.ts';
+import type { Defer, LeadIntegrationEnv } from './leadIntegrations.ts';
 export { normalizeUsPhone } from './contact.ts';
 
-export interface ChatEnv extends GmailEnv {
+export interface ChatEnv extends GmailEnv, LeadIntegrationEnv {
   KOBOILLM_API_KEY?: string;
   KOBOILLM_BASE_URL?: string;
   KOBOILLM_MODEL?: string;
@@ -375,13 +376,13 @@ export function handleChat(
   env: ChatEnv,
   defer?: (task: Promise<void>) => void,
 ): Promise<ChatResult> {
-  const task = processChat(input, ip, env);
+  const task = processChat(input, ip, env, defer);
   // Retain any in-flight model request and completed form notification after disconnect.
   defer?.(task.then(() => {}, () => {}));
   return task;
 }
 
-async function processChat(input: unknown, ip: string, env: ChatEnv): Promise<ChatResult> {
+async function processChat(input: unknown, ip: string, env: ChatEnv, defer?: Defer): Promise<ChatResult> {
   // Old browser sessions can clear their retired delivery state without resending messages.
   if ((input as { mode?: unknown } | null)?.mode === 'log') return { status: 200, body: { loggingDisabled: true } };
   const messages = parseMessages(input);
@@ -404,7 +405,7 @@ async function processChat(input: unknown, ip: string, env: ChatEnv): Promise<Ch
       submissionId: validSessionId(body.sessionId) || randomUUID(), lead: { ...lead, phone: lead.phone || '', description: lead.description || '' },
       pagePath: body.pagePath === '/free-audit-ads' ? '/free-audit-ads' : '/free-audit',
       details: { conversation: messages.slice(-8).map(message => message.role + ': ' + message.content).join('\n').slice(-12_000) },
-    }, env);
+    }, env, defer);
     result.body.requestSent = delivery.sent;
     result.body.reply = delivery.sent ? 'Your audit request is received. Our team will contact you to arrange a time.'
       : "We couldn't send your audit request. Please try the form below.";
