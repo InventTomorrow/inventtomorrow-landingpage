@@ -4,6 +4,7 @@ import { FOUNDING_SPOTS_LEFT } from '../utils/freeAudit';
 import { CtaButton } from './CtaButton';
 import { FadeUp } from './FadeUp';
 import { FoundingCountdown } from './FoundingCountdown';
+import { HeadingText } from './HeadingText';
 
 const REMAINING_SPOTS = FOUNDING_SPOTS_LEFT;
 const TOTAL_SPOTS = 5;
@@ -35,7 +36,7 @@ export function FoundingOfferSection() {
           <div className="min-w-0">
             <p className="text-sm font-semibold uppercase text-accent">One package, fully managed for you</p>
             <h2 id="offer-title" className="mt-3 max-w-[22ch] font-display text-3xl font-semibold leading-[1.15] tracking-display text-primary sm:text-4xl xl:text-[2.75rem]">
-              The Spring Ready <span className="text-accent">Booked Calendar System</span>
+              <HeadingText accent="Booked Calendar System">The Spring Ready</HeadingText>
             </h2>
             <p className="mt-5 max-w-xl text-base text-ink sm:text-lg">
               All seven fixes, set up, written and run for you. Plus four bonuses:
@@ -107,7 +108,7 @@ export function GuaranteeSection() {
           <Award className="size-8 text-accent" aria-hidden="true" />
           <p className="mt-5 text-sm font-semibold uppercase text-white/70">Our promise</p>
           <h2 id="guarantee-title" className="mt-3 max-w-[22ch] font-display text-3xl font-semibold leading-[1.15] tracking-display sm:text-4xl xl:text-[2.75rem]">
-            The Pays For Itself Guarantee
+            <HeadingText accent="Itself Guarantee">The Pays For</HeadingText>
           </h2>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">
             If the jobs we book you in your first 90 days don't add up to more than everything you've paid us, you pay no monthly fee until they do.

@@ -3,6 +3,7 @@ import { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { setScrollLocked } from '../utils/smoothScroll';
 import { AuditForm, type AuditFormValues } from './AuditForm';
+import { HeadingText } from './HeadingText';
 import styles from './AuditForm.module.css';
 
 export function AuditModal({ isOpen, onClose, pagePath, initialValues, durationMinutes = 30 }: {
@@ -44,7 +45,7 @@ export function AuditModal({ isOpen, onClose, pagePath, initialValues, durationM
     >
       <div className={styles.modalHeader}>
         <div>
-          <h2 id={titleId}>Book your free <span className={styles.nowrap}>{durationMinutes}-minute</span> audit</h2>
+          <h2 id={titleId}><HeadingText accent={<>free <span className={styles.nowrap}>{durationMinutes}-minute</span> audit</>}>Book your</HeadingText></h2>
           <p>Tell us about your business and choose your preferred appointment time.</p>
         </div>
         <button type="button" onClick={onClose} className={styles.close} aria-label="Close audit form">

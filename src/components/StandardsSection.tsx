@@ -2,6 +2,7 @@ import { CheckCheck, Target, Users } from 'lucide-react';
 import { FadeUp } from './FadeUp';
 import { Stagger } from './Stagger';
 import { StaggerItem } from './StaggerItem';
+import { HeadingText } from './HeadingText';
 import styles from './StandardsSection.module.css';
 
 const STANDARDS = [
@@ -17,7 +18,7 @@ export function StandardsSection() {
         <FadeUp y={12} duration={0.4} className="text-center">
           <p className="font-display text-sm font-medium uppercase text-accent">What We Believe</p>
           <h2 id="standards-heading" className="mt-2 font-display text-3xl font-semibold leading-tight tracking-display text-primary sm:text-4xl">
-            Our Three Standards
+            <HeadingText accent="Standards">Our Three</HeadingText>
           </h2>
         </FadeUp>
 

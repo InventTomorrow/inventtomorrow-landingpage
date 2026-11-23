@@ -11,11 +11,14 @@ import chatHandler from '../api/chat.ts';
 import {
   AUDIT_INTRO, AUDIT_QUESTIONS, calculateAudit, CLEAN_PRICE_OPTIONS, COMPANY_SIZE_OPTIONS, MISSED_CALL_OPTIONS, OLD_QUOTE_OPTIONS,
 } from '../src/utils/freeAudit.ts';
+import { READINESS_STAGES, readinessQuestionId } from '../src/utils/readinessScorecard.ts';
+import { patchReadinessEmail } from './patch-readiness-email-workflow.mjs';
 
 const load = async (file) => JSON.parse(await readFile(new URL(`../docs/${file}`, import.meta.url), 'utf8'));
 const live = await load('n8n-live-workflow.json');
 const patched = await load('n8n-live-workflow.patched.json');
 const workflows = [['live', live], ['patched', patched]];
+const readinessWorkflow = patchReadinessEmail(patched);
 const EMAIL_NODES = ['Prepare Email Context1', 'Email Writer2', 'Structure Email2', 'Email HTML2', 'Send a message3', 'Form-Bookings-sheet5'];
 const SMS = 'SMS Payload (connect your provider)';
 
@@ -92,6 +95,32 @@ async function invoke(handler, body) {
 }
 
 for (const [label, workflow] of workflows) {
+  test(`${label}: the shortened six-question scorecard is captured without a phone or appointment`, async () => {
+    let normalized;
+    globalThis.fetch.mock.mockImplementation(async (_url, options) => {
+      const run = runFormBranch(workflow, JSON.parse(options.body));
+      normalized = run.normalized;
+      return Response.json(run.reply);
+    });
+    const response = await invoke(auditHandler, {
+      mode: 'readiness_scorecard',
+      answers: Object.fromEntries(READINESS_STAGES.flatMap((stage) => stage.questions.map((_, index) => [readinessQuestionId(stage.id, index), 'Usually']))),
+      name: 'Dana', businessName: 'Example Team', email: 'dana@example.com', role: 'Owner', companySize: '1 to 10',
+      pagePath: '/free-audit', submissionId: 'readiness-contract-123456', sessionId: 'readiness-session-123456', tracking,
+    });
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.body.scorecard.overall, 67);
+    assert.equal(response.body.scorecard.stages.length, 2);
+    assert.equal(normalized.Email, 'dana@example.com');
+    assert.equal(normalized.Name, 'Dana');
+    assert.equal(normalized.Phone_Number, '');
+    assert.equal(normalized.Appointment_dateTime, '');
+    assert.match(normalized.Appointment_message, /Overall score: 67\/100/);
+    assert.match(normalized.Appointment_message, /Role: Owner/);
+    for (const stage of READINESS_STAGES) for (const question of stage.questions) assert.ok(normalized.Appointment_message.includes(question));
+    assert.equal(normalized.utm_source, tracking.utm_source);
+  });
+
   test(`${label}: all 100 answer combinations unlock the results with the numbers n8n calculated`, async () => {
     const seen = [];
     globalThis.fetch.mock.mockImplementation(async (_url, options) => {
@@ -306,4 +335,55 @@ test('live: the short chat questions still let n8n read the answers back from th
   assert.equal(email.audit_payload.missed_calls_answer, answers.missedCalls);
   assert.equal(email.audit_payload.old_quotes_answer, answers.oldQuotes);
   assert.equal(email.audit_payload.typical_clean_answer, answers.typicalClean);
+});
+
+test('readiness report email: capture, full report, send, and persisted email status precede the sent acknowledgement', async () => {
+  let email;
+  globalThis.fetch.mock.mockImplementation(async (_url, options) => {
+    const payload = JSON.parse(options.body);
+    const normalized = executeCode(readinessWorkflow, 'Structure Fields2', { body: payload })[0].json;
+    const records = { 'Structure Fields2': normalized };
+    assert.deepEqual(outgoing(readinessWorkflow, 'Form-Bookings-sheet4'), ['Route Readiness Report']);
+    assert.deepEqual(outgoing(readinessWorkflow, 'Route Readiness Report', 1), ['Return Audit Result to Website2']);
+    assert.equal(expression(finder(readinessWorkflow)('Route Readiness Report').parameters.conditions.conditions[0].leftValue, {}, records), 'true');
+    email = executeCode(readinessWorkflow, 'Prepare Readiness Report Email', {}, records)[0].json;
+    const sender = finder(readinessWorkflow)('Send Full Readiness Report');
+    assert.equal(sender.parameters.emailType, 'text');
+    assert.equal(expression(sender.parameters.sendTo, email), payload.lead.email);
+    assert.equal(expression(sender.parameters.message, email), payload.scorecardEmail.text);
+    assert.deepEqual(outgoing(readinessWorkflow, 'Send Full Readiness Report'), ['Record Readiness Email Sent']);
+    assert.deepEqual(outgoing(readinessWorkflow, 'Record Readiness Email Sent'), ['Confirm Readiness Email Sent']);
+    assert.deepEqual(outgoing(readinessWorkflow, 'Send Full Readiness Report', 1), ['Confirm Readiness Email Pending']);
+    assert.equal(finder(readinessWorkflow)('Record Readiness Email Sent').parameters.columns.value['Email Status'], 'READINESS_SENT');
+    const alreadySent = finder(readinessWorkflow)('If Readiness Email Sent').parameters.conditions.conditions[0];
+    assert.equal(expression(alreadySent.leftValue, { 'Email Status': 'READINESS_SENT' }), alreadySent.rightValue);
+    assert.notEqual(expression(alreadySent.leftValue, { 'Email Status': 'SENT' }), alreadySent.rightValue);
+    const confirmation = JSON.parse(expression(finder(readinessWorkflow)('Confirm Readiness Email Sent').parameters.responseBody, {}, records));
+    return Response.json(confirmation);
+  });
+  const response = await invoke(auditHandler, {
+    mode: 'readiness_scorecard',
+    answers: Object.fromEntries(READINESS_STAGES.flatMap((stage) => stage.questions.map((_, index) => [readinessQuestionId(stage.id, index), 'Usually']))),
+    name: 'Dana', businessName: 'Example Team', email: 'dana@example.com', role: 'Owner', companySize: '1 to 10',
+    pagePath: '/free-audit', submissionId: 'readiness-email-123456', sessionId: 'readiness-session-123456',
+  });
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body.reportEmailSent, true);
+  assert.match(email.text, /Overall score: 67\/100/);
+  for (const stage of READINESS_STAGES) for (const question of stage.questions) assert.ok(email.text.includes(question));
+});
+
+test('readiness report email: provider failures confirm capture without claiming a report was sent', async () => {
+  globalThis.fetch.mock.mockImplementation(async (_url, options) => {
+    const normalized = executeCode(readinessWorkflow, 'Structure Fields2', { body: JSON.parse(options.body) })[0].json;
+    return Response.json(JSON.parse(expression(finder(readinessWorkflow)('Confirm Readiness Email Pending').parameters.responseBody, {}, { 'Structure Fields2': normalized })));
+  });
+  const response = await invoke(auditHandler, {
+    mode: 'readiness_scorecard',
+    answers: Object.fromEntries(READINESS_STAGES.flatMap((stage) => stage.questions.map((_, index) => [readinessQuestionId(stage.id, index), 'Sometimes']))),
+    name: 'Dana', businessName: 'Example Team', email: 'dana@example.com', role: 'Owner', companySize: '1 to 10',
+    pagePath: '/free-audit', submissionId: 'readiness-email-654321', sessionId: 'readiness-session-123456',
+  });
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body.reportEmailSent, false);
 });

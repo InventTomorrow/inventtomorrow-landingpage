@@ -28,10 +28,12 @@ function renderRoute(url: string, path: string, element: ReactElement) {
 
 // Server rendering is always the locked page. Content checks use the unlocked variant.
 function renderPage(url: string, path: string, Page: ComponentType) {
-  return renderRoute(url, path, Page === CaseStudyPage ? <CaseStudyPage forceUnlocked /> : createElement(Page));
+  return withoutEmphasis(renderRoute(url, path, Page === CaseStudyPage ? <CaseStudyPage forceUnlocked /> : createElement(Page)));
 }
 
 const escapeHtml = (text: string) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+// Copy and access checks remain independent of inline heading emphasis.
+const withoutEmphasis = (html: string) => html.replace(/<\/?em\b[^>]*>/g, '');
 const renderLockedPage =(url: string) => renderRoute(url, '/our-work/:slug', <CaseStudyPage />);
 
 function withStudies(extra: CaseStudy[], check: () => void) {
@@ -77,10 +79,11 @@ test('the approved preview uses scope labels, a 16:9 image and one real detail l
 test('the live case study route is locked: the second half is not in the HTML and the unlock form is', () => {
   for (const item of [study, recoveryStudy]) {
     const html = renderLockedPage(`/our-work/${item.slug}`);
+    const content = withoutEmphasis(html);
     const details = item.details!;
     // The first half stays readable.
     assert.match(html, /id="the-challenge"/);
-    assert.ok(html.includes(escapeHtml(details.challenge.title)));
+    assert.ok(content.includes(escapeHtml(details.challenge.title)));
     assert.ok(details.facts.every((fact) => html.includes(escapeHtml(fact.value))));
     // The gate and its form are present.
     assert.match(html, /Unlock the full case study/);
@@ -102,7 +105,7 @@ test('the live case study route is locked: the second half is not in the HTML an
       // A tool name can also be mentioned in the open half, which is fine.
       .filter((text) => !JSON.stringify([details.intro, details.facts, details.comparisons, details.challenge, details.diagnosis]).includes(text));
     assert.ok(gated.length > 3);
-    for (const text of gated) assert.ok(!html.includes(escapeHtml(text)) && !html.includes(text), `locked page leaks: ${text}`);
+    for (const text of gated) assert.ok(!content.includes(escapeHtml(text)) && !content.includes(text), `locked page leaks: ${text}`);
     assert.doesNotMatch(html, /id="the-rebuild"|id="follow-up-process"|id="operational-changes"|id="tools-and-scope"/);
   }
 });

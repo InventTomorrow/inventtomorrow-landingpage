@@ -1,45 +1,81 @@
-.pinned {
-  position: fixed;
-  inset: 0;
+.auditLayout {
   display: flex;
-  height: 100vh;
-  height: var(--audit-height, 100dvh);
+  min-height: 100svh;
   flex-direction: column;
-  overflow: hidden;
+  background-color: var(--color-paper);
+  background-image:
+    radial-gradient(30rem 28rem at 4% 14%, color-mix(in srgb, var(--color-accent) 13%, transparent), transparent 72%),
+    radial-gradient(32rem 28rem at 98% 52%, color-mix(in srgb, var(--color-accent) 10%, transparent), transparent 72%);
 }
 
-.pinned > :not(main) {
+.auditHeader {
+  width: calc(100% - 3rem);
+  max-width: 61rem;
   flex-shrink: 0;
+  margin-inline: auto;
+  padding-block: 1.5rem;
+}
+
+.brandLink {
+  display: block;
+  width: fit-content;
+  border-radius: var(--radius-xs);
+}
+
+.brandLink:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 4px;
 }
 
 .main,
 .page {
   display: flex;
-  min-height: 0;
+  min-width: 0;
   flex: 1;
   flex-direction: column;
 }
 
-.main {
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
-}
-
-.page {
-  flex: 1 0 auto;
-}
-
 .footer {
+  width: calc(100% - 3rem);
+  max-width: 61rem;
   flex-shrink: 0;
+  margin-inline: auto;
+  border-top: 1px solid var(--color-border);
+  padding: 1.125rem 0 1.5rem;
+  background: transparent;
+  color: color-mix(in srgb, var(--color-primary) 25%, var(--color-body));
 }
 
-/* Phones: the audit page fits the screen exactly (the chat flexes to fill it) instead of growing
-   taller and scrolling. It only grows past the screen when there is genuinely no room, such as
-   with the keyboard open. */
+.footer > div {
+  gap: 0.5rem;
+  padding-right: 0;
+  font-size: 0.8125rem;
+}
+
 @media (max-width: 39.999rem) {
-  .page {
-    flex: 1 1 0;
-    min-height: min-content;
+  .auditLayout {
+    --audit-content-gutter: 1.25rem;
+  }
+
+  .auditLayout:has([data-audit-results]) > .footer {
+    width: calc(100% - 2 * var(--audit-content-gutter));
+    max-width: 32rem;
+    padding-block: 0.75rem max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .auditLayout:has([data-audit-results]) > .footer > div {
+    gap: 0.25rem;
+  }
+
+  .auditLayout:has([data-audit-results]) > .footer a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+  }
+}
+
+@media (max-width: 22rem) {
+  .auditLayout {
+    --audit-content-gutter: 1rem;
   }
 }

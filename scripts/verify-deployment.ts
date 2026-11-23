@@ -42,19 +42,21 @@ const audit = await readFile(path.join(output, getOutputFile(AUDIT_PATH)), 'utf8
 const adsHeader = ads.match(/<header\b[^>]*>([\s\S]*?)<\/header>/)?.[1];
 assert.ok(adsHeader, 'Ads page must have a header');
 assert.ok(adsHeader.includes('alt="Invent Tomorrow"'), 'Ads header must display the logo');
-assert.ok(!/<a\b|<button\b|<nav\b/.test(adsHeader), 'Ads header must contain only the logo');
+assert.ok(!/<button\b|<nav\b/.test(adsHeader), 'Ads header must contain only the linked logo');
+assert.equal((adsHeader.match(/<a\b/g) ?? []).length, 1, 'Ads header must contain only one brand link');
 assert.ok(!/<nav\b|<footer\b|Run My Audit|Open menu/i.test(ads), 'Ads page must omit navigation, audit CTA and footer');
 // The legal strip (privacy, terms, SMS consent) is required next to SMS consent; nothing else may lead away.
 const legalPaths = new Set(LEGAL_DOCS.map((doc) => doc.path));
 const adsLinks = [...ads.matchAll(/<a\b[^>]*href="(\/(?!\/)[^"#?]*)/g)].map(([, href]) => href);
-assert.ok(adsLinks.every((href) => legalPaths.has(href)), `Ads page must link only to legal pages, found: ${adsLinks.join(', ')}`);
+assert.ok(adsLinks.every((href) => href === '/' || legalPaths.has(href)), `Ads page must link only to its brand home and legal pages, found: ${adsLinks.join(', ')}`);
 assert.ok(ads.includes('content="noindex"'), 'Ads page must not be indexed');
 for (const html of [ads, audit]) {
-  assert.ok(html.includes('Invent Tomorrow&#x27;s AI assistant'), 'Both audit pages must identify Invo as AI');
-  assert.ok(/<button[^>]*aria-haspopup="dialog"[^>]*>[\s\S]*?Book a 15[- ]minute call/.test(html), 'Both audit pages must open the 15-minute booking form');
-  assert.ok(html.includes('id="audit-chat-input"'), 'Both audit pages must include the chat composer');
-  for (const suggestion of ['missing calls', 'My quotes go quiet', 'I want more repeat clients', 'What does it cost?']) {
-    assert.ok(html.includes(suggestion), `Missing chat suggestion: ${suggestion}`);
+  assert.ok(html.includes('Cleaning Business Audit'), 'Both audit pages must describe the cleaning-business audit');
+  assert.ok(html.includes('Answer 16 quick questions'), 'Both audit pages must introduce the complete questionnaire');
+  assert.ok(/<button[^>]*>Start my free audit<\/button>/.test(html), 'Both audit pages must start the questionnaire');
+  assert.ok(!html.includes('id="audit-chat-input"'), 'The old chat composer must not replace the questionnaire');
+  for (const stage of ['Your Business', 'Missed Calls &amp; Response Time', 'Follow-Ups &amp; Unused Leads', 'Business Value &amp; Readiness']) {
+    assert.ok(html.includes(stage), `Missing audit topic: ${stage}`);
   }
 }
 assert.ok(/<nav\b/.test(audit), 'Regular audit page must retain its navigation');

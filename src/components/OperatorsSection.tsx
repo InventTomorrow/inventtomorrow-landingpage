@@ -1,4 +1,5 @@
 import { FadeUp } from './FadeUp';
+import { HeadingText } from './HeadingText';
 
 const OPERATOR_VERTICALS = [
   {
@@ -41,7 +42,7 @@ export function OperatorsSection() {
 
       <FadeUp delay={0.2} y={24}>
         <h2 className="mt-4 text-3xl sm:text-5xl font-bold text-white max-w-3xl leading-tight">
-          Never Drop A High Value Job While You’re In The Flow.
+          <HeadingText accent="While You’re In The Flow.">Never Drop A High Value Job</HeadingText>
         </h2>
       </FadeUp>
 

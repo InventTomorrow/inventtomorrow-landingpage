@@ -1,11 +1,12 @@
 import { ComponentType, ReactNode } from 'react';
 import { Stagger } from './Stagger';
 import { StaggerItem } from './StaggerItem';
+import { HeadingText } from './HeadingText';
 
 interface SectionHeadingProps {
   eyebrow?: string;
   title: ReactNode;
-  // Second part of the heading, shown faded on its own line
+  // Second part of the heading, emphasized on its own line
   titleMuted?: ReactNode;
   subtitle?: ReactNode;
   // Optional illustration shown above the heading
@@ -39,13 +40,7 @@ export function SectionHeading({ eyebrow, title, titleMuted, subtitle, scene: Sc
       )}
       <StaggerItem distance={18}>
         <h2 className={`max-w-3xl font-semibold leading-[1.2] tracking-display text-primary text-balance ${size === 'compact' ? 'text-3xl sm:text-4xl xl:text-[2.75rem]' : 'text-3xl sm:text-4xl xl:text-5xl'}`}>
-          {title}
-          {titleMuted && (
-            <>
-              {' '}
-              <span className="block text-accent">{titleMuted}</span>
-            </>
-          )}
+          <HeadingText accent={titleMuted} accentClassName={titleMuted ? 'block text-accent' : 'text-accent'}>{title}</HeadingText>
         </h2>
       </StaggerItem>
       {subtitle && (

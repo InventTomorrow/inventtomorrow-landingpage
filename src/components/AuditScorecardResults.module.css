@@ -1,0 +1,120 @@
+.results {
+  width: 100%;
+  min-width: 0;
+  max-width: 57rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 12%, var(--color-paper));
+  border-radius: 1.5rem;
+  background: var(--color-paper);
+  box-shadow: 0 12px 36px color-mix(in srgb, var(--color-primary) 6%, transparent);
+  color: var(--color-primary);
+  user-select: text;
+  scroll-margin-top: 6.625rem;
+}
+
+.intro { padding: 1.5rem 1.75rem 1.125rem; text-align: center; }
+.eyebrow { display: inline-block; border-radius: 999px; padding: 0.25rem 0.75rem; background: var(--color-accent-soft); color: var(--color-accent-hover); font-size: 0.75rem; font-weight: 700; line-height: 1.5; }
+.headline { margin-top: 0.625rem; font-family: var(--font-sans); font-size: clamp(1.75rem, 2.8vw, 2.25rem); font-weight: 800; letter-spacing: -0.045em; line-height: 1.15; text-wrap: balance; }
+.headline:focus { outline: none; }
+.headline em { color: var(--color-accent); }
+.preview { padding: 0 1.75rem; }
+.previewHeading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.375rem 1rem; padding-block: 0.25rem 0.375rem; }
+.previewHeading h2 { font-family: var(--font-sans); font-size: 1rem; font-weight: 800; line-height: 1.5; }
+.previewHeading > span { display: inline-flex; align-items: center; gap: 0.375rem; color: var(--color-body); font-size: 0.75rem; line-height: 1.5; }
+.previewHeading svg { width: 0.875rem; height: 0.875rem; }
+.problems { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; list-style: none; }
+.problem { display: grid; grid-template-columns: 1.75rem minmax(0, 1fr); gap: 0.75rem; padding-block: 0.75rem; }
+.problem + .problem { border-left: 1px solid var(--color-border); padding-left: 1.25rem; }
+.rank { display: flex; width: 1.75rem; height: 1.75rem; align-items: center; justify-content: center; border-radius: 999px; background: var(--color-accent-soft); color: var(--color-accent-hover); font-size: 0.8125rem; font-weight: 800; line-height: 1; }
+.problemContent { min-width: 0; }
+.problem h3 { color: var(--color-accent-hover); font-family: var(--font-sans); font-size: 0.75rem; font-weight: 800; line-height: 1.5; letter-spacing: 0.035em; text-transform: uppercase; }
+.findings { display: grid; gap: 0.375rem; margin-top: 0.375rem; padding-left: 1rem; list-style: disc; }
+.findings li { font-size: 0.875rem; line-height: 1.5; overflow-wrap: break-word; }
+.reportAccess { display: contents; }
+.reportTeaser { position: relative; isolation: isolate; height: 11.5rem; overflow: hidden; margin: 0.5rem 1.75rem 1.125rem; border: 1px solid var(--color-border); border-radius: 0.875rem; background: var(--color-stone); }
+.reportTeaser::after { position: absolute; z-index: 1; inset: 0; background: linear-gradient(180deg, transparent 20%, color-mix(in srgb, var(--color-paper) 35%, transparent) 60%, var(--color-paper)); content: ''; pointer-events: none; }
+.reportPages { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: 1.5rem; padding: 1rem 1.25rem; filter: blur(4px); opacity: 0.7; pointer-events: none; user-select: none; }
+.reportPages > div { min-width: 0; }
+.reportPages h3 { font-family: var(--font-sans); font-size: 0.875rem; font-weight: 800; line-height: 1.4; }
+.reportPages h4 { font-family: var(--font-sans); font-size: 0.75rem; font-weight: 700; line-height: 1.4; }
+.reportSummary { margin-top: 0.25rem; color: var(--color-ink); font-size: 0.75rem; line-height: 1.4; }
+.reportScore { margin-top: 0.5rem; }
+.reportScore > div { display: flex; justify-content: space-between; gap: 0.5rem; }
+.reportScore span { font-size: 0.75rem; line-height: 1.4; }
+.reportScore progress { display: block; width: 100%; height: 0.3125rem; appearance: none; overflow: hidden; margin-top: 0.25rem; border: 0; border-radius: 999px; background: var(--color-border); color: var(--color-accent); }
+.reportScore progress::-webkit-progress-bar { border-radius: 999px; background: var(--color-border); }
+.reportScore progress::-webkit-progress-value { border-radius: 999px; background: var(--color-accent); }
+.reportScore progress::-moz-progress-bar { border-radius: 999px; background: var(--color-accent); }
+.reportFinding { margin-bottom: 0.75rem; }
+.reportFinding ul { margin-top: 0.375rem; padding-left: 1rem; list-style: disc; }
+.reportFinding li, .reportRecommendations p { color: var(--color-ink); font-size: 0.75rem; line-height: 1.5; }
+.reportRecommendations { display: grid; gap: 0.75rem; margin-top: 0.5rem; padding-left: 1rem; list-style: decimal; }
+.reportRecommendations p { margin-top: 0.25rem; }
+.reportCaption { position: absolute; z-index: 2; bottom: 0.75rem; left: 50%; display: flex; width: max-content; max-width: calc(100% - 1.5rem); align-items: center; justify-content: center; gap: 0.5rem; transform: translateX(-50%); border: 1px solid var(--color-border); border-radius: 999px; padding: 0.5rem 0.875rem; background: color-mix(in srgb, var(--color-paper) 95%, transparent); color: var(--color-accent-hover); font-family: var(--font-sans); font-size: 0.75rem; font-weight: 700; line-height: 1.5; text-align: center; box-shadow: 0 4px 12px color-mix(in srgb, var(--color-primary) 5%, transparent); }
+.reportCaption svg { width: 1rem; height: 1rem; flex-shrink: 0; }
+.noProblems { padding: 1rem 0; color: var(--color-ink); font-size: 0.9375rem; line-height: 1.6; }
+.emailNotice { display: flex; align-items: flex-start; gap: 0.75rem; border-top: 1px solid color-mix(in srgb, var(--color-accent) 15%, var(--color-paper)); padding: 1rem 1.75rem; background: var(--color-accent-soft); }
+.emailNotice > svg { width: 1.25rem; height: 1.25rem; flex-shrink: 0; margin-top: 0.125rem; color: var(--color-accent); }
+.emailNotice > div { min-width: 0; }
+.emailNotice h2 { font-family: var(--font-sans); font-size: 0.875rem; font-weight: 700; line-height: 1.5; }
+.emailNotice p { display: flex; flex-wrap: wrap; gap: 0.125rem 0.5rem; margin-top: 0.25rem; color: var(--color-ink); font-size: 0.8125rem; line-height: 1.5; }
+.emailNotice strong { max-width: 100%; color: var(--color-accent-hover); overflow-wrap: anywhere; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1rem; padding: 0.875rem 1.75rem; }
+.actions > p { font-size: 0.875rem; line-height: 1.5; }
+.actions > div { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+.bookButton { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; border-radius: 999px; padding: 0.625rem 1.125rem; background: var(--color-accent); color: var(--color-on-primary); font-size: 0.8125rem; font-weight: 700; line-height: 1.5; text-align: center; }
+.bookButton:hover { background: var(--color-accent-hover); }
+.reviewButton { min-height: 2.75rem; color: var(--color-accent-hover); font-size: 0.8125rem; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+.bookButton:focus-visible, .reviewButton:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 3px; }
+
+@media (max-width: 39.999rem) {
+  /* Keep the report on the page grid instead of nesting every section in a card. */
+  .results { display: grid; gap: 1.25rem; max-width: 32rem; overflow: visible; border: 0; border-radius: 0; background: transparent; box-shadow: none; scroll-margin-top: 5.5rem; }
+  .intro { min-width: 0; padding: 0; text-align: left; }
+  .eyebrow { padding: 0.1875rem 0.625rem; font-size: 0.6875rem; }
+  .headline { margin-top: 0.5rem; font-size: clamp(1.5rem, 5.8vw, 1.75rem); line-height: 1.16; text-wrap: pretty; }
+  .preview { display: grid; min-width: 0; gap: 1rem; padding: 0; }
+  .previewHeading { flex-direction: column; align-items: flex-start; gap: 0.25rem; padding: 0; }
+  .previewHeading h2 { font-size: 0.9375rem; }
+  .previewHeading > span { font-size: 0.6875rem; }
+  .problems { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+  .problems:empty { display: none; }
+  .noProblems { padding: 0; }
+  .problem { grid-template-columns: 1.25rem minmax(0, 1fr); align-items: start; gap: 0.5rem; padding: 0; }
+  .rank { width: 1.25rem; height: 1.25rem; font-size: 0.75rem; }
+  .problemContent { display: contents; }
+  .problem h3 { grid-column: 2; min-width: 0; padding-block: 0.0625rem; font-size: 0.75rem; overflow-wrap: anywhere; }
+  .problem + .problem { border: 0; padding: 0; }
+  .findings { grid-column: 2; min-width: 0; gap: 0; margin: 0; padding: 0; list-style: none; }
+  .findings li { min-width: 0; padding: 0.625rem 0; font-size: 0.875rem; line-height: 1.5; overflow-wrap: anywhere; }
+  .findings li:first-child { padding-top: 0; }
+  .findings li:last-child { padding-bottom: 0; }
+  .findings li + li { border-top: 1px solid var(--color-border); }
+  .reportAccess { display: grid; min-width: 0; gap: 0.5rem; }
+  .reportTeaser { height: 9rem; margin: 0; border-radius: 0.75rem; }
+  .reportPages { grid-template-columns: minmax(0, 1fr); gap: 1rem; padding: 1rem; filter: blur(3.5px); overflow-wrap: anywhere; }
+  .reportPages h3 { font-size: 0.75rem; }
+  .reportSummary, .reportScore h4, .reportScore span { font-size: 0.6875rem; }
+  .reportCaption { bottom: 0.75rem; padding: 0.375rem 0.75rem; font-size: 0.6875rem; }
+  .reportCaption svg { width: 0.875rem; height: 0.875rem; }
+  .emailNotice { min-width: 0; gap: 0.625rem; border-top: 0; padding: 0.75rem; }
+  .emailNotice > svg { width: 1.125rem; height: 1.125rem; }
+  .emailNotice h2 { font-size: 0.8125rem; line-height: 1.4; }
+  .emailNotice p { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.25rem; margin-top: 0.25rem; font-size: 0.75rem; line-height: 1.4; }
+  .emailNotice strong { font-weight: 600; }
+  .actions { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.25rem; padding: 0; }
+  .actions > p { grid-column: 1; grid-row: 2; font-size: 0.75rem; text-align: center; }
+  .actions > div { display: contents; }
+  .bookButton { grid-column: 1; grid-row: 1; min-width: 0; min-height: 3rem; font-size: 0.875rem; }
+  .reviewButton { grid-column: 1; grid-row: 3; min-height: 2.75rem; margin-top: 0.25rem; font-size: 0.75rem; text-align: center; }
+}
+
+@media (min-width: 40rem) and (max-height: 50rem) {
+  .intro { padding-top: 0.875rem; padding-bottom: 0.5rem; }
+  .headline { margin-top: 0.375rem; font-size: 1.75rem; }
+  .problem { padding-block: 0.375rem; }
+  .reportTeaser { height: 7rem; margin-top: 0.375rem; }
+  .findings { gap: 0.25rem; }
+  .emailNotice { padding-block: 0.625rem; }
+  .actions { padding-block: 0.5rem; }
+}

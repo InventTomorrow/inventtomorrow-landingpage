@@ -10,7 +10,8 @@
       "maxDuration": 60
     },
     "api/audit.ts": {
-      "maxDuration": 15
+      "maxDuration": 120,
+      "includeFiles": "public/images/hero-cleaning-automation.jpg"
     }
   },
   "redirects": [
@@ -20,7 +21,10 @@
   "headers": [
     {
       "source": "/fonts/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
     },
     {
       "source": "/images/optimized/(.*)",

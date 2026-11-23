@@ -3,6 +3,7 @@ import { AUDIT_PATH } from '../utils/navigation';
 import { FadeUp } from './FadeUp';
 import { TextLink } from './TextLink';
 import { ToolMarquee } from './ToolMarquee';
+import { HeadingText } from './HeadingText';
 
 // Compatibility follows the hero without overlapping its longer copy.
 export function ToolsSection() {
@@ -11,7 +12,7 @@ export function ToolsSection() {
       <div className="mx-auto max-w-7xl">
         <FadeUp y={12} className="flex items-center justify-center gap-6">
           <span className="hidden h-px flex-1 bg-border sm:block" aria-hidden="true" />
-          <h2 className="text-balance text-center text-sm font-semibold text-primary sm:text-2xl">Works inside the tools you already use</h2>
+          <h2 className="text-balance text-center text-sm font-semibold text-primary sm:text-2xl"><HeadingText accent="you already use">Works inside the tools</HeadingText></h2>
           <span className="hidden h-px flex-1 bg-border sm:block" aria-hidden="true" />
         </FadeUp>
         <FadeUp delay={0.05} y={12}>

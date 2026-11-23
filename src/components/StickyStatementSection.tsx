@@ -2,6 +2,7 @@ import { AUDIT_PATH, BOOKING_PATH } from '../utils/navigation';
 import { CtaButton } from './CtaButton';
 import { ParallaxBand } from './ParallaxBand';
 import { Reveal } from './Reveal';
+import { HeadingText } from './HeadingText';
 
 const STATEMENTS = [
   { eyebrow: 'The problem', text: 'Calls, quotes and follow ups keep pulling you away from the work.' },
@@ -21,7 +22,7 @@ export function StickyStatementSection() {
           <div key={eyebrow} className="flex min-h-[80svh] flex-col items-center justify-center">
             <Reveal>
               <p className="text-sm font-semibold uppercase text-white/70">{eyebrow}</p>
-              <p className="mt-4 font-display text-3xl font-semibold leading-tight tracking-display text-balance sm:text-5xl lg:text-6xl">{text}</p>
+              <p className="mt-4 font-display text-3xl font-semibold leading-tight tracking-display text-balance sm:text-5xl lg:text-6xl"><HeadingText>{text}</HeadingText></p>
             </Reveal>
           </div>
         ))}
@@ -29,7 +30,7 @@ export function StickyStatementSection() {
         <div className="flex min-h-[80svh] flex-col items-center justify-center">
           <Reveal>
             <p className="font-display text-3xl font-semibold leading-tight tracking-display text-balance sm:text-5xl lg:text-6xl">
-              Win back the jobs <span className="text-accent">you already earned.</span>
+              Win back the jobs <em className="text-accent">you already earned.</em>
             </p>
             <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
               <CtaButton size="lg" variant="accent" to={AUDIT_PATH}>

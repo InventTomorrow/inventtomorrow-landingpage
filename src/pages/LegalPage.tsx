@@ -1,4 +1,5 @@
 import { PageHero } from '../components/PageHero';
+import { HeadingText } from '../components/HeadingText';
 import { TextLink } from '../components/TextLink';
 import { DefaultClosingCta } from '../components/FinalCtaSection';
 import { usePageMeta } from '../hooks/usePageMeta';
@@ -17,7 +18,7 @@ export function LegalPage({ doc }: { doc: LegalDoc }) {
         <article className="mx-auto max-w-[51.25rem] select-text">
           {doc.sections.map((section) => (
             <div key={section.heading} className="border-b border-border py-8 first:pt-0">
-              <h2 className="text-xl font-semibold text-primary">{section.heading}</h2>
+              <h2 className="text-xl font-semibold text-primary"><HeadingText>{section.heading}</HeadingText></h2>
               <p className="mt-3 text-base text-body">{section.text}</p>
             </div>
           ))}

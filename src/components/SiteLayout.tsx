@@ -1,6 +1,5 @@
 import { LazyMotion, MotionConfig } from 'motion/react';
-import { useEffect, useRef } from 'react';
-import { Navigate, Route, Routes, useMatch } from 'react-router';
+import { Link, Navigate, Route, Routes, useMatch } from 'react-router';
 import { LEGAL_DOCS } from '../content/legal';
 import { AUDIT_ADS_PATH, AUDIT_PATH } from '../utils/navigation';
 import {
@@ -38,35 +37,16 @@ export function SiteLayout() {
   const auditMatch = useMatch({ path: AUDIT_PATH, end: true });
   const isAdsPage = Boolean(useMatch({ path: AUDIT_ADS_PATH, end: true }));
   const isAuditPage = Boolean(auditMatch) || isAdsPage;
-  const layoutRef = useRef<HTMLDivElement>(null);
-
-  // Keep the composer within the visible screen when a phone's keyboard opens.
-  useEffect(() => {
-    if (!isAuditPage) return;
-    const layout = layoutRef.current;
-    const viewport = window.visualViewport;
-    const resize = () => layout?.style.setProperty('--audit-height', `${viewport?.height ?? window.innerHeight}px`);
-    resize();
-    viewport?.addEventListener('resize', resize);
-    window.addEventListener('resize', resize);
-    return () => {
-      viewport?.removeEventListener('resize', resize);
-      window.removeEventListener('resize', resize);
-      layout?.style.removeProperty('--audit-height');
-    };
-  }, [isAuditPage]);
 
   return (
     <LazyMotion features={loadMotionFeatures} strict>
       <MotionConfig reducedMotion="user">
-        <div ref={layoutRef} className={`w-full bg-paper text-body select-none ${isAuditPage ? styles.pinned : 'relative min-h-screen overflow-x-clip'}`}>
+        <div className={`w-full bg-paper text-body select-none ${isAuditPage ? styles.auditLayout : 'relative min-h-screen overflow-x-clip'}`}>
           {isAdsPage ? (
-            <header className="relative z-50 h-16 border-b border-[var(--color-border)] bg-paper sm:h-[5.625rem] sm:border-b-0 sm:bg-header sm:shadow-header" aria-label="Invent Tomorrow">
-              <div className="flex h-full w-full items-center justify-center px-4 sm:justify-start sm:px-8 lg:px-12 xl:px-16">
-                <div className="relative flex h-full shrink-0 items-center bg-paper sm:rounded-br-[2.25rem] sm:pr-8 sm:before:absolute sm:before:right-[calc(100%-2px)] sm:before:top-0 sm:before:h-full sm:before:w-screen sm:before:bg-paper">
-                  <BrandLogoImage className="h-10 sm:h-14" />
-                </div>
-              </div>
+            <header className={styles.auditHeader} aria-label="Invent Tomorrow">
+              <Link to="/" aria-label="Invent Tomorrow home" className={styles.brandLink}>
+                <BrandLogoImage className="h-9 sm:h-10" />
+              </Link>
             </header>
           ) : (
             <>
@@ -102,8 +82,8 @@ export function SiteLayout() {
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </PageTransition>
-            {isAuditPage && <FooterBar className={`relative z-10 py-4 max-sm:hidden ${styles.footer}`} />}
           </main>
+          {isAuditPage && <FooterBar className={styles.footer} />}
           {!isAuditPage && <Footer />}
           {!isAuditPage && <ScrollToTop />}
         </div>
