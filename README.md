@@ -9,7 +9,8 @@ the complete report is emailed to the submitted lead. The ads page has a logo-on
 header, no navigation/footer, and `noindex`; it is excluded from site discovery.
 
 See the [report-agent guide](docs/cleaning-business-audit-agent.md) and
-[Gmail setup](docs/gmail-setup.md).
+[Gmail setup](docs/gmail-setup.md). Direct Google Sheets logging and Slack lead
+alerts are covered in [lead integrations setup](docs/lead-integrations-setup.md).
 
 ## Run locally
 
@@ -34,9 +35,15 @@ Reply-To address and cannot override the notification recipient. Forms report
 success only after Gmail accepts the message. Appointment times remain requests
 for the team to confirm.
 
-Chat history stays in the visitor's browser. Only a completed booking handoff
-emails the relevant details and recent context to the team. Invalid details and
-failed delivery retain retry.
+Chat conversations are not logged to Google Sheets. Only a completed booking
+handoff sends relevant details and recent context to the team. Invalid details
+and failed email delivery retain retry.
+
+Optional Sheets logging saves leads, complete audit answers/reports and email
+status. Slack alerts follow successful sheet writes. Authorize Sheets with
+`npm run connect:sheets`, prepare the workbook with `npm run setup:sheets`, then
+configure the flags and private Slack bot settings. These integrations run in
+the background on Vercel; see the setup guide for failure and retry limits.
 
 The business report preview remains available if email is disabled or delivery
 cannot be confirmed. Its email notice says sent only after Gmail accepts the
