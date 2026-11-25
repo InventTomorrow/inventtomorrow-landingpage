@@ -26,7 +26,7 @@ function chatApi(env: Record<string, string>): Plugin {
       // Mirror the serverless request handler while Vite stays running.
       const ip = req.socket?.remoteAddress ?? 'local';
       const result = pathname === '/api/audit'
-        ? await handleAudit(body, ip, env, (task) => { void task; })
+        ? await handleAudit(body, ip, env)
         : await handleChat(body, ip, env, (task) => { void task; });
       res.statusCode = result.status;
       res.setHeader('Content-Type', 'application/json');

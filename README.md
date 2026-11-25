@@ -42,8 +42,9 @@ and failed email delivery retain retry.
 Optional Sheets logging saves leads, complete audit answers/reports and email
 status. Slack alerts follow successful sheet writes. Authorize Sheets with
 `npm run connect:sheets`, prepare the workbook with `npm run setup:sheets`, then
-configure the flags and private Slack bot settings. These integrations run in
-the background on Vercel; see the setup guide for failure and retry limits.
+configure the flags and private Slack bot settings. Audit requests wait for
+Sheets delivery; chat handoffs may finish their integrations in the background.
+See the setup guide for failure and retry limits.
 
 The business report preview remains available if email is disabled or delivery
 cannot be confirmed. Its email notice says sent only after Gmail accepts the
@@ -88,7 +89,7 @@ the build; do not use `npm ci --omit=dev` for the deployment build.
 
 ## Verification and assets
 
-Release with `bash release-safe.sh` from Git Bash. The script safely commits,
+Release with `bash release.sh` from Git Bash. This runs `release-safe.sh`, which safely commits,
 tests, pushes and merges the release, waits for the intended Vercel project, then
 checks the exact commit on `https://www.inventtomorrow.pro`. A green GitHub status
 alone is insufficient: both live audit routes must show the 16-question
@@ -100,7 +101,7 @@ The home page, audit pages and release manifest use `no-store` so a new page loa
 does not reuse an old document. Versioned assets keep their immutable caching.
 A tab already open before deployment can retain its loaded app until refreshed.
 To recheck a previously pushed release without creating a new commit, run
-`bash release-safe.sh --verify-production`.
+`bash release.sh --verify-production`.
 
 Run `npm run build:vercel` for TypeScript checks, tests, the Vite build,
 prerendering and deployment-artifact verification. Tests mock Google and the AI

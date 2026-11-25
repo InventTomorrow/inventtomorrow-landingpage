@@ -35,7 +35,7 @@ export function sheetsConfigurationStatus(env: LeadIntegrationEnv): 'disabled' |
   return 'configured';
 }
 type Cells = Record<string, string>;
-type IntegrationResult = { saved: boolean; alerted: boolean; code?: string };
+export type IntegrationResult = { saved: boolean; alerted: boolean; code?: string };
 const statusHeaders = ['Email Status', 'Email Content', 'Slack Status', 'Slack Message ID'];
 
 // Retain the original workbook's column names, including its historical spelling.
@@ -156,8 +156,10 @@ async function saveAndAlert(input: LeadRecord, env: LeadIntegrationEnv): Promise
     }
     const keyHeader = input.kind === 'booking' ? 'Session ID' : 'Submission ID';
     const keyColumn = columnName(headers.indexOf(keyHeader));
-    const keys = await request(valuePath(`${keyColumn}2:${keyColumn}`));
-    const match = (keys.values || []).findIndex((row: unknown[]) => row[0] === input.submissionId);
+    // A new or cleared tab can contain only row 1. Starting at row 2 then
+    // exceeds Google's grid limits; read the column and skip its header instead.
+    const keys = await request(valuePath(`${keyColumn}:${keyColumn}`));
+    const match = (keys.values || []).slice(1).findIndex((row: unknown[]) => row[0] === input.submissionId);
     let rowNumber = match < 0 ? 0 : match + 2;
     let existing: string[] = [];
     if (rowNumber) existing = (await request(valuePath(`${rowNumber}:${rowNumber}`))).values?.[0] || [];
@@ -222,11 +224,19 @@ export async function syncLead(input: LeadRecord, env: LeadIntegrationEnv): Prom
 }
 
 // Optional integrations never turn an accepted email/report into a failed form submission.
-// Vercel retains this task with waitUntil; tests/dev may await it directly.
-export async function recordLead(input: LeadRecord, env: LeadIntegrationEnv, defer?: Defer): Promise<void> {
-  if (env.GOOGLE_SHEETS_ENABLED !== 'true') return;
+// Audit requests await delivery; callers may explicitly retain background work.
+export async function recordLead(input: LeadRecord, env: LeadIntegrationEnv, defer?: Defer): Promise<IntegrationResult> {
+  if (env.GOOGLE_SHEETS_ENABLED !== 'true') return { saved: false, alerted: false, code: 'SHEETS_DISABLED' };
   const task = syncLead(input, env).then(result => {
     if (result.code) console.warn('[lead-integrations] Delivery unconfirmed', { code: result.code, kind: input.kind });
-  }).catch(() => { console.warn('[lead-integrations] Delivery unconfirmed', { code: 'LEAD_INTEGRATION_UNAVAILABLE' }); });
-  if (defer) defer(task); else await task;
+    return result;
+  }).catch(() => {
+    console.warn('[lead-integrations] Delivery unconfirmed', { code: 'LEAD_INTEGRATION_UNAVAILABLE' });
+    return { saved: false, alerted: false, code: 'LEAD_INTEGRATION_UNAVAILABLE' };
+  });
+  if (defer) {
+    defer(task.then(() => {}));
+    return { saved: false, alerted: false, code: 'SHEETS_DEFERRED' };
+  }
+  return task;
 }
