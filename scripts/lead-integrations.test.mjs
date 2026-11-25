@@ -4,6 +4,7 @@ import { parse } from 'dotenv';
 import { recordLead, SHEET_HEADERS, sheetTabs, sheetsConfigurationStatus, syncLead } from '../server/leadIntegrations.ts';
 import { deliverForm } from '../server/formDelivery.ts';
 import { handleAudit } from '../server/audit.ts';
+import auditHandler from '../api/audit.ts';
 import { handleChat } from '../server/chat.ts';
 import { BUSINESS_AUDIT_QUESTIONS } from '../src/utils/businessAudit.ts';
 import { createAuthorization, SHEETS_SCOPE, updateRefreshToken } from './connect-gmail.mjs';
@@ -19,8 +20,16 @@ const lead = { name: '=IMPORTXML("bad")', businessName: '<!channel> Bright Home'
 const audit = (id) => ({ kind: 'audit', submissionId: id, lead, pagePath: '/free-audit',
   answers: 'All sixteen answers', report: 'Full report including the third finding.', emailStatus: 'SENT',
   tracking: { utm_source: 'Google', gclid: 'ad-click', arbitrary_secret: 'do-not-save' } });
+const modelReply = {
+  bigPicture: 'Review your existing enquiries.', overview: 'A small cleaning team.',
+  findings: [
+    { heading: 'Missed calls', body: 'Review call response times. '.repeat(10), evidenceIds: ['A5', 'A6'] },
+    { heading: 'Quiet quotes', body: 'Review quote follow ups. '.repeat(10), evidenceIds: ['A9'] },
+    { heading: 'Older enquiries', body: 'Review older enquiries carefully. '.repeat(10), evidenceIds: ['A10', 'A11'] },
+  ], whyThisMatters: 'Existing conversations may have value.', nextConversation: 'Review actual records together.',
+};
 
-function fakeServices(t, { slackResponse = { ok: true, ts: '123.456' }, failSheet = false, reversed = false } = {}) {
+function fakeServices(t, { slackResponse = { ok: true, ts: '123.456' }, failSheet = false, reversed = false, headerOnly = false } = {}) {
   const books = Object.fromEntries(Object.entries(sheetTabs(env)).map(([kind, tab]) => [tab, {
     headers: reversed ? ['Operator Notes', ...SHEET_HEADERS[kind].toReversed()] : [...SHEET_HEADERS[kind]], rows: [],
   }]));
@@ -65,9 +74,12 @@ function fakeServices(t, { slackResponse = { ok: true, ts: '123.456' }, failShee
     }
     if (range === '1:1') return Response.json({ values: [book.headers] });
     if (/^\d+:\d+$/.test(range)) return Response.json({ values: [book.rows[Number(range.split(':')[0]) - 2]] });
-    const key = /^([A-Z]+)2:[A-Z]+$/.exec(range);
+    if (headerOnly && /^[A-Z]+2:[A-Z]+$/.test(range)) {
+      return Response.json({ error: { status: 'INVALID_ARGUMENT' } }, { status: 400 });
+    }
+    const key = /^([A-Z]+):\1$/.exec(range);
     assert.ok(key, range);
-    return Response.json({ values: book.rows.map(row => [row[colIndex(key[1])]]) });
+    return Response.json({ values: [[book.headers[colIndex(key[1])]], ...book.rows.map(row => [row[colIndex(key[1])]])] });
   };
   const fetchMock = t.mock.method(globalThis, 'fetch', implementation);
   return { books, calls, fetchMock, implementation,
@@ -152,6 +164,16 @@ test('new audit rows preserve report, answers and attribution as literal text; S
   assert.equal(message.unfurl_links, false);
   const refresh = new URLSearchParams(service.calls[0].options.body);
   assert.equal(refresh.get('refresh_token'), env.GOOGLE_SHEETS_REFRESH_TOKEN);
+});
+
+test('a header-only tab accepts its first lead and retries update that same row', async (t) => {
+  const service = fakeServices(t, { headerOnly: true });
+  for (const kind of ['audit', 'booking', 'case-study']) {
+    const input = { ...audit(`first-${kind}`), kind };
+    assert.deepEqual(await syncLead(input, env), { saved: true, alerted: true });
+    assert.deepEqual(await syncLead(input, env), { saved: true, alerted: true });
+    assert.equal(service.books[sheetTabs(env)[kind]].rows.length, 1);
+  }
 });
 
 test('sequential retries update a matched row, preserve unknown columns and suppress acknowledged Slack alerts', async (t) => {
@@ -258,14 +280,6 @@ test('chat conversations do not access Sheets when the history tab has been dele
 
 test('the full audit handler stores all sixteen answers and all report sections with email disabled', async (t) => {
   const service = fakeServices(t);
-  const modelReply = {
-    bigPicture: 'Review your existing enquiries.', overview: 'A small cleaning team.',
-    findings: [
-      { heading: 'Missed calls', body: 'Review call response times. '.repeat(10), evidenceIds: ['A5', 'A6'] },
-      { heading: 'Quiet quotes', body: 'Review quote follow ups. '.repeat(10), evidenceIds: ['A9'] },
-      { heading: 'Older enquiries', body: 'Review older enquiries carefully. '.repeat(10), evidenceIds: ['A10', 'A11'] },
-    ], whyThisMatters: 'Existing conversations may have value.', nextConversation: 'Review actual records together.',
-  };
   service.fetchMock.mock.mockImplementation(async (url, options) => String(url).endsWith('/chat/completions')
     ? Response.json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify(modelReply) } }] })
     : service.implementation(url, options));
@@ -281,6 +295,44 @@ test('the full audit handler stores all sixteen answers and all report sections 
   assert.ok(row['Email Content'].includes(modelReply.findings[2].body.trim()));
   assert.ok(row['Email Content'].includes(modelReply.nextConversation));
   assert.equal(row['Email Status'], 'DISABLED');
+});
+
+test('the production audit endpoint waits for the sheet write before responding with saved status', { timeout: 5000 }, async (t) => {
+  const service = fakeServices(t);
+  const settings = { ...env, KOBOILLM_API_KEY: 'mock-ai-key', GMAIL_AUDIT_REPORTS_ENABLED: 'false' };
+  const previous = Object.fromEntries(Object.keys(settings).map(key => [key, process.env[key]]));
+  Object.assign(process.env, settings);
+  t.after(() => {
+    for (const [key, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[key]; else process.env[key] = value;
+    }
+  });
+  const gate = Promise.withResolvers();
+  const entered = Promise.withResolvers();
+  t.after(() => gate.resolve());
+  service.fetchMock.mock.mockImplementation(async (url, options) => {
+    if (String(url).endsWith('/chat/completions')) {
+      return Response.json({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify(modelReply) } }] });
+    }
+    if (String(url).includes(':append')) { entered.resolve(); await gate.promise; }
+    return service.implementation(url, options);
+  });
+  const answers = Object.fromEntries(BUSINESS_AUDIT_QUESTIONS.map(question => [question.id,
+    question.maxSelections ? question.options.slice(0, 2) : question.options[0]]));
+  const response = { headers: {}, statusCode: 0, body: undefined,
+    setHeader(name, value) { this.headers[name] = value; },
+    status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; } };
+  const request = auditHandler({ method: 'POST', headers: { 'x-forwarded-for': 'await-sheet-test' },
+    body: { mode: 'cleaning_business_audit', ...lead, businessName: 'Awaited Sheet Test',
+      submissionId: 'await-sheet-production-123456', pagePath: '/free-audit', answers } }, response);
+  await entered.promise;
+  try { assert.equal(response.body, undefined, 'must not acknowledge before the sheet append finishes'); }
+  finally { gate.resolve(); }
+  await request;
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body.success, true);
+  assert.equal(response.headers['X-Sheets-Delivery'], 'saved');
+  assert.ok(service.row('audit')['Email Content'].includes(modelReply.nextConversation));
 });
 
 test('valid audit leads are still recorded and alerted when report generation is unavailable', async (t) => {

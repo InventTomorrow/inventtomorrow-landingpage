@@ -10,13 +10,14 @@ import { BUSINESS_AUDIT_QUESTION_COUNT, businessAuditReportText, businessAuditSu
 import { AuditReportError, generateBusinessAuditReport, type AuditReportEnv } from './businessAuditReport.ts';
 import { gmailAuditEnabled, sendAuditReportEmail, type GmailEnv } from './gmail.ts';
 import { renderBusinessAuditEmail } from './auditEmail.ts';
-import { recordLead, type Defer, type LeadIntegrationEnv } from './leadIntegrations.ts';
+import { recordLead, type Defer, type IntegrationResult, type LeadIntegrationEnv } from './leadIntegrations.ts';
 
 type DeliveryEnv = GmailEnv & LeadIntegrationEnv;
 type AuditEnv = AuditReportEnv & DeliveryEnv;
 
 interface AuditResult {
   status: number;
+  sheetDelivery?: IntegrationResult;
   body: { success?: boolean; submissionId?: string; results?: AuditEstimates; scorecard?: ReadinessResults; report?: BusinessAuditReport; reportEmailSent?: boolean; error?: string; code?: string };
 }
 
@@ -153,10 +154,10 @@ async function submitBusinessAudit(raw: Record<string, unknown>, env: AuditEnv, 
     reportEmailSent = delivery.sent;
     if (!delivery.sent && 'code' in delivery) console.warn('[audit] Gmail report delivery unconfirmed', { code: delivery.code });
   }
-  await recordLead({ kind: 'audit', submissionId, lead, pagePath, tracking: raw.tracking,
+  const sheetDelivery = await recordLead({ kind: 'audit', submissionId, lead, pagePath, tracking: raw.tracking,
     details: { source: 'cleaning_business_audit' }, answers: businessAuditSubmissionText(lead.businessName, answers),
     report: businessAuditReportText(report), emailStatus: reportEmailSent ? 'SENT' : gmailAuditEnabled(env) ? 'FAILED' : 'DISABLED' }, env, defer);
-  return { status: 200, body: { success: true, submissionId, report, reportEmailSent } };
+  return { status: 200, sheetDelivery, body: { success: true, submissionId, report, reportEmailSent } };
 }
 
 async function submitReadinessScorecard(raw: Record<string, unknown>, env: DeliveryEnv, defer?: Defer): Promise<AuditResult> {

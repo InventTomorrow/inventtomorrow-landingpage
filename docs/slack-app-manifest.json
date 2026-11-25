@@ -1,0 +1,22 @@
+{
+  "display_information": {
+    "name": "Invent Tomorrow Leads",
+    "description": "Lead alerts for audit reports, bookings and case study requests.",
+    "background_color": "#2077BC"
+  },
+  "features": {
+    "bot_user": {
+      "display_name": "Invent Tomorrow Leads",
+      "always_online": false
+    }
+  },
+  "oauth_config": {
+    "scopes": {
+      "bot": ["chat:write"]
+    }
+  },
+  "settings": {
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": false
+  }
+}

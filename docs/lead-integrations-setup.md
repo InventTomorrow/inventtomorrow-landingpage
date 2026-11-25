@@ -33,11 +33,14 @@ Set these values in `.env.local`:
 
 ```dotenv
 GOOGLE_SHEETS_ENABLED=false
-GOOGLE_SHEETS_SPREADSHEET_ID=1E98eYWwEOoICQUb7N8uUdwZ7Ao-_mKXey3jmP2muk5Y
+GOOGLE_SHEETS_SPREADSHEET_ID=10EFRPt1_IEGDAgg9h-YZ5Vk2qRXYnSHjQMG6tjqcLDE
 ```
 
-That is the workbook ID from the supplied export. Change it to use a different
-workbook. Retain `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, then run:
+That is the replacement `Inventtomorrow-DB` workbook. Its first tab is
+`audit-reports`; the other tabs are `form-bookings-data` and
+`Casestudy-Leads-sheet`. Each tab has a native Google Sheets table. Change the
+ID to use a different workbook. Retain `GOOGLE_CLIENT_ID` and
+`GOOGLE_CLIENT_SECRET`, then run:
 
 ```sh
 npm run connect:sheets
@@ -80,16 +83,27 @@ spreadsheet formula. Individual cells are limited to 45,000 characters.
 ## 2. Connect Slack
 
 Create or use a Slack app in the workspace that owns the destination channel.
+The reusable [app manifest](slack-app-manifest.json) defines the
+`Invent Tomorrow Leads` bot with only `chat:write` permission.
 Under **OAuth & Permissions**, grant the bot **chat:write**, install/reinstall
 the app, and invite the bot to the channel. Use the Bot User OAuth Token in the
 server environment; do not copy it into chat or a browser-visible setting.
 
-The export used `#all-ai-team`, channel ID `C0BKF5AM5L1`. Configure:
+App configuration tokens with `app_configurations:read` and
+`app_configurations:write` manage app manifests; they cannot send lead alerts.
+Keep these setup credentials local. The runtime reads `SLACK_BOT_TOKEN`, not an
+app configuration access or refresh token. Install the bot in the workspace,
+save its Bot User OAuth Token in the private env file, and only then enable
+alerts. Workspace installation and channel membership are separate steps.
+
+The current destination is the private `#inventtomorrow-bookings` channel in
+`inventtomorrowgroup.slack.com`, channel ID `C0CLSN6CCNR`. Invite the bot to that
+channel, then configure:
 
 ```dotenv
 SLACK_LEAD_ALERTS_ENABLED=true
 SLACK_BOT_TOKEN=your-private-bot-token
-SLACK_CHANNEL_ID=C0BKF5AM5L1
+SLACK_CHANNEL_ID=C0CLSN6CCNR
 ```
 
 Both Sheets and Slack flags must be enabled. Alerts are posted only after a
@@ -108,10 +122,11 @@ tab overrides must match the workbook prepared in step 1. Redeploy after updatin
 environment variables. Local env files do not update Vercel. Never prefix these
 settings with `VITE_` or commit real env files.
 
-Vercel retains the integration task with `waitUntil`; the visitor can receive a
-response while it finishes. Tasks have an 18-second network deadline after they
-start. Both integration flags default to disabled, so existing deployments can
-continue sending Gmail without these new credentials.
+The audit endpoint waits for Sheets delivery before responding and exposes its
+safe result through `X-Sheets-Delivery`. Vercel retains the request task with
+`waitUntil` if the visitor disconnects. Chat handoff integrations may finish in
+the background. Integration tasks have an 18-second network deadline after they
+start. Both integration flags default to disabled.
 
 External apps in Google's OAuth Testing mode can receive refresh tokens that
 expire after seven days. Set the consent app's production status appropriately

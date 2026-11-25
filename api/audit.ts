@@ -32,6 +32,13 @@ export default async function handler(req: Req, res: Res) {
   }
   const forwarded = req.headers['x-forwarded-for'];
   const ip = (Array.isArray(forwarded) ? forwarded[0] : forwarded)?.split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
-  const result = await handleAudit(req.body, ip, process.env, waitUntil);
+  // Persist lead details before ending the request. A successful email alone
+  // must not let Vercel freeze the remaining Sheets write after the response.
+  const task = handleAudit(req.body, ip, process.env);
+  waitUntil(task.then(() => {}, () => {}));
+  const result = await task;
+  if (result.sheetDelivery) {
+    res.setHeader('X-Sheets-Delivery', result.sheetDelivery.saved ? 'saved' : result.sheetDelivery.code || 'unconfirmed');
+  }
   res.status(result.status).json(result.body);
 }
